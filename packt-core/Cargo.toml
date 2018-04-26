@@ -1,6 +1,6 @@
 [package]
+authors = ["frank"]
 name = "packt-core"
 version = "0.1.0"
-authors = ["frank"]
-
 [dependencies]
+failure = "*"
