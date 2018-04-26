@@ -1,0 +1,6 @@
+[package]
+name = "packt-gui"
+version = "0.1.0"
+authors = ["frank"]
+
+[dependencies]
