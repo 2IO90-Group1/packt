@@ -2,6 +2,9 @@ use std::str::FromStr;
 
 use failure::Error;
 
+use self::Rotation::*;
+use std::iter;
+
 #[derive(Clone, Copy, Debug, PartialEq)]
 pub enum Variant {
     Free,
@@ -84,14 +87,14 @@ impl FromStr for Problem {
 }
 
 #[derive(Clone, Copy, Debug, PartialEq)]
-pub struct Coordinate {
+pub struct Point {
     x: usize,
     y: usize,
 }
 
-impl Coordinate {
-    fn new(x: usize, y: usize) -> Coordinate {
-        Coordinate { x, y }
+impl Point {
+    fn new(x: usize, y: usize) -> Point {
+        Point { x, y }
     }
 }
 
@@ -106,8 +109,8 @@ impl FromStr for Rotation {
 
     fn from_str(s: &str) -> Result<Self, <Self as FromStr>::Err> {
         let result = match s {
-            "yes" => Rotation::Rotated,
-            "no" => Rotation::Normal,
+            "yes" => Rotated,
+            "no" => Normal,
             _ => bail!("Unexpected token: {}", s),
         };
 
@@ -119,45 +122,34 @@ impl FromStr for Rotation {
 pub struct Placement {
     rectangle: Rectangle,
     rotation: Rotation,
-    lower_left: Coordinate,
-    x_min: usize,
-    x_max: usize,
-    y_min: usize,
-    y_max: usize,
+    bottom_left: Point,
+    top_right: Point,
 }
 
 impl Placement {
-    fn new(
-        rectangle: Rectangle,
-        orientation: Rotation,
-        lower_left: Coordinate,
-    ) -> Placement {
-        let x_min = lower_left.x;
-        let x_max = x_min + match orientation {
-            Rotation::Normal => rectangle.width,
-            _ => rectangle.height,
+    fn new(r: Rectangle, rotation: Rotation, bottom_left: Point) -> Placement {
+        let (width, height) = match rotation {
+            Normal => (r.width, r.height),
+            Rotated => (r.height, r.width),
         };
 
-        let y_min = lower_left.y;
-        let y_max = y_min + match orientation {
-            Rotation::Normal => rectangle.height,
-            _ => rectangle.width,
-        };
+        let x_max = bottom_left.x + width;
+        let y_max = bottom_left.y + height;
+        let top_right = Point::new(x_max, y_max);
 
         Placement {
-            rectangle,
-            rotation: orientation,
-            lower_left,
-            x_min,
-            x_max,
-            y_min,
-            y_max,
+            rectangle: r,
+            rotation,
+            bottom_left,
+            top_right,
         }
     }
 
     fn overlaps(&self, rhs: &Placement) -> bool {
-        rhs.y_min <= self.y_max && self.y_min <= rhs.y_max
-            && rhs.x_min <= self.x_max && self.x_min <= rhs.x_max
+        rhs.bottom_left.y <= self.top_right.y
+            && self.bottom_left.y <= rhs.top_right.y
+            && rhs.bottom_left.x <= self.top_right.x
+            && self.bottom_left.x <= rhs.top_right.x
     }
 }
 
@@ -173,14 +165,10 @@ impl Solution {
         self.placements
             .iter()
             .enumerate()
-            .all(|(i, p)| {
-                !(self.problem.rotations_allowed
-                    && p.rotation != Rotation::Normal)
-                    && self.placements
-                        .iter()
-                        .skip(i + 1)
-                        .all(|p2| !p.overlaps(p2))
+            .flat_map(|(i, p)| {
+                iter::repeat(p).zip(self.placements.iter().skip(i + 1))
             })
+            .all(|(p1, p2)| !p1.overlaps(p2))
     }
 }
 
@@ -214,13 +202,13 @@ impl FromStr for Solution {
             .map(|s| {
                 let tokens: Vec<&str> = s.split_whitespace().collect();
                 let result = match tokens.as_slice() {
-                    [x, y] => {
-                        let coord = Coordinate::new(x.parse()?, y.parse()?);
-                        (Rotation::Normal, coord)
+                    [x, y] if !problem.rotations_allowed => {
+                        let p = Point::new(x.parse()?, y.parse()?);
+                        (Normal, p)
                     }
-                    [rot, x, y] => {
-                        let coord = Coordinate::new(x.parse()?, y.parse()?);
-                        (rot.parse()?, coord)
+                    [rot, x, y] if problem.rotations_allowed => {
+                        let p = Point::new(x.parse()?, y.parse()?);
+                        (rot.parse()?, p)
                     }
                     _ => bail!("Invalid format: {}", tokens.join(" ")),
                 };
@@ -272,12 +260,8 @@ mod tests {
             Solution {
                 problem,
                 placements: vec![
-                    Placement::new(r1, Rotation::Normal, Coordinate::new(0, 0)),
-                    Placement::new(
-                        r2,
-                        Rotation::Normal,
-                        Coordinate::new(24, 3),
-                    ),
+                    Placement::new(r1, Normal, Point::new(0, 0)),
+                    Placement::new(r2, Normal, Point::new(24, 3)),
                 ],
             }
         };
@@ -299,7 +283,7 @@ mod tests {
             rectangles: rectangles.clone(),
         };
 
-        let mut coord = Coordinate::new(0, 0);
+        let mut coord = Point::new(0, 0);
         let placements = iter::repeat(r)
             .take(10000)
             .map(|r| {
@@ -318,12 +302,10 @@ mod tests {
 
         assert!(solution.is_valid());
 
-        solution.placements = iter::repeat(Placement::new(
-            r,
-            Rotation::Normal,
-            Coordinate::new(0, 0),
-        )).take(10000)
-            .collect();
+        solution.placements =
+            iter::repeat(Placement::new(r, Normal, Point::new(0, 0)))
+                .take(10000)
+                .collect();
         assert!(!solution.is_valid());
     }
 }
