@@ -2,8 +2,6 @@ use std::str::FromStr;
 
 use failure::Error;
 
-use self::Rotation::*;
-
 #[derive(Clone, Copy, Debug, PartialEq)]
 pub enum Variant {
     Free,
@@ -107,11 +105,9 @@ impl FromStr for Rotation {
     type Err = Error;
 
     fn from_str(s: &str) -> Result<Self, <Self as FromStr>::Err> {
-        use Rotation::*;
-
         let result = match s {
-            "yes" => Rotated,
-            "no" => Normal,
+            "yes" => Rotation::Rotated,
+            "no" => Rotation::Normal,
             _ => bail!("Unexpected token: {}", s),
         };
 
@@ -123,20 +119,45 @@ impl FromStr for Rotation {
 pub struct Placement {
     rectangle: Rectangle,
     rotation: Rotation,
-    ll_coord: Coordinate,
+    lower_left: Coordinate,
+    x_min: usize,
+    x_max: usize,
+    y_min: usize,
+    y_max: usize,
 }
 
 impl Placement {
     fn new(
         rectangle: Rectangle,
         orientation: Rotation,
-        ll_coord: Coordinate,
+        lower_left: Coordinate,
     ) -> Placement {
+        let x_min = lower_left.x;
+        let x_max = x_min + match orientation {
+            Rotation::Normal => rectangle.width,
+            _ => rectangle.height,
+        };
+
+        let y_min = lower_left.y;
+        let y_max = y_min + match orientation {
+            Rotation::Normal => rectangle.height,
+            _ => rectangle.width,
+        };
+
         Placement {
             rectangle,
             rotation: orientation,
-            ll_coord,
+            lower_left,
+            x_min,
+            x_max,
+            y_min,
+            y_max,
         }
+    }
+
+    fn overlaps(&self, rhs: &Placement) -> bool {
+        rhs.y_min <= self.y_max && self.y_min <= rhs.y_max
+            && rhs.x_min <= self.x_max && self.x_min <= rhs.x_max
     }
 }
 
@@ -147,12 +168,26 @@ pub struct Solution {
     placements: Vec<Placement>,
 }
 
+impl Solution {
+    fn is_valid(&self) -> bool {
+        self.placements
+            .iter()
+            .enumerate()
+            .all(|(i, p)| {
+                !(self.problem.rotations_allowed
+                    && p.rotation != Rotation::Normal)
+                    && self.placements
+                        .iter()
+                        .skip(i + 1)
+                        .all(|p2| !p.overlaps(p2))
+            })
+    }
+}
+
 impl FromStr for Solution {
     type Err = Error;
 
     fn from_str(s: &str) -> Result<Self, <Self as FromStr>::Err> {
-        use Rotation::*;
-
         let mut parts = s.split("placement of rectangles")
             .map(str::trim);
 
@@ -174,7 +209,7 @@ impl FromStr for Solution {
             );
         }
 
-        let placements = placements
+        let placements: Vec<Placement> = placements
             .into_iter()
             .map(|s| {
                 let tokens: Vec<&str> = s.split_whitespace().collect();
@@ -194,15 +229,7 @@ impl FromStr for Solution {
             })
             .zip(problem.rectangles.iter())
             .map(|(result, &r)| {
-                let (rot, coord) = result?;
-                if !problem.rotations_allowed && rot != Normal {
-                    bail!(
-                        "Rotations were not allowed, but solution contains \
-                         rotated rectangles"
-                    );
-                }
-
-                Ok(Placement::new(r, rot, coord))
+                result.map(|(rot, coord)| Placement::new(r, rot, coord))
             })
             .collect::<Result<_, _>>()?;
 
@@ -216,6 +243,7 @@ impl FromStr for Solution {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use std::iter;
 
     #[test]
     fn problem_parsing() {
@@ -259,5 +287,43 @@ mod tests {
                      rectangles\n0 0\n24 3";
         let result: Solution = input.parse().unwrap();
         assert_eq!(result, expected);
+    }
+
+    #[test]
+    fn validation() {
+        let r = Rectangle::new(10, 9);
+        let rectangles = vec![r; 10000];
+        let problem = Problem {
+            variant: Variant::Fixed(22),
+            rotations_allowed: false,
+            rectangles: rectangles.clone(),
+        };
+
+        let mut coord = Coordinate::new(0, 0);
+        let placements = iter::repeat(r)
+            .take(10000)
+            .map(|r| {
+                let result = Placement::new(r, Rotation::Normal, coord);
+                coord.x += 11;
+                result
+            })
+            .collect();
+
+        let mut solution = {
+            Solution {
+                problem,
+                placements,
+            }
+        };
+
+        assert!(solution.is_valid());
+
+        solution.placements = iter::repeat(Placement::new(
+            r,
+            Rotation::Normal,
+            Coordinate::new(0, 0),
+        )).take(10000)
+            .collect();
+        assert!(!solution.is_valid());
     }
 }
