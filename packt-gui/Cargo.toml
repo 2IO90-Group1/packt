@@ -4,3 +4,7 @@ version = "0.1.0"
 authors = ["frank"]
 
 [dependencies]
+gtk = "^0.3.0"
+relm = "^0.11.0"
+relm-derive = "^0.11.0"
+packt-core = { path = "../packt-core" }

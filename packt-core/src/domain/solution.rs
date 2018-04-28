@@ -1,102 +1,10 @@
+use std::iter;
 use std::str::FromStr;
 
 use failure::Error;
 
 use self::Rotation::*;
-use std::iter;
-
-#[derive(Clone, Copy, Debug, PartialEq)]
-pub enum Variant {
-    Free,
-    Fixed(usize),
-}
-
-#[derive(Clone, Copy, Debug, PartialEq)]
-pub struct Rectangle {
-    width: usize,
-    height: usize,
-}
-
-impl Rectangle {
-    fn new(width: usize, height: usize) -> Rectangle {
-        Rectangle { width, height }
-    }
-}
-
-impl FromStr for Rectangle {
-    type Err = Error;
-
-    fn from_str(s: &str) -> Result<Self, <Self as FromStr>::Err> {
-        let result = match s.split_whitespace()
-            .collect::<Vec<&str>>()
-            .as_slice()
-        {
-            [width, height] => Rectangle::new(width.parse()?, height.parse()?),
-            _ => bail!("Invalid format: {}", s),
-        };
-
-        Ok(result)
-    }
-}
-
-#[derive(Clone, Debug, PartialEq)]
-pub struct Problem {
-    variant: Variant,
-    rotations_allowed: bool,
-    rectangles: Vec<Rectangle>,
-}
-
-impl FromStr for Problem {
-    type Err = Error;
-
-    fn from_str(s: &str) -> Result<Self, <Self as FromStr>::Err> {
-        let mut lines = s.lines();
-        let l1: Vec<&str> = lines
-            .next()
-            .ok_or_else(|| format_err!("Unexpected end of file"))?
-            .split_whitespace()
-            .collect();
-
-        let variant = match l1.as_slice() {
-            ["container", "height:", "free"] => Variant::Free,
-            ["container", "height:", "fixed", h] => Variant::Fixed(h.parse()?),
-            _ => bail!("Invalid format: {}", l1.join(" ")),
-        };
-
-        let l2 = lines
-            .next()
-            .ok_or_else(|| format_err!("Unexpected end of file"))?;
-
-        let rotations_allowed = match l2 {
-            "rotations allowed: yes" => true,
-            "rotations allowed: no" => false,
-            _ => bail!("Invalid format: {}", l2),
-        };
-
-        lines.next();
-        let rectangles = lines
-            .map(|s| s.parse())
-            .collect::<Result<Vec<Rectangle>, _>>()?;
-
-        Ok(Problem {
-            variant,
-            rotations_allowed,
-            rectangles,
-        })
-    }
-}
-
-#[derive(Clone, Copy, Debug, PartialEq)]
-pub struct Point {
-    x: usize,
-    y: usize,
-}
-
-impl Point {
-    fn new(x: usize, y: usize) -> Point {
-        Point { x, y }
-    }
-}
+use domain::{Point, Problem, Rectangle};
 
 #[derive(Clone, Copy, Debug, PartialEq)]
 pub enum Rotation {
@@ -147,8 +55,8 @@ impl Placement {
 
     fn overlaps(&self, rhs: &Placement) -> bool {
         rhs.bottom_left.y <= self.top_right.y
-            && self.bottom_left.y <= rhs.top_right.y
             && rhs.bottom_left.x <= self.top_right.x
+            && self.bottom_left.y <= rhs.top_right.y
             && self.bottom_left.x <= rhs.top_right.x
     }
 }
@@ -201,12 +109,13 @@ impl FromStr for Solution {
             .into_iter()
             .map(|s| {
                 let tokens: Vec<&str> = s.split_whitespace().collect();
-                let result = match tokens.as_slice() {
-                    [x, y] if !problem.rotations_allowed => {
+                let result = match (problem.rotation_allowed, tokens.as_slice())
+                {
+                    (false, [x, y]) => {
                         let p = Point::new(x.parse()?, y.parse()?);
                         (Normal, p)
                     }
-                    [rot, x, y] if problem.rotations_allowed => {
+                    (true, [rot, x, y]) => {
                         let p = Point::new(x.parse()?, y.parse()?);
                         (rot.parse()?, p)
                     }
@@ -231,20 +140,8 @@ impl FromStr for Solution {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use domain::problem::Variant;
     use std::iter;
-
-    #[test]
-    fn problem_parsing() {
-        let expected = Problem {
-            variant: Variant::Fixed(22),
-            rotations_allowed: false,
-            rectangles: vec![Rectangle::new(12, 8), Rectangle::new(10, 9)],
-        };
-        let input = "container height: fixed 22\nrotations allowed: \
-                     no\nnumber of rectangles: 6\n12 8\n10 9";
-        let result: Problem = input.parse().unwrap();
-        assert_eq!(result, expected);
-    }
 
     #[test]
     fn solution_parsing() {
@@ -252,7 +149,7 @@ mod tests {
         let r2 = Rectangle::new(10, 9);
         let problem = Problem {
             variant: Variant::Fixed(22),
-            rotations_allowed: false,
+            rotation_allowed: false,
             rectangles: vec![r1, r2],
         };
 
@@ -279,7 +176,7 @@ mod tests {
         let rectangles = vec![r; 10000];
         let problem = Problem {
             variant: Variant::Fixed(22),
-            rotations_allowed: false,
+            rotation_allowed: false,
             rectangles: rectangles.clone(),
         };
 
@@ -301,11 +198,8 @@ mod tests {
         };
 
         assert!(solution.is_valid());
-
-        solution.placements =
-            iter::repeat(Placement::new(r, Normal, Point::new(0, 0)))
-                .take(10000)
-                .collect();
+        let p = Placement::new(r, Normal, Point::new(0, 0));
+        solution.placements = vec![p; 10000];
         assert!(!solution.is_valid());
     }
 }
