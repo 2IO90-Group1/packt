@@ -1,7 +1,3 @@
-use failure::Error;
-use rand::{thread_rng, Rng};
-use std::str::FromStr;
-
 pub mod problem;
 pub mod solution;
 
@@ -9,8 +5,11 @@ pub use self::problem::Problem;
 pub use self::solution::Solution;
 
 use self::Rotation::*;
+use failure::Error;
+use rand::{thread_rng, Rng};
 use std::fmt;
 use std::fmt::Formatter;
+use std::str::FromStr;
 
 #[derive(Clone, Copy, Debug, PartialEq)]
 pub struct Point {
@@ -46,20 +45,20 @@ impl Rectangle {
             (1, 1) => panic!("{:?} cannot be split", self),
             (1, h) if h > 1 => {
                 let y = rng.gen_range(1, h);
-                Split::Vertical(y)
+                Split::Horizontal(y)
             }
             (w, 1) if w > 1 => {
                 let x = rng.gen_range(1, w);
-                Split::Horizontal(x)
+                Split::Vertical(x)
             }
             (w, h) if w > 1 && h > 1 => {
-                let y = rng.gen_range(1, h);
                 let x = rng.gen_range(1, w);
+                let y = rng.gen_range(1, h);
 
                 if rng.gen() {
-                    Split::Horizontal(y)
-                } else {
                     Split::Vertical(x)
+                } else {
+                    Split::Horizontal(y)
                 }
             }
             _ => panic!("Unexpected input: {:?}", self),
@@ -90,6 +89,7 @@ enum Split {
 }
 
 impl fmt::Display for Rectangle {
+    //noinspection RsTypeCheck
     fn fmt(&self, f: &mut Formatter) -> fmt::Result {
         write!(f, "{w} {h}", w = self.width, h = self.height)
     }

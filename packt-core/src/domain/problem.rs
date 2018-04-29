@@ -12,6 +12,7 @@ pub enum Variant {
 }
 
 impl fmt::Display for Variant {
+    //noinspection RsTypeCheck
     fn fmt(&self, f: &mut Formatter) -> fmt::Result {
         match *self {
             Variant::Free => write!(f, "free"),
@@ -74,6 +75,7 @@ impl Problem {
 }
 
 impl fmt::Display for Problem {
+    //noinspection RsTypeCheck
     fn fmt(&self, f: &mut Formatter) -> fmt::Result {
         let s = format!(
             "container height: {v}\nrotations allowed: {r}\nnumber of \

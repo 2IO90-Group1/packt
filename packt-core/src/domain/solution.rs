@@ -1,9 +1,7 @@
+use domain::{Placement, Point, Problem, Rotation::*};
+use failure::Error;
 use std::iter;
 use std::str::FromStr;
-
-use failure::Error;
-
-use domain::{Placement, Point, Problem, Rotation::*};
 
 // TODO: consider taking over part of `Problem`s fields instead
 #[derive(Clone, Debug, PartialEq)]
