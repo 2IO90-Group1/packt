@@ -1,13 +1,23 @@
 use domain::Rectangle;
 use failure::Error;
-use rand::{self, seq, Rng};
-use std::mem;
+use rand::{self, seq};
+use std::fmt;
+use std::fmt::Formatter;
 use std::str::FromStr;
 
 #[derive(Clone, Copy, Debug, PartialEq)]
 pub enum Variant {
     Free,
     Fixed(usize),
+}
+
+impl fmt::Display for Variant {
+    fn fmt(&self, f: &mut Formatter) -> fmt::Result {
+        match *self {
+            Variant::Free => write!(f, "free"),
+            Variant::Fixed(h) => write!(f, "fixed {}", h),
+        }
+    }
 }
 
 #[derive(Clone, Debug, PartialEq)]
@@ -63,6 +73,30 @@ impl Problem {
     }
 }
 
+impl fmt::Display for Problem {
+    fn fmt(&self, f: &mut Formatter) -> fmt::Result {
+        let s = format!(
+            "container height: {v}\nrotations allowed: {r}\nnumber of \
+             rectangles: {n}\n",
+            v = self.variant,
+            r = if self.rotation_allowed {
+                "yes"
+            } else {
+                "no"
+            },
+            n = self.rectangles.len()
+        );
+
+        let rstrings = self.rectangles
+            .iter()
+            .map(|r| format!("{}", r))
+            .collect::<Vec<_>>()
+            .join("\n");
+
+        write!(f, "{}{}", s, rstrings)
+    }
+}
+
 impl FromStr for Problem {
     type Err = Error;
 
@@ -105,7 +139,12 @@ impl FromStr for Problem {
 
 #[cfg(test)]
 mod tests {
+    #![allow(non_upper_case_globals)]
+
     use super::*;
+
+    const input: &str = "container height: fixed 22\nrotations allowed: \
+                         no\nnumber of rectangles: 2\n12 8\n10 9";
 
     #[test]
     fn parsing() {
@@ -114,10 +153,16 @@ mod tests {
             rotation_allowed: false,
             rectangles: vec![Rectangle::new(12, 8), Rectangle::new(10, 9)],
         };
-        let input = "container height: fixed 22\nrotations allowed: \
-                     no\nnumber of rectangles: 6\n12 8\n10 9";
         let result: Problem = input.parse().unwrap();
         assert_eq!(result, expected);
+    }
+
+    #[test]
+    fn format_parse() {
+        assert_eq!(
+            input,
+            format!("{}", input.parse::<Problem>().unwrap())
+        )
     }
 
     #[test]

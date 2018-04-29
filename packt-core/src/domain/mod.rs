@@ -1,5 +1,5 @@
 use failure::Error;
-use rand::{self, distributions::normal::StandardNormal, thread_rng, Rng};
+use rand::{thread_rng, Rng};
 use std::str::FromStr;
 
 pub mod problem;
@@ -9,6 +9,8 @@ pub use self::problem::Problem;
 pub use self::solution::Solution;
 
 use self::Rotation::*;
+use std::fmt;
+use std::fmt::Formatter;
 
 #[derive(Clone, Copy, Debug, PartialEq)]
 pub struct Point {
@@ -42,15 +44,15 @@ impl Rectangle {
         let mut rng = thread_rng();
         let method = match (self.width, self.height) {
             (1, 1) => panic!("{:?} cannot be split", self),
-            (1, h) => {
+            (1, h) if h > 1 => {
                 let y = rng.gen_range(1, h);
                 Split::Vertical(y)
             }
-            (w, 1) => {
+            (w, 1) if w > 1 => {
                 let x = rng.gen_range(1, w);
                 Split::Horizontal(x)
             }
-            (w, h) => {
+            (w, h) if w > 1 && h > 1 => {
                 let y = rng.gen_range(1, h);
                 let x = rng.gen_range(1, w);
 
@@ -85,6 +87,12 @@ impl Rectangle {
 enum Split {
     Horizontal(usize),
     Vertical(usize),
+}
+
+impl fmt::Display for Rectangle {
+    fn fmt(&self, f: &mut Formatter) -> fmt::Result {
+        write!(f, "{w} {h}", w = self.width, h = self.height)
+    }
 }
 
 impl FromStr for Rectangle {
