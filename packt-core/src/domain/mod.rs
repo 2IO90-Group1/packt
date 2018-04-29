@@ -1,6 +1,6 @@
-use std::str::FromStr;
 use failure::Error;
-use rand::{Rng, thread_rng};
+use rand::{self, distributions::normal::StandardNormal, thread_rng, Rng};
+use std::str::FromStr;
 
 pub mod problem;
 pub mod solution;
@@ -39,22 +39,45 @@ impl Rectangle {
     ///
     /// This function will panic if `self.width <= 1 && self.height <= 1`.
     fn simple_rsplit(self) -> (Self, Self) {
-        if thread_rng().gen() && self.height > 1 {
-            let y = thread_rng().gen_range(1, self.height);
-            self.split(Split::Horizontal(y))
-        } else if self.width > 1 {
-            let x = thread_rng().gen_range(1, self.width);
-            self.split(Split::Vertical(x))
-        } else {
-            panic!("{:?} cannot be split", self);
-        }
+        let mut rng = thread_rng();
+        let method = match (self.width, self.height) {
+            (1, 1) => panic!("{:?} cannot be split", self),
+            (1, h) => {
+                let y = rng.gen_range(1, h);
+                Split::Vertical(y)
+            }
+            (w, 1) => {
+                let x = rng.gen_range(1, w);
+                Split::Horizontal(x)
+            }
+            (w, h) => {
+                let y = rng.gen_range(1, h);
+                let x = rng.gen_range(1, w);
+
+                if rng.gen() {
+                    Split::Horizontal(y)
+                } else {
+                    Split::Vertical(x)
+                }
+            }
+            _ => panic!("Unexpected input: {:?}", self),
+        };
+
+        self.split(method)
     }
 
     fn split(self, sp: Split) -> (Self, Self) {
-        let Rectangle { w, h } = self;
+        let Rectangle {
+            width: w,
+            height: h,
+        } = self;
         match sp {
-            Split::Horizontal(y) => (Rectangle::new(w, h-y), Rectangle::new(w, y)),
-            Split::Vertical(x) => (Rectangle::new(w-x, h), Rectangle::new(x, h)),
+            Split::Horizontal(y) => {
+                (Rectangle::new(w, h - y), Rectangle::new(w, y))
+            }
+            Split::Vertical(x) => {
+                (Rectangle::new(w - x, h), Rectangle::new(x, h))
+            }
         }
     }
 }

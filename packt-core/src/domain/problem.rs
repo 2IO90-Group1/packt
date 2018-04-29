@@ -1,5 +1,7 @@
 use domain::Rectangle;
 use failure::Error;
+use rand::{self, seq, Rng};
+use std::mem;
 use std::str::FromStr;
 
 #[derive(Clone, Copy, Debug, PartialEq)]
@@ -16,7 +18,49 @@ pub struct Problem {
 }
 
 impl Problem {
-    //    fn generate
+    /// Generates a problem definition with an known solution by splitting `r`
+    /// into `n` rectangles.
+    ///
+    ///# Panics
+    ///
+    /// This function will panic if  `n` is greater than `r.width * r.height`.
+    // TODO: Add rotated rectangles, random variant
+    // TODO: introduce builder
+    fn generate_from(r: Rectangle, n: usize, v: Variant, rot: bool) -> Problem {
+        let a = r.width * r.height;
+        if n > a {
+            panic!("{:?} cannot be split into {} rectangles", r, n)
+        } else if n == a {
+            let rectangles = vec![Rectangle::new(1, 1); n];
+            return Problem {
+                variant: v,
+                rotation_allowed: rot,
+                rectangles,
+            };
+        }
+
+        let mut rng = rand::thread_rng();
+        let mut rectangles = Vec::with_capacity(n);
+        rectangles.push(r);
+
+        while rectangles.len() < n {
+            let i = seq::sample_indices(&mut rng, rectangles.len(), 1)[0];
+            let r = rectangles.swap_remove(i);
+            if r.width > 1 || r.height > 1 {
+                let (r1, r2) = r.simple_rsplit();
+                rectangles.push(r1);
+                rectangles.push(r2);
+            } else {
+                rectangles.push(r);
+            }
+        }
+
+        Problem {
+            variant: v,
+            rotation_allowed: rot,
+            rectangles,
+        }
+    }
 }
 
 impl FromStr for Problem {
@@ -74,5 +118,16 @@ mod tests {
                      no\nnumber of rectangles: 6\n12 8\n10 9";
         let result: Problem = input.parse().unwrap();
         assert_eq!(result, expected);
+    }
+
+    #[test]
+    fn generate_from() {
+        let r = Rectangle::new(1000, 1000);
+        let p = Problem::generate_from(r, 50, Variant::Free, false);
+        let a: usize = p.rectangles
+            .into_iter()
+            .map(|r| r.height * r.width)
+            .sum();
+        assert_eq!(a, 1000 * 1000);
     }
 }

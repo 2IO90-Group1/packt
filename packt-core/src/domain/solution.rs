@@ -13,8 +13,11 @@ pub struct Solution {
 }
 
 impl Solution {
-
-    // Note: O(n^2)
+    /// Checks whether this solution is valid.
+    ///
+    /// # Complexity
+    ///
+    /// Takes quadratic (in `self.placements.len()`) time.
     fn is_valid(&self) -> bool {
         self.placements
             .iter()
