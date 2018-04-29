@@ -31,29 +31,22 @@ pub struct Rectangle {
 }
 
 impl Rectangle {
-    fn split(self, sp: Split) -> (Self, Self) {
-        let Rectangle {
-            width: w,
-            height: h,
-            ..
-        } = self;
-        match sp {
-            Split::Horizontal(y) => {
-                (Rectangle::new(w, h - y), Rectangle::new(w, y))
-            }
-            Split::Vertical(x) => {
-                (Rectangle::new(w - x, h), Rectangle::new(x, h))
-            }
+    fn new(width: usize, height: usize) -> Rectangle {
+        Rectangle {
+            width,
+            height,
+            area: None,
         }
     }
 
-    fn gen_with_area(area: usize) -> Self {
-        let width = thread_rng().gen_range(1, area + 1);
-
-        Rectangle {
-            width,
-            height: area / width,
-            area: Some(area),
+    fn area(&mut self) -> usize {
+        match self.area {
+            Some(a) => a,
+            None => {
+                let a = self.width * self.height;
+                self.area = Some(a);
+                a
+            }
         }
     }
 
@@ -90,22 +83,30 @@ impl Rectangle {
         self.split(method)
     }
 
-    fn area(&mut self) -> usize {
-        match self.area {
-            Some(a) => a,
-            None => {
-                let a = self.width * self.height;
-                self.area = Some(a);
-                a
-            }
+    fn gen_with_area(area: usize) -> Self {
+        let width = thread_rng().gen_range(1, area + 1);
+
+        Rectangle {
+            width,
+            height: area / width,
+            area: Some(area),
         }
     }
 
-    fn new(width: usize, height: usize) -> Rectangle {
-        Rectangle {
-            width,
-            height,
-            area: None,
+    fn split(self, sp: Split) -> (Self, Self) {
+        let Rectangle {
+            width: w,
+            height: h,
+            ..
+        } = self;
+
+        match sp {
+            Split::Horizontal(y) => {
+                (Rectangle::new(w, h - y), Rectangle::new(w, y))
+            }
+            Split::Vertical(x) => {
+                (Rectangle::new(w - x, h), Rectangle::new(x, h))
+            }
         }
     }
 }
@@ -167,13 +168,6 @@ pub struct Placement {
 }
 
 impl Placement {
-    fn overlaps(&self, rhs: &Placement) -> bool {
-        rhs.bottom_left.y <= self.top_right.y
-            && rhs.bottom_left.x <= self.top_right.x
-            && self.bottom_left.y <= rhs.top_right.y
-            && self.bottom_left.x <= rhs.top_right.x
-    }
-
     fn new(r: Rectangle, rotation: Rotation, bottom_left: Point) -> Placement {
         let (width, height) = match rotation {
             Normal => (r.width, r.height),
@@ -190,5 +184,12 @@ impl Placement {
             bottom_left,
             top_right,
         }
+    }
+
+    fn overlaps(&self, rhs: &Placement) -> bool {
+        rhs.bottom_left.y <= self.top_right.y
+            && rhs.bottom_left.x <= self.top_right.x
+            && self.bottom_left.y <= rhs.top_right.y
+            && self.bottom_left.x <= rhs.top_right.x
     }
 }
