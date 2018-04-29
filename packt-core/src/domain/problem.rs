@@ -1,6 +1,6 @@
 use domain::Rectangle;
 use failure::Error;
-use rand::{self, seq};
+use rand::{self, seq, Rng};
 use std::cmp::min;
 use std::fmt;
 use std::fmt::Formatter;
@@ -22,7 +22,12 @@ impl Problem {
     }
 
     // TODO: Add rotated rectangles
-    fn generate_from(r: Rectangle, n: usize, v: Variant, allow_rotation: bool) -> Problem {
+    fn generate_from(
+        r: Rectangle,
+        n: usize,
+        v: Variant,
+        allow_rotation: bool,
+    ) -> Problem {
         let a = r.width * r.height;
         if n > a {
             panic!("{:?} cannot be split into {} rectangles", r, n)
@@ -126,7 +131,7 @@ impl FromStr for Problem {
 }
 
 #[derive(Default)]
-struct ProblemGenerator {
+pub struct ProblemGenerator {
     container: Option<Rectangle>,
     rectangles: Option<usize>,
     variant: Option<Variant>,
@@ -134,12 +139,15 @@ struct ProblemGenerator {
 }
 
 impl ProblemGenerator {
+    fn new() -> Self {
+        Self::default()
+    }
+
     pub fn generate(&self) -> Problem {
         let mut rng = rand::thread_rng();
 
-        let mut n = self.rectangles.unwrap_or_else(|| {
-            seq::sample_slice(&mut rng, &N_DEFAULTS, 1)[0]
-        });
+        let mut n = self.rectangles
+            .unwrap_or_else(|| seq::sample_slice(&mut rng, &N_DEFAULTS, 1)[0]);
 
         let mut r = self.container.unwrap_or_else(|| {
             let area = n * AVG_RECTANGLE_AREA;

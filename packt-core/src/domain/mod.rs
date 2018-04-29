@@ -6,7 +6,7 @@ pub use self::solution::Solution;
 
 use self::Rotation::*;
 use failure::Error;
-use rand::{thread_rng, Rng, distributions::{IndependentSample, Range}};
+use rand::{thread_rng, Rng};
 use std::fmt;
 use std::fmt::Formatter;
 use std::str::FromStr;
@@ -47,13 +47,13 @@ impl Rectangle {
         }
     }
 
-    fn gen_with_area(area: usize) ->  Self {
-        let width = Range::new(1, area + 1).ind_sample(&mut rng);
+    fn gen_with_area(area: usize) -> Self {
+        let width = thread_rng().gen_range(1, area + 1);
 
         Rectangle {
             width,
             height: area / width,
-            area,
+            area: Some(area),
         }
     }
 
