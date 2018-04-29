@@ -1,43 +1,28 @@
 use domain::Rectangle;
 use failure::Error;
 use rand::{self, seq};
+use std::cmp::min;
 use std::fmt;
 use std::fmt::Formatter;
 use std::str::FromStr;
 
-#[derive(Clone, Copy, Debug, PartialEq)]
-pub enum Variant {
-    Free,
-    Fixed(usize),
-}
-
-impl fmt::Display for Variant {
-    //noinspection RsTypeCheck
-    fn fmt(&self, f: &mut Formatter) -> fmt::Result {
-        match *self {
-            Variant::Free => write!(f, "free"),
-            Variant::Fixed(h) => write!(f, "fixed {}", h),
-        }
-    }
-}
+const N_DEFAULTS: [usize; 5] = [3, 5, 10, 25, 10000];
+const AVG_RECTANGLE_AREA: usize = 100;
 
 #[derive(Clone, Debug, PartialEq)]
 pub struct Problem {
     pub variant: Variant,
-    pub rotation_allowed: bool,
+    pub allow_rotation: bool,
     pub rectangles: Vec<Rectangle>,
 }
 
 impl Problem {
-    /// Generates a problem definition with an known solution by splitting `r`
-    /// into `n` rectangles.
-    ///
-    ///# Panics
-    ///
-    /// This function will panic if  `n` is greater than `r.width * r.height`.
-    // TODO: Add rotated rectangles, random variant
-    // TODO: introduce builder
-    fn generate_from(r: Rectangle, n: usize, v: Variant, rot: bool) -> Problem {
+    pub fn generator() -> ProblemGenerator {
+        ProblemGenerator::default()
+    }
+
+    // TODO: Add rotated rectangles
+    fn generate_from(r: Rectangle, n: usize, v: Variant, allow_rotation: bool) -> Problem {
         let a = r.width * r.height;
         if n > a {
             panic!("{:?} cannot be split into {} rectangles", r, n)
@@ -45,7 +30,7 @@ impl Problem {
             let rectangles = vec![Rectangle::new(1, 1); n];
             return Problem {
                 variant: v,
-                rotation_allowed: rot,
+                allow_rotation,
                 rectangles,
             };
         }
@@ -57,6 +42,7 @@ impl Problem {
         while rectangles.len() < n {
             let i = seq::sample_indices(&mut rng, rectangles.len(), 1)[0];
             let r = rectangles.swap_remove(i);
+
             if r.width > 1 || r.height > 1 {
                 let (r1, r2) = r.simple_rsplit();
                 rectangles.push(r1);
@@ -68,7 +54,7 @@ impl Problem {
 
         Problem {
             variant: v,
-            rotation_allowed: rot,
+            allow_rotation,
             rectangles,
         }
     }
@@ -81,7 +67,7 @@ impl fmt::Display for Problem {
             "container height: {v}\nrotations allowed: {r}\nnumber of \
              rectangles: {n}\n",
             v = self.variant,
-            r = if self.rotation_allowed {
+            r = if self.allow_rotation {
                 "yes"
             } else {
                 "no"
@@ -120,7 +106,7 @@ impl FromStr for Problem {
             .next()
             .ok_or_else(|| format_err!("Unexpected end of file"))?;
 
-        let rotation_allowed = match l2 {
+        let allow_rotation = match l2 {
             "rotations allowed: yes" => true,
             "rotations allowed: no" => false,
             _ => bail!("Invalid format: {}", l2),
@@ -133,9 +119,87 @@ impl FromStr for Problem {
 
         Ok(Problem {
             variant,
-            rotation_allowed,
+            allow_rotation,
             rectangles,
         })
+    }
+}
+
+#[derive(Default)]
+struct ProblemGenerator {
+    container: Option<Rectangle>,
+    rectangles: Option<usize>,
+    variant: Option<Variant>,
+    allow_rotation: Option<bool>,
+}
+
+impl ProblemGenerator {
+    pub fn generate(&self) -> Problem {
+        let mut rng = rand::thread_rng();
+
+        let mut n = self.rectangles.unwrap_or_else(|| {
+            seq::sample_slice(&mut rng, &N_DEFAULTS, 1)[0]
+        });
+
+        let mut r = self.container.unwrap_or_else(|| {
+            let area = n * AVG_RECTANGLE_AREA;
+            Rectangle::gen_with_area(area)
+        });
+
+        n = min(n, r.area());
+
+        let variant = self.variant.unwrap_or_else(|| {
+            if rng.gen() {
+                Variant::Free
+            } else {
+                Variant::Fixed(r.height)
+            }
+        });
+
+        let allow_rotation = self.allow_rotation.unwrap_or_else(|| rng.gen());
+
+        Problem::generate_from(r, n, variant, allow_rotation)
+    }
+
+    pub fn rectangles(mut self, mut n: usize) -> Self {
+        if let Some(ref mut r) = self.container {
+            n = min(n, r.area());
+        }
+
+        self.rectangles = Some(n);
+        self
+    }
+
+    pub fn allow_rotation(mut self, b: bool) -> Self {
+        self.allow_rotation = Some(b);
+        self
+    }
+
+    pub fn variant(mut self, v: Variant) -> Self {
+        self.variant = Some(v);
+        self
+    }
+
+    pub fn container(mut self, mut r: Rectangle) -> Self {
+        self.container = Some(r);
+        self.rectangles.map(|n| min(n, r.area()));
+        self
+    }
+}
+
+#[derive(Clone, Copy, Debug, PartialEq)]
+pub enum Variant {
+    Free,
+    Fixed(usize),
+}
+
+impl fmt::Display for Variant {
+    //noinspection RsTypeCheck
+    fn fmt(&self, f: &mut Formatter) -> fmt::Result {
+        match *self {
+            Variant::Free => write!(f, "free"),
+            Variant::Fixed(h) => write!(f, "fixed {}", h),
+        }
     }
 }
 
@@ -152,7 +216,7 @@ mod tests {
     fn parsing() {
         let expected = Problem {
             variant: Variant::Fixed(22),
-            rotation_allowed: false,
+            allow_rotation: false,
             rectangles: vec![Rectangle::new(12, 8), Rectangle::new(10, 9)],
         };
         let result: Problem = input.parse().unwrap();

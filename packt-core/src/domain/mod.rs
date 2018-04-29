@@ -6,7 +6,7 @@ pub use self::solution::Solution;
 
 use self::Rotation::*;
 use failure::Error;
-use rand::{thread_rng, Rng};
+use rand::{thread_rng, Rng, distributions::{IndependentSample, Range}};
 use std::fmt;
 use std::fmt::Formatter;
 use std::str::FromStr;
@@ -27,11 +27,34 @@ impl Point {
 pub struct Rectangle {
     width: usize,
     height: usize,
+    area: Option<usize>,
 }
 
 impl Rectangle {
-    fn new(width: usize, height: usize) -> Rectangle {
-        Rectangle { width, height }
+    fn split(self, sp: Split) -> (Self, Self) {
+        let Rectangle {
+            width: w,
+            height: h,
+            ..
+        } = self;
+        match sp {
+            Split::Horizontal(y) => {
+                (Rectangle::new(w, h - y), Rectangle::new(w, y))
+            }
+            Split::Vertical(x) => {
+                (Rectangle::new(w - x, h), Rectangle::new(x, h))
+            }
+        }
+    }
+
+    fn gen_with_area(area: usize) ->  Self {
+        let width = Range::new(1, area + 1).ind_sample(&mut rng);
+
+        Rectangle {
+            width,
+            height: area / width,
+            area,
+        }
     }
 
     /// Splits this rectangle.
@@ -67,18 +90,22 @@ impl Rectangle {
         self.split(method)
     }
 
-    fn split(self, sp: Split) -> (Self, Self) {
-        let Rectangle {
-            width: w,
-            height: h,
-        } = self;
-        match sp {
-            Split::Horizontal(y) => {
-                (Rectangle::new(w, h - y), Rectangle::new(w, y))
+    fn area(&mut self) -> usize {
+        match self.area {
+            Some(a) => a,
+            None => {
+                let a = self.width * self.height;
+                self.area = Some(a);
+                a
             }
-            Split::Vertical(x) => {
-                (Rectangle::new(w - x, h), Rectangle::new(x, h))
-            }
+        }
+    }
+
+    fn new(width: usize, height: usize) -> Rectangle {
+        Rectangle {
+            width,
+            height,
+            area: None,
         }
     }
 }
@@ -140,6 +167,13 @@ pub struct Placement {
 }
 
 impl Placement {
+    fn overlaps(&self, rhs: &Placement) -> bool {
+        rhs.bottom_left.y <= self.top_right.y
+            && rhs.bottom_left.x <= self.top_right.x
+            && self.bottom_left.y <= rhs.top_right.y
+            && self.bottom_left.x <= rhs.top_right.x
+    }
+
     fn new(r: Rectangle, rotation: Rotation, bottom_left: Point) -> Placement {
         let (width, height) = match rotation {
             Normal => (r.width, r.height),
@@ -156,12 +190,5 @@ impl Placement {
             bottom_left,
             top_right,
         }
-    }
-
-    fn overlaps(&self, rhs: &Placement) -> bool {
-        rhs.bottom_left.y <= self.top_right.y
-            && rhs.bottom_left.x <= self.top_right.x
-            && self.bottom_left.y <= rhs.top_right.y
-            && self.bottom_left.x <= rhs.top_right.x
     }
 }

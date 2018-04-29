@@ -56,8 +56,7 @@ impl FromStr for Solution {
             .into_iter()
             .map(|s| {
                 let tokens: Vec<&str> = s.split_whitespace().collect();
-                let result = match (problem.rotation_allowed, tokens.as_slice())
-                {
+                let result = match (problem.allow_rotation, tokens.as_slice()) {
                     (false, [x, y]) => {
                         let p = Point::new(x.parse()?, y.parse()?);
                         (Normal, p)
@@ -96,7 +95,7 @@ mod tests {
         let r2 = Rectangle::new(10, 9);
         let problem = Problem {
             variant: Variant::Fixed(22),
-            rotation_allowed: false,
+            allow_rotation: false,
             rectangles: vec![r1, r2],
         };
 
@@ -123,7 +122,7 @@ mod tests {
         let rectangles = vec![r; 10000];
         let problem = Problem {
             variant: Variant::Fixed(22),
-            rotation_allowed: false,
+            allow_rotation: false,
             rectangles: rectangles.clone(),
         };
 
