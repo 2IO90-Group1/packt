@@ -3,63 +3,7 @@ use std::str::FromStr;
 
 use failure::Error;
 
-use self::Rotation::*;
-use domain::{Point, Problem, Rectangle};
-
-#[derive(Clone, Copy, Debug, PartialEq)]
-pub enum Rotation {
-    Normal,
-    Rotated,
-}
-
-impl FromStr for Rotation {
-    type Err = Error;
-
-    fn from_str(s: &str) -> Result<Self, <Self as FromStr>::Err> {
-        let result = match s {
-            "yes" => Rotated,
-            "no" => Normal,
-            _ => bail!("Unexpected token: {}", s),
-        };
-
-        Ok(result)
-    }
-}
-
-#[derive(Clone, Copy, Debug, PartialEq)]
-pub struct Placement {
-    rectangle: Rectangle,
-    rotation: Rotation,
-    bottom_left: Point,
-    top_right: Point,
-}
-
-impl Placement {
-    fn new(r: Rectangle, rotation: Rotation, bottom_left: Point) -> Placement {
-        let (width, height) = match rotation {
-            Normal => (r.width, r.height),
-            Rotated => (r.height, r.width),
-        };
-
-        let x_max = bottom_left.x + width;
-        let y_max = bottom_left.y + height;
-        let top_right = Point::new(x_max, y_max);
-
-        Placement {
-            rectangle: r,
-            rotation,
-            bottom_left,
-            top_right,
-        }
-    }
-
-    fn overlaps(&self, rhs: &Placement) -> bool {
-        rhs.bottom_left.y <= self.top_right.y
-            && rhs.bottom_left.x <= self.top_right.x
-            && self.bottom_left.y <= rhs.top_right.y
-            && self.bottom_left.x <= rhs.top_right.x
-    }
-}
+use domain::{Placement, Point, Problem, Rotation::*};
 
 // TODO: consider taking over part of `Problem`s fields instead
 #[derive(Clone, Debug, PartialEq)]
@@ -69,6 +13,8 @@ pub struct Solution {
 }
 
 impl Solution {
+
+    // Note: O(n^2)
     fn is_valid(&self) -> bool {
         self.placements
             .iter()
@@ -140,7 +86,7 @@ impl FromStr for Solution {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use domain::problem::Variant;
+    use domain::{problem::Variant, Rectangle};
     use std::iter;
 
     #[test]
@@ -184,7 +130,7 @@ mod tests {
         let placements = iter::repeat(r)
             .take(10000)
             .map(|r| {
-                let result = Placement::new(r, Rotation::Normal, coord);
+                let result = Placement::new(r, Normal, coord);
                 coord.x += 11;
                 result
             })

@@ -1,8 +1,6 @@
-use std::str::FromStr;
-
-use failure::Error;
-
 use domain::Rectangle;
+use failure::Error;
+use std::str::FromStr;
 
 #[derive(Clone, Copy, Debug, PartialEq)]
 pub enum Variant {
@@ -15,6 +13,10 @@ pub struct Problem {
     pub variant: Variant,
     pub rotation_allowed: bool,
     pub rectangles: Vec<Rectangle>,
+}
+
+impl Problem {
+    //    fn generate
 }
 
 impl FromStr for Problem {
@@ -60,7 +62,6 @@ impl FromStr for Problem {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use std::iter;
 
     #[test]
     fn parsing() {

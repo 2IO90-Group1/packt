@@ -2,5 +2,7 @@
 authors = ["frank"]
 name = "packt-core"
 version = "0.1.0"
+
 [dependencies]
 failure = "*"
+rand = "0.4.2"
