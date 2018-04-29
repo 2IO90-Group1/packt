@@ -17,6 +17,10 @@ pub struct Problem {
 }
 
 impl Problem {
+    pub fn generator() -> ProblemGenerator {
+        ProblemGenerator::default()
+    }
+
     // TODO: Add rotated rectangles
     fn generate_from(
         r: Rectangle,
@@ -58,10 +62,6 @@ impl Problem {
             allow_rotation,
             rectangles,
         }
-    }
-
-    pub fn generator() -> ProblemGenerator {
-        ProblemGenerator::default()
     }
 }
 
@@ -139,29 +139,8 @@ pub struct ProblemGenerator {
 }
 
 impl ProblemGenerator {
-    pub fn container(mut self, mut r: Rectangle) -> Self {
-        self.container = Some(r);
-        self.rectangles.map(|n| min(n, r.area()));
-        self
-    }
-
-    pub fn variant(mut self, v: Variant) -> Self {
-        self.variant = Some(v);
-        self
-    }
-
-    pub fn allow_rotation(mut self, b: bool) -> Self {
-        self.allow_rotation = Some(b);
-        self
-    }
-
-    pub fn rectangles(mut self, mut n: usize) -> Self {
-        if let Some(ref mut r) = self.container {
-            n = min(n, r.area());
-        }
-
-        self.rectangles = Some(n);
-        self
+    fn new() -> Self {
+        Self::default()
     }
 
     pub fn generate(&self) -> Problem {
@@ -190,8 +169,29 @@ impl ProblemGenerator {
         Problem::generate_from(r, n, variant, allow_rotation)
     }
 
-    fn new() -> Self {
-        Self::default()
+    pub fn rectangles(mut self, mut n: usize) -> Self {
+        if let Some(ref mut r) = self.container {
+            n = min(n, r.area());
+        }
+
+        self.rectangles = Some(n);
+        self
+    }
+
+    pub fn allow_rotation(mut self, b: bool) -> Self {
+        self.allow_rotation = Some(b);
+        self
+    }
+
+    pub fn variant(mut self, v: Variant) -> Self {
+        self.variant = Some(v);
+        self
+    }
+
+    pub fn container(mut self, mut r: Rectangle) -> Self {
+        self.container = Some(r);
+        self.rectangles.map(|n| min(n, r.area()));
+        self
     }
 }
 
