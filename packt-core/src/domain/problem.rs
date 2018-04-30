@@ -82,7 +82,7 @@ impl fmt::Display for Problem {
 
         let rstrings = self.rectangles
             .iter()
-            .map(|r| format!("{}", r))
+            .map(ToString::to_string)
             .collect::<Vec<_>>()
             .join("\n");
 
