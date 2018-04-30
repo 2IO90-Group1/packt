@@ -5,6 +5,7 @@ use std::str::FromStr;
 
 // TODO: consider taking over part of `Problem`s fields instead
 #[derive(Clone, Debug, PartialEq)]
+
 pub struct Solution {
     problem: Problem,
     placements: Vec<Placement>,
@@ -16,6 +17,7 @@ impl Solution {
     /// # Complexity
     ///
     /// Takes quadratic (in `self.placements.len()`) time.
+
     fn is_valid(&self) -> bool {
         self.placements
             .iter()
@@ -56,13 +58,16 @@ impl FromStr for Solution {
             .into_iter()
             .map(|s| {
                 let tokens: Vec<&str> = s.split_whitespace().collect();
+
                 let result = match (problem.allow_rotation, tokens.as_slice()) {
                     (false, [x, y]) => {
                         let p = Point::new(x.parse()?, y.parse()?);
+
                         (Normal, p)
                     }
                     (true, [rot, x, y]) => {
                         let p = Point::new(x.parse()?, y.parse()?);
+
                         (rot.parse()?, p)
                     }
                     _ => bail!("Invalid format: {}", tokens.join(" ")),
@@ -84,15 +89,20 @@ impl FromStr for Solution {
 }
 
 #[cfg(test)]
+
 mod tests {
+
     use super::*;
     use domain::{problem::Variant, Rectangle};
     use std::iter;
 
     #[test]
+
     fn solution_parsing() {
         let r1 = Rectangle::new(12, 8);
+
         let r2 = Rectangle::new(10, 9);
+
         let problem = Problem {
             variant: Variant::Fixed(22),
             allow_rotation: false,
@@ -112,14 +122,19 @@ mod tests {
         let input = "container height: fixed 22\nrotations allowed: \
                      no\nnumber of rectangles: 6\n12 8\n10 9\nplacement of \
                      rectangles\n0 0\n24 3";
+
         let result: Solution = input.parse().unwrap();
+
         assert_eq!(result, expected);
     }
 
     #[test]
+
     fn validation() {
         let r = Rectangle::new(10, 9);
+
         let rectangles = vec![r; 10000];
+
         let problem = Problem {
             variant: Variant::Fixed(22),
             allow_rotation: false,
@@ -127,11 +142,14 @@ mod tests {
         };
 
         let mut coord = Point::new(0, 0);
+
         let placements = iter::repeat(r)
             .take(10000)
             .map(|r| {
                 let result = Placement::new(r, Normal, coord);
+
                 coord.x += 11;
+
                 result
             })
             .collect();
@@ -144,8 +162,12 @@ mod tests {
         };
 
         assert!(solution.is_valid());
+
         let p = Placement::new(r, Normal, Point::new(0, 0));
+
         solution.placements = vec![p; 10000];
+
         assert!(!solution.is_valid());
     }
+
 }

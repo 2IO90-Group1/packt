@@ -7,9 +7,11 @@ use std::fmt::Formatter;
 use std::str::FromStr;
 
 const N_DEFAULTS: [usize; 5] = [3, 5, 10, 25, 10000];
+
 const AVG_RECTANGLE_AREA: usize = 100;
 
 #[derive(Clone, Debug, PartialEq)]
+
 pub struct Problem {
     pub variant: Variant,
     pub allow_rotation: bool,
@@ -29,10 +31,12 @@ impl Problem {
         allow_rotation: bool,
     ) -> Problem {
         let a = r.width * r.height;
+
         if n > a {
             panic!("{:?} cannot be split into {} rectangles", r, n)
         } else if n == a {
             let rectangles = vec![Rectangle::new(1, 1); n];
+
             return Problem {
                 variant: v,
                 allow_rotation,
@@ -41,16 +45,21 @@ impl Problem {
         }
 
         let mut rng = rand::thread_rng();
+
         let mut rectangles = Vec::with_capacity(n);
+
         rectangles.push(r);
 
         while rectangles.len() < n {
             let i = seq::sample_indices(&mut rng, rectangles.len(), 1)[0];
+
             let r = rectangles.swap_remove(i);
 
             if r.width > 1 || r.height > 1 {
                 let (r1, r2) = r.simple_rsplit();
+
                 rectangles.push(r1);
+
                 rectangles.push(r2);
             } else {
                 rectangles.push(r);
@@ -63,12 +72,9 @@ impl Problem {
             rectangles,
         }
     }
-}
 
-impl fmt::Display for Problem {
-    //noinspection RsTypeCheck
-    fn fmt(&self, f: &mut Formatter) -> fmt::Result {
-        let s = format!(
+    fn config(&self) -> String {
+        format!(
             "container height: {v}\nrotations allowed: {r}\nnumber of \
              rectangles: {n}\n",
             v = self.variant,
@@ -78,15 +84,35 @@ impl fmt::Display for Problem {
                 "no"
             },
             n = self.rectangles.len()
-        );
+        )
+    }
 
-        let rstrings = self.rectangles
+    pub fn digest(&self) -> String {
+        let mut s = self.config();
+
+        self.rectangles
             .iter()
-            .map(ToString::to_string)
-            .collect::<Vec<_>>()
-            .join("\n");
+            .take(30)
+            .for_each(|r| s.push_str(&format!("\n{}", r.to_string())));
 
-        write!(f, "{}{}", s, rstrings)
+        if self.rectangles.len() > 30 {
+            s.push_str("\n...");
+        }
+
+        s
+    }
+}
+
+impl fmt::Display for Problem {
+    //noinspection RsTypeCheck
+    fn fmt(&self, f: &mut Formatter) -> fmt::Result {
+        let mut s = self.config();
+
+        self.rectangles
+            .iter()
+            .for_each(|r| s.push_str(&format!("\n{}", r.to_string())));
+
+        write!(f, "{}", s)
     }
 }
 
@@ -131,6 +157,7 @@ impl FromStr for Problem {
 }
 
 #[derive(Default)]
+
 pub struct ProblemGenerator {
     container: Option<Rectangle>,
     rectangles: Option<usize>,
@@ -151,6 +178,7 @@ impl ProblemGenerator {
 
         let mut r = self.container.unwrap_or_else(|| {
             let area = n * AVG_RECTANGLE_AREA;
+
             Rectangle::gen_with_area(area)
         });
 
@@ -175,27 +203,33 @@ impl ProblemGenerator {
         }
 
         self.rectangles = Some(n);
+
         self
     }
 
     pub fn allow_rotation(mut self, b: bool) -> Self {
         self.allow_rotation = Some(b);
+
         self
     }
 
     pub fn variant(mut self, v: Variant) -> Self {
         self.variant = Some(v);
+
         self
     }
 
     pub fn container(mut self, mut r: Rectangle) -> Self {
         self.container = Some(r);
+
         self.rectangles.map(|n| min(n, r.area()));
+
         self
     }
 }
 
 #[derive(Clone, Copy, Debug, PartialEq)]
+
 pub enum Variant {
     Free,
     Fixed(usize),
@@ -214,7 +248,6 @@ impl fmt::Display for Variant {
 #[cfg(test)]
 mod tests {
     #![allow(non_upper_case_globals)]
-
     use super::*;
 
     const input: &str = "container height: fixed 22\nrotations allowed: \
@@ -227,6 +260,7 @@ mod tests {
             allow_rotation: false,
             rectangles: vec![Rectangle::new(12, 8), Rectangle::new(10, 9)],
         };
+
         let result: Problem = input.parse().unwrap();
         assert_eq!(result, expected);
     }
@@ -247,6 +281,8 @@ mod tests {
             .into_iter()
             .map(|r| r.height * r.width)
             .sum();
+
         assert_eq!(a, 1000 * 1000);
     }
+
 }

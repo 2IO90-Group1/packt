@@ -5,8 +5,8 @@ extern crate relm;
 extern crate relm_derive;
 extern crate packt_core;
 
-use relm::{Relm, Widget};
+mod view;
 
 fn main() {
-    println!("Hello, world!");
+    relm::run::<view::Win>(()).unwrap();
 }

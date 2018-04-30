@@ -12,6 +12,7 @@ use std::fmt::Formatter;
 use std::str::FromStr;
 
 #[derive(Clone, Copy, Debug, PartialEq)]
+
 pub struct Point {
     x: usize,
     y: usize,
@@ -24,6 +25,7 @@ impl Point {
 }
 
 #[derive(Clone, Copy, Debug, PartialEq)]
+
 pub struct Rectangle {
     width: usize,
     height: usize,
@@ -63,20 +65,25 @@ impl Rectangle {
     /// # Panics
     ///
     /// This function will panic if `self.width <= 1 && self.height <= 1`.
+
     fn simple_rsplit(self) -> (Self, Self) {
         let mut rng = thread_rng();
+
         let method = match (self.width, self.height) {
             (1, 1) => panic!("{:?} cannot be split", self),
             (1, h) if h > 1 => {
                 let y = rng.gen_range(1, h);
+
                 Split::Horizontal(y)
             }
             (w, 1) if w > 1 => {
                 let x = rng.gen_range(1, w);
+
                 Split::Vertical(x)
             }
             (w, h) if w > 1 && h > 1 => {
                 let x = rng.gen_range(1, w);
+
                 let y = rng.gen_range(1, h);
 
                 if rng.gen() {
@@ -96,7 +103,9 @@ impl Rectangle {
             Some(a) => a,
             None => {
                 let a = self.width * self.height;
+
                 self.area = Some(a);
+
                 a
             }
         }
@@ -140,6 +149,7 @@ impl FromStr for Rectangle {
 }
 
 #[derive(Clone, Copy, Debug, PartialEq)]
+
 pub enum Rotation {
     Normal,
     Rotated,
@@ -160,6 +170,7 @@ impl FromStr for Rotation {
 }
 
 #[derive(Clone, Copy, Debug, PartialEq)]
+
 pub struct Placement {
     rectangle: Rectangle,
     rotation: Rotation,
@@ -182,7 +193,9 @@ impl Placement {
         };
 
         let x_max = bottom_left.x + width;
+
         let y_max = bottom_left.y + height;
+
         let top_right = Point::new(x_max, y_max);
 
         Placement {
