@@ -6,34 +6,33 @@ pub use self::solution::Solution;
 
 use self::Rotation::*;
 use failure::Error;
-use rand::{thread_rng, Rng};
+use rand::{self, thread_rng, Rng};
+use rand::distributions::{Normal, IndependentSample};
 use std::fmt;
 use std::fmt::Formatter;
 use std::str::FromStr;
 
 #[derive(Clone, Copy, Debug, PartialEq)]
-
 pub struct Point {
-    x: usize,
-    y: usize,
+    x: u32,
+    y: u32,
 }
 
 impl Point {
-    fn new(x: usize, y: usize) -> Point {
+    fn new(x: u32, y: u32) -> Point {
         Point { x, y }
     }
 }
 
 #[derive(Clone, Copy, Debug, PartialEq)]
-
 pub struct Rectangle {
-    width: usize,
-    height: usize,
-    area: Option<usize>,
+    width: u32,
+    height: u32,
+    area: Option<u32>,
 }
 
 impl Rectangle {
-    fn split(self, sp: Split) -> (Self, Self) {
+    fn split(self, sp: Cut) -> (Rectangle, Rectangle) {
         let Rectangle {
             width: w,
             height: h,
@@ -41,77 +40,81 @@ impl Rectangle {
         } = self;
 
         match sp {
-            Split::Horizontal(y) => {
+            Cut::Horizontal(y) => {
                 (Rectangle::new(w, h - y), Rectangle::new(w, y))
             }
-            Split::Vertical(x) => {
+            Cut::Vertical(x) => {
                 (Rectangle::new(w - x, h), Rectangle::new(x, h))
             }
         }
     }
 
-    fn gen_with_area(area: usize) -> Self {
-        let width = thread_rng().gen_range(1, area + 1);
+    fn gen_with_area(area: u32) -> Rectangle {
+        let divisors: Vec<u32> = (1..=area)
+            .into_iter()
+            .filter(|i| area % i == 0)
+            .collect();
+
+        let mut rng = rand::thread_rng();
+        let n = divisors.len() as f64;
+        let normal = Normal::new(n/2., n/7.);
+        let i = normal.ind_sample(&mut rng) as usize;
+
+        let (width, height) = if rng.gen() {
+            let width = divisors[i];
+            (width, area / width)
+        } else {
+            let height = divisors[i];
+            (area / height, height)
+        };
 
         Rectangle {
             width,
-            height: area / width,
+            height,
             area: Some(area),
         }
     }
 
-    /// Splits this rectangle.
-    ///
-    /// # Panics
-    ///
-    /// This function will panic if `self.width <= 1 && self.height <= 1`.
+    fn simple_rsplit(self) -> (Rectangle, Rectangle) {
+        let mut rng = rand::thread_rng();
 
-    fn simple_rsplit(self) -> (Self, Self) {
-        let mut rng = thread_rng();
-
-        let method = match (self.width, self.height) {
+        let cut = match (self.width, self.height) {
             (1, 1) => panic!("{:?} cannot be split", self),
             (1, h) if h > 1 => {
                 let y = rng.gen_range(1, h);
-
-                Split::Horizontal(y)
+                Cut::Horizontal(y)
             }
             (w, 1) if w > 1 => {
                 let x = rng.gen_range(1, w);
-
-                Split::Vertical(x)
+                Cut::Vertical(x)
             }
             (w, h) if w > 1 && h > 1 => {
-                let x = rng.gen_range(1, w);
-
-                let y = rng.gen_range(1, h);
-
-                if rng.gen() {
-                    Split::Vertical(x)
+                if rng.gen_range(0, w + h) < w {
+                    let x = rng.gen_range(1, w);
+                    Cut::Vertical(x)
                 } else {
-                    Split::Horizontal(y)
+                    let y = rng.gen_range(1, h);
+                    Cut::Horizontal(y)
                 }
             }
             _ => panic!("Unexpected input: {:?}", self),
         };
 
-        self.split(method)
+        self.split(cut)
     }
 
-    fn area(&mut self) -> usize {
+    fn area(&mut self) -> u32 {
         match self.area {
             Some(a) => a,
             None => {
                 let a = self.width * self.height;
-
                 self.area = Some(a);
-
                 a
             }
         }
     }
 
-    fn new(width: usize, height: usize) -> Rectangle {
+    fn new(width: u32, height: u32) -> Rectangle {
         Rectangle {
             width,
             height,
@@ -120,9 +123,9 @@ impl Rectangle {
     }
 }
 
-enum Split {
-    Horizontal(usize),
-    Vertical(usize),
+enum Cut {
+    Horizontal(u32),
+    Vertical(u32),
 }
 
 impl fmt::Display for Rectangle {

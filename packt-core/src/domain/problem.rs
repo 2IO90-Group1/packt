@@ -7,15 +7,14 @@ use std::fmt::Formatter;
 use std::str::FromStr;
 
 const N_DEFAULTS: [usize; 5] = [3, 5, 10, 25, 10000];
-
-const AVG_RECTANGLE_AREA: usize = 100;
+const AVG_RECTANGLE_AREA: u32 = 50;
 
 #[derive(Clone, Debug, PartialEq)]
-
 pub struct Problem {
     pub variant: Variant,
     pub allow_rotation: bool,
     pub rectangles: Vec<Rectangle>,
+    source: Option<Rectangle>,
 }
 
 impl Problem {
@@ -25,41 +24,35 @@ impl Problem {
 
     // TODO: Add rotated rectangles
     fn generate_from(
-        r: Rectangle,
+        mut r: Rectangle,
         n: usize,
         v: Variant,
         allow_rotation: bool,
     ) -> Problem {
-        let a = r.width * r.height;
-
+        let a = r.area() as usize;
         if n > a {
             panic!("{:?} cannot be split into {} rectangles", r, n)
         } else if n == a {
             let rectangles = vec![Rectangle::new(1, 1); n];
-
             return Problem {
                 variant: v,
                 allow_rotation,
                 rectangles,
+                source: None,
             };
         }
 
         let mut rng = rand::thread_rng();
-
-        let mut rectangles = Vec::with_capacity(n);
-
+        let mut rectangles = Vec::with_capacity(n as usize);
         rectangles.push(r);
 
         while rectangles.len() < n {
             let i = seq::sample_indices(&mut rng, rectangles.len(), 1)[0];
-
             let r = rectangles.swap_remove(i);
 
             if r.width > 1 || r.height > 1 {
                 let (r1, r2) = r.simple_rsplit();
-
                 rectangles.push(r1);
-
                 rectangles.push(r2);
             } else {
                 rectangles.push(r);
@@ -70,13 +63,14 @@ impl Problem {
             variant: v,
             allow_rotation,
             rectangles,
+            source: Some(r),
         }
     }
 
     fn config(&self) -> String {
         format!(
             "container height: {v}\nrotations allowed: {r}\nnumber of \
-             rectangles: {n}\n",
+             rectangles: {n}",
             v = self.variant,
             r = if self.allow_rotation {
                 "yes"
@@ -89,6 +83,10 @@ impl Problem {
 
     pub fn digest(&self) -> String {
         let mut s = self.config();
+
+        if let Some(source) = self.source {
+            s.push_str(&format!("\nbounding box: {}", source.to_string()));
+        }
 
         self.rectangles
             .iter()
@@ -152,12 +150,12 @@ impl FromStr for Problem {
             variant,
             allow_rotation,
             rectangles,
+            source: None,
         })
     }
 }
 
 #[derive(Default)]
-
 pub struct ProblemGenerator {
     container: Option<Rectangle>,
     rectangles: Option<usize>,
@@ -172,18 +170,16 @@ impl ProblemGenerator {
 
     pub fn generate(&self) -> Problem {
         let mut rng = rand::thread_rng();
-
         let mut n = self.rectangles
             .unwrap_or_else(|| seq::sample_slice(&mut rng, &N_DEFAULTS, 1)[0]);
 
         let mut r = self.container.unwrap_or_else(|| {
-            let area = n * AVG_RECTANGLE_AREA;
+            let area = n as u32 * AVG_RECTANGLE_AREA;
 
             Rectangle::gen_with_area(area)
         });
 
-        n = min(n, r.area());
-
+        n = min(n, r.area() as usize);
         let variant = self.variant.unwrap_or_else(|| {
             if rng.gen() {
                 Variant::Free
@@ -193,46 +189,40 @@ impl ProblemGenerator {
         });
 
         let allow_rotation = self.allow_rotation.unwrap_or_else(|| rng.gen());
-
         Problem::generate_from(r, n, variant, allow_rotation)
     }
 
     pub fn rectangles(mut self, mut n: usize) -> Self {
         if let Some(ref mut r) = self.container {
-            n = min(n, r.area());
+            n = min(n, r.area() as usize);
         }
 
         self.rectangles = Some(n);
-
         self
     }
 
     pub fn allow_rotation(mut self, b: bool) -> Self {
         self.allow_rotation = Some(b);
-
         self
     }
 
     pub fn variant(mut self, v: Variant) -> Self {
         self.variant = Some(v);
-
         self
     }
 
     pub fn container(mut self, mut r: Rectangle) -> Self {
         self.container = Some(r);
-
-        self.rectangles.map(|n| min(n, r.area()));
-
+        self.rectangles
+            .map(|n| min(n, r.area() as usize));
         self
     }
 }
 
 #[derive(Clone, Copy, Debug, PartialEq)]
-
 pub enum Variant {
     Free,
-    Fixed(usize),
+    Fixed(u32),
 }
 
 impl fmt::Display for Variant {
@@ -249,7 +239,6 @@ impl fmt::Display for Variant {
 mod tests {
     #![allow(non_upper_case_globals)]
     use super::*;
-
     const input: &str = "container height: fixed 22\nrotations allowed: \
                          no\nnumber of rectangles: 2\n12 8\n10 9";
 
@@ -277,7 +266,7 @@ mod tests {
     fn generate_from() {
         let r = Rectangle::new(1000, 1000);
         let p = Problem::generate_from(r, 50, Variant::Free, false);
-        let a: usize = p.rectangles
+        let a: u32 = p.rectangles
             .into_iter()
             .map(|r| r.height * r.width)
             .sum();
