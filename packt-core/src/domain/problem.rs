@@ -4,6 +4,9 @@ use rand::{self, seq, Rng};
 use std::cmp::min;
 use std::fmt;
 use std::fmt::Formatter;
+use std::fs::OpenOptions;
+use std::io::{self, Write};
+use std::path::PathBuf;
 use std::str::FromStr;
 
 const N_DEFAULTS: [usize; 5] = [3, 5, 10, 25, 10000];
@@ -14,14 +17,10 @@ pub struct Problem {
     pub variant: Variant,
     pub allow_rotation: bool,
     pub rectangles: Vec<Rectangle>,
-    source: Option<Rectangle>,
+    pub source: Option<Rectangle>,
 }
 
 impl Problem {
-    pub fn generator() -> ProblemGenerator {
-        ProblemGenerator::default()
-    }
-
     // TODO: Add rotated rectangles
     fn generate_from(
         mut r: Rectangle,
@@ -85,7 +84,10 @@ impl Problem {
         let mut s = self.config();
 
         if let Some(source) = self.source {
-            s.push_str(&format!("\nbounding box: {}", source.to_string()));
+            s.push_str(&format!(
+                "\nbounding box: {}",
+                source.to_string()
+            ));
         }
 
         self.rectangles
@@ -98,6 +100,15 @@ impl Problem {
         }
 
         s
+    }
+
+    pub fn save(&self, mut path: PathBuf) -> io::Result<()> {
+        let mut file = OpenOptions::new()
+            .write(true)
+            .create(true)
+            .open(path)?;
+
+        file.write_all(self.to_string().as_bytes())
     }
 }
 
@@ -156,15 +167,15 @@ impl FromStr for Problem {
 }
 
 #[derive(Default)]
-pub struct ProblemGenerator {
+pub struct Generator {
     container: Option<Rectangle>,
     rectangles: Option<usize>,
     variant: Option<Variant>,
     allow_rotation: Option<bool>,
 }
 
-impl ProblemGenerator {
-    fn new() -> Self {
+impl Generator {
+    pub fn new() -> Self {
         Self::default()
     }
 
@@ -248,6 +259,7 @@ mod tests {
             variant: Variant::Fixed(22),
             allow_rotation: false,
             rectangles: vec![Rectangle::new(12, 8), Rectangle::new(10, 9)],
+            source: None,
         };
 
         let result: Problem = input.parse().unwrap();

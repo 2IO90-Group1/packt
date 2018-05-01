@@ -107,6 +107,7 @@ mod tests {
             variant: Variant::Fixed(22),
             allow_rotation: false,
             rectangles: vec![r1, r2],
+            source: None,
         };
 
         let expected = {
@@ -139,6 +140,7 @@ mod tests {
             variant: Variant::Fixed(22),
             allow_rotation: false,
             rectangles: rectangles.clone(),
+            source: None,
         };
 
         let mut coord = Point::new(0, 0);

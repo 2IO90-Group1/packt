@@ -6,8 +6,8 @@ pub use self::solution::Solution;
 
 use self::Rotation::*;
 use failure::Error;
-use rand::{self, thread_rng, Rng};
-use rand::distributions::{Normal, IndependentSample};
+use rand::distributions::{IndependentSample, Normal};
+use rand::{self, Rng};
 use std::fmt;
 use std::fmt::Formatter;
 use std::str::FromStr;
@@ -57,7 +57,7 @@ impl Rectangle {
 
         let mut rng = rand::thread_rng();
         let n = divisors.len() as f64;
-        let normal = Normal::new(n/2., n/7.);
+        let normal = Normal::new(n / 2., n / 7.);
         let i = normal.ind_sample(&mut rng) as usize;
 
         let (width, height) = if rng.gen() {
@@ -162,7 +162,7 @@ impl FromStr for Rotation {
     type Err = Error;
 
     fn from_str(s: &str) -> Result<Self, <Self as FromStr>::Err> {
-        let result = match s {
+        let result: Rotation = match s {
             "yes" => Rotated,
             "no" => Normal,
             _ => bail!("Unexpected token: {}", s),
