@@ -2,7 +2,7 @@
 
 members = [
 	"packt-core",
-	"packt-gui",
+	"packt-gtk",
 ]
 
 [replace]

@@ -1,5 +1,5 @@
 [package]
-name = "packt-gui"
+name = "packt-gtk"
 version = "0.1.0"
 authors = ["frank"]
 
