@@ -4,3 +4,6 @@ members = [
 	"packt-core",
 	"packt-gui",
 ]
+
+[replace]
+"gtk:0.4.1" = {git="https://github.com/foo-jin/gtk.git", branch = "crate"}

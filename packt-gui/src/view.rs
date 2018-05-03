@@ -1,4 +1,3 @@
-use gtk::Window;
 use gtk::{self, prelude::*};
 use packt_core::domain::{self, problem};
 use relm::{Relm, Update, Widget};
@@ -98,7 +97,7 @@ impl Update for Win {
 }
 
 impl Widget for Win {
-    type Root = Window;
+    type Root = gtk::Window;
 
     fn root(&self) -> Self::Root {
         self.window.clone()

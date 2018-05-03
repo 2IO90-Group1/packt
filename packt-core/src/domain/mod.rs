@@ -152,7 +152,6 @@ impl FromStr for Rectangle {
 }
 
 #[derive(Clone, Copy, Debug, PartialEq)]
-
 pub enum Rotation {
     Normal,
     Rotated,
@@ -163,8 +162,8 @@ impl FromStr for Rotation {
 
     fn from_str(s: &str) -> Result<Self, <Self as FromStr>::Err> {
         let result: Rotation = match s {
-            "yes" => Rotated,
-            "no" => Normal,
+            "yes" => Rotation::Rotated,
+            "no" => Rotation::Normal,
             _ => bail!("Unexpected token: {}", s),
         };
 
@@ -173,7 +172,6 @@ impl FromStr for Rotation {
 }
 
 #[derive(Clone, Copy, Debug, PartialEq)]
-
 pub struct Placement {
     rectangle: Rectangle,
     rotation: Rotation,

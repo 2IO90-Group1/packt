@@ -102,7 +102,7 @@ impl Problem {
         s
     }
 
-    pub fn save(&self, mut path: PathBuf) -> io::Result<()> {
+    pub fn save(&self, path: PathBuf) -> io::Result<()> {
         let mut file = OpenOptions::new()
             .write(true)
             .create(true)
