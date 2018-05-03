@@ -58,7 +58,7 @@ impl Rectangle {
         let mut rng = rand::thread_rng();
         let n = divisors.len() as f64;
         let normal = Normal::new(n / 2., n / 7.);
-        let i = normal.ind_sample(&mut rng) as usize;
+        let i = normal.ind_sample(&mut rng).max(0.).min(n-1.) as usize;
 
         let (width, height) = if rng.gen() {
             let width = divisors[i];
@@ -114,7 +114,7 @@ impl Rectangle {
         }
     }
 
-    fn new(width: u32, height: u32) -> Rectangle {
+    pub fn new(width: u32, height: u32) -> Rectangle {
         Rectangle {
             width,
             height,

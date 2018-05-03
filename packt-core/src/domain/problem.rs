@@ -191,43 +191,46 @@ impl Generator {
         });
 
         n = min(n, r.area() as usize);
-        let variant = self.variant.unwrap_or_else(|| {
-            if rng.gen() {
-                Variant::Free
-            } else {
-                Variant::Fixed(r.height)
-            }
-        });
+        let variant = self.variant
+            .map(|v| match v {
+                Variant::Fixed(_h) => Variant::Fixed(r.height),
+                v => v,
+            })
+            .unwrap_or_else(|| {
+                if rng.gen() {
+                    Variant::Free
+                } else {
+                    Variant::Fixed(r.height)
+                }
+            });
 
         let allow_rotation = self.allow_rotation.unwrap_or_else(|| rng.gen());
         Problem::generate_from(r, n, variant, allow_rotation)
     }
 
-    pub fn rectangles(mut self, mut n: usize) -> Self {
+    pub fn rectangles(&mut self, mut n: usize) {
         if let Some(ref mut r) = self.container {
             n = min(n, r.area() as usize);
         }
 
         self.rectangles = Some(n);
-        self
     }
 
-    pub fn allow_rotation(mut self, b: bool) -> Self {
+    pub fn allow_rotation(&mut self, b: bool) {
         self.allow_rotation = Some(b);
-        self
     }
 
-    pub fn variant(mut self, v: Variant) -> Self {
+
+    pub fn variant(&mut self, v: Variant) {
         self.variant = Some(v);
-        self
     }
 
-    pub fn container(mut self, mut r: Rectangle) -> Self {
+    pub fn container(&mut self, mut r: Rectangle) {
         self.container = Some(r);
         self.rectangles
             .map(|n| min(n, r.area() as usize));
-        self
     }
+
 }
 
 #[derive(Clone, Copy, Debug, PartialEq)]
