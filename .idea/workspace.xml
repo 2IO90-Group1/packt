@@ -10,104 +10,10 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="125db50e-7c23-466e-82aa-24abd0efd882" name="Default" comment="Rename to packt-gtk">
-      <change afterPath="$PROJECT_DIR$/.idea/codeStyles/Project.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/modules.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/packt.iml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/vcs.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/release/libasprintf-0.dll" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/release/libatk-1.0-0.dll" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/release/libcairo-2.dll" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/release/libcairo-gobject-2.dll" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/release/libcairo-script-interpreter-2.dll" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/release/libcharset-1.dll" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/release/libcroco-0.6-3.dll" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/release/libffi-6.dll" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/release/libfontconfig-1.dll" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/release/libfreetype-6.dll" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/release/libgailutil-3-0.dll" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/release/libgdk-3-0.dll" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/release/libgdk_pixbuf-2.0-0.dll" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/release/libgettextlib-0-18-2.dll" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/release/libgettextpo-0.dll" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/release/libgettextsrc-0-18-2.dll" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/release/libgio-2.0-0.dll" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/release/libglib-2.0-0.dll" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/release/libgmodule-2.0-0.dll" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/release/libgobject-2.0-0.dll" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/release/libgthread-2.0-0.dll" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/release/libgtk-3-0.dll" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/release/libiconv-2.dll" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/release/libintl-8.dll" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/release/libjasper-1.dll" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/release/libjpeg-9.dll" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/release/liblzma-5.dll" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/release/libpango-1.0-0.dll" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/release/libpangocairo-1.0-0.dll" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/release/libpangowin32-1.0-0.dll" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/release/libpixman-1-0.dll" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/release/libpng16-16.dll" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/release/librsvg-2-2.dll" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/release/libtiff-5.dll" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/release/libxml2-2.dll" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/release/packt-gtk.exe" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/release/packt-gui.exe" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/release/pthreadGC2.dll" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/release/share/glib-2.0/schemas/gschema.dtd" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/release/share/glib-2.0/schemas/gschemas.compiled" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/release/share/glib-2.0/schemas/org.gtk.Demo.gschema.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/release/share/glib-2.0/schemas/org.gtk.Settings.ColorChooser.gschema.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/release/share/glib-2.0/schemas/org.gtk.Settings.FileChooser.gschema.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/release/share/glib-2.0/schemas/org.gtk.exampleapp.gschema.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/release/share/icons/gnome-light/16x16/mimetypes/application-x-executable.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/release/share/icons/gnome-light/16x16/mimetypes/binary.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/release/share/icons/gnome-light/16x16/mimetypes/exec.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/release/share/icons/gnome-light/16x16/mimetypes/gnome-fs-executable.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/release/share/icons/gnome-light/16x16/mimetypes/gnome-mime-application-x-executable.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/release/share/icons/gnome-light/16x16/mimetypes/gnome-mime-application-x-ms-dos-executable.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/release/share/icons/gnome-light/22x22/mimetypes/application-x-executable.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/release/share/icons/gnome-light/22x22/mimetypes/binary.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/release/share/icons/gnome-light/22x22/mimetypes/exec.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/release/share/icons/gnome-light/22x22/mimetypes/gnome-fs-executable.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/release/share/icons/gnome-light/22x22/mimetypes/gnome-mime-application-x-executable.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/release/share/icons/gnome-light/22x22/mimetypes/gnome-mime-application-x-ms-dos-executable.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/release/share/icons/gnome-light/24x24/mimetypes/application-x-executable.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/release/share/icons/gnome-light/24x24/mimetypes/binary.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/release/share/icons/gnome-light/24x24/mimetypes/exec.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/release/share/icons/gnome-light/24x24/mimetypes/gnome-fs-executable.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/release/share/icons/gnome-light/24x24/mimetypes/gnome-mime-application-x-executable.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/release/share/icons/gnome-light/24x24/mimetypes/gnome-mime-application-x-ms-dos-executable.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/release/share/icons/gnome-light/256x256/mimetypes/application-x-executable.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/release/share/icons/gnome-light/256x256/mimetypes/binary.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/release/share/icons/gnome-light/256x256/mimetypes/exec.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/release/share/icons/gnome-light/256x256/mimetypes/gnome-fs-executable.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/release/share/icons/gnome-light/256x256/mimetypes/gnome-mime-application-x-executable.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/release/share/icons/gnome-light/256x256/mimetypes/gnome-mime-application-x-ms-dos-executable.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/release/share/icons/gnome-light/32x32/mimetypes/application-x-executable.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/release/share/icons/gnome-light/32x32/mimetypes/binary.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/release/share/icons/gnome-light/32x32/mimetypes/exec.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/release/share/icons/gnome-light/32x32/mimetypes/gnome-fs-executable.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/release/share/icons/gnome-light/32x32/mimetypes/gnome-mime-application-x-executable.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/release/share/icons/gnome-light/32x32/mimetypes/gnome-mime-application-x-ms-dos-executable.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/release/share/icons/gnome-light/48x48/mimetypes/application-x-executable.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/release/share/icons/gnome-light/48x48/mimetypes/binary.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/release/share/icons/gnome-light/48x48/mimetypes/exec.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/release/share/icons/gnome-light/48x48/mimetypes/gnome-fs-executable.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/release/share/icons/gnome-light/48x48/mimetypes/gnome-mime-application-x-executable.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/release/share/icons/gnome-light/48x48/mimetypes/gnome-mime-application-x-ms-dos-executable.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/release/share/icons/gnome-light/index.theme" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/release/share/icons/gnome-light/scalable/actions/edit-clear-symbolic.svg" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/release/share/icons/gnome-light/scalable/actions/edit-find-symbolic.svg" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/release/share/icons/gnome-light/scalable/actions/go-up-symbolic.svg" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/release/share/icons/gnome-light/scalable/actions/list-add-symbolic.svg" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/release/share/icons/gnome-light/scalable/actions/list-remove-symbolic.svg" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/release/share/icons/gnome-light/scalable/emblems/emblem-default-symbolic.svg" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/release/share/icons/gnome-light/scalable/emblems/emblem-important-symbolic.svg" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/release/share/icons/gnome-light/scalable/status/battery-caution-charging-symbolic.svg" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/release/share/icons/hicolor/index.theme" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/release/zlib1.dll" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.gitignore" beforeDir="false" afterPath="$PROJECT_DIR$/.gitignore" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/build-windows.sh" beforeDir="false" afterPath="$PROJECT_DIR$/build-windows.sh" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/packt-gtk/src/view.rs" beforeDir="false" afterPath="$PROJECT_DIR$/packt-gtk/src/view.rs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/packt.zip" beforeDir="false" afterPath="$PROJECT_DIR$/packt.zip" afterDir="false" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="TRACKING_ENABLED" value="true" />
@@ -118,11 +24,11 @@
   </component>
   <component name="FileEditorManager">
     <leaf SIDE_TABS_SIZE_LIMIT_KEY="300">
-      <file leaf-file-name="view.rs" pinned="false" current-in-tab="false">
+      <file leaf-file-name="view.rs" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/packt-gtk/src/view.rs">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="136">
-              <caret line="8" column="37" selection-start-line="8" selection-start-column="37" selection-end-line="8" selection-end-column="37" />
+            <state relative-caret-position="170">
+              <caret line="48" column="50" selection-start-line="48" selection-start-column="50" selection-end-line="48" selection-end-column="50" />
             </state>
           </provider>
         </entry>
@@ -136,11 +42,11 @@
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="Cargo.toml" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/packt-gtk/Cargo.toml">
+      <file leaf-file-name="build-windows.sh" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/build-windows.sh">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="68">
-              <caret line="4" selection-start-line="4" selection-end-line="4" />
+            <state relative-caret-position="187">
+              <caret line="11" column="8" selection-start-line="11" selection-start-column="8" selection-end-line="11" selection-end-column="8" />
             </state>
           </provider>
         </entry>
@@ -154,7 +60,7 @@
           </provider>
         </entry>
       </file>
-      <file leaf-file-name=".gitignore" pinned="false" current-in-tab="true">
+      <file leaf-file-name=".gitignore" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/.gitignore">
           <provider selected="true" editor-type-id="text-editor">
             <state>
@@ -209,7 +115,6 @@
         <option value="$PROJECT_DIR$/packt-gui/src/main.rs" />
         <option value="$PROJECT_DIR$/build_windows.sh" />
         <option value="$PROJECT_DIR$/windows-package.sh" />
-        <option value="$PROJECT_DIR$/build-windows.sh" />
         <option value="$PROJECT_DIR$/packt-gui/src/packt.glade" />
         <option value="$PROJECT_DIR$/packt-gui/src/view.rs" />
         <option value="$PROJECT_DIR$/packt-core/src/domain/problem.rs" />
@@ -217,6 +122,8 @@
         <option value="$PROJECT_DIR$/packt-gui/Cargo.toml" />
         <option value="$PROJECT_DIR$/Cargo.toml" />
         <option value="$PROJECT_DIR$/.gitignore" />
+        <option value="$PROJECT_DIR$/build-windows.sh" />
+        <option value="$PROJECT_DIR$/packt-gtk/src/view.rs" />
       </list>
     </option>
   </component>
@@ -240,6 +147,7 @@
       <foldersAlwaysOnTop value="true" />
     </navigator>
     <panes>
+      <pane id="Scope" />
       <pane id="ProjectPane">
         <subPane>
           <expand>
@@ -247,11 +155,20 @@
               <item name="packt" type="b2602c69:ProjectViewProjectNode" />
               <item name="packt" type="462c0819:PsiDirectoryNode" />
             </path>
+            <path>
+              <item name="packt" type="b2602c69:ProjectViewProjectNode" />
+              <item name="packt" type="462c0819:PsiDirectoryNode" />
+              <item name="packt-gtk" type="462c0819:PsiDirectoryNode" />
+            </path>
+            <path>
+              <item name="packt" type="b2602c69:ProjectViewProjectNode" />
+              <item name="packt" type="462c0819:PsiDirectoryNode" />
+              <item name="target" type="462c0819:PsiDirectoryNode" />
+            </path>
           </expand>
           <select />
         </subPane>
       </pane>
-      <pane id="Scope" />
     </panes>
   </component>
   <component name="PropertiesComponent">
@@ -267,6 +184,116 @@
       <recent name="$PROJECT_DIR$/packt-core/src/domain" />
       <recent name="$PROJECT_DIR$" />
     </key>
+  </component>
+  <component name="RestoreUpdateTree" date="Moments ago" ActionInfo="_Update">
+    <UpdatedFiles>
+      <FILE-GROUP>
+        <option name="myUpdateName" value="Updated from server" />
+        <option name="myStatusName" value="Changed on server" />
+        <option name="mySupportsDeletion" value="false" />
+        <option name="myCanBeAbsent" value="false" />
+        <option name="myId" value="CHANGED_ON_SERVER" />
+        <FILE-GROUP>
+          <option name="myUpdateName" value="Updated" />
+          <option name="myStatusName" value="Changed" />
+          <option name="mySupportsDeletion" value="false" />
+          <option name="myCanBeAbsent" value="false" />
+          <option name="myId" value="UPDATED" />
+          <PATH vcs="Git" revision="">$PROJECT_DIR$/packt-gtk/src/packt.glade</PATH>
+        </FILE-GROUP>
+        <FILE-GROUP>
+          <option name="myUpdateName" value="Created" />
+          <option name="myStatusName" value="Created" />
+          <option name="mySupportsDeletion" value="false" />
+          <option name="myCanBeAbsent" value="false" />
+          <option name="myId" value="CREATED" />
+        </FILE-GROUP>
+        <FILE-GROUP>
+          <option name="myUpdateName" value="Deleted" />
+          <option name="myStatusName" value="Deleted" />
+          <option name="mySupportsDeletion" value="false" />
+          <option name="myCanBeAbsent" value="true" />
+          <option name="myId" value="REMOVED_FROM_REPOSITORY" />
+        </FILE-GROUP>
+        <FILE-GROUP>
+          <option name="myUpdateName" value="Restored" />
+          <option name="myStatusName" value="Will be restored" />
+          <option name="mySupportsDeletion" value="false" />
+          <option name="myCanBeAbsent" value="false" />
+          <option name="myId" value="RESTORED" />
+        </FILE-GROUP>
+      </FILE-GROUP>
+      <FILE-GROUP>
+        <option name="myUpdateName" value="Modified" />
+        <option name="myStatusName" value="Modified" />
+        <option name="mySupportsDeletion" value="false" />
+        <option name="myCanBeAbsent" value="false" />
+        <option name="myId" value="MODIFIED" />
+      </FILE-GROUP>
+      <FILE-GROUP>
+        <option name="myUpdateName" value="Skipped" />
+        <option name="myStatusName" value="Skipped" />
+        <option name="mySupportsDeletion" value="false" />
+        <option name="myCanBeAbsent" value="false" />
+        <option name="myId" value="SKIPPED" />
+      </FILE-GROUP>
+      <FILE-GROUP>
+        <option name="myUpdateName" value="Merged with conflicts" />
+        <option name="myStatusName" value="Will be merged with conflicts" />
+        <option name="mySupportsDeletion" value="false" />
+        <option name="myCanBeAbsent" value="false" />
+        <option name="myId" value="MERGED_WITH_CONFLICTS" />
+      </FILE-GROUP>
+      <FILE-GROUP>
+        <option name="myUpdateName" value="Merged with tree conflicts" />
+        <option name="myStatusName" value="Merged with tree conflicts" />
+        <option name="mySupportsDeletion" value="false" />
+        <option name="myCanBeAbsent" value="false" />
+        <option name="myId" value="MERGED_WITH_TREE_CONFLICT" />
+      </FILE-GROUP>
+      <FILE-GROUP>
+        <option name="myUpdateName" value="Merged with property conflicts" />
+        <option name="myStatusName" value="Will be merged with property conflicts" />
+        <option name="mySupportsDeletion" value="false" />
+        <option name="myCanBeAbsent" value="false" />
+        <option name="myId" value="MERGED_WITH_PROPERTY_CONFLICT" />
+      </FILE-GROUP>
+      <FILE-GROUP>
+        <option name="myUpdateName" value="Merged" />
+        <option name="myStatusName" value="Will be merged" />
+        <option name="mySupportsDeletion" value="false" />
+        <option name="myCanBeAbsent" value="false" />
+        <option name="myId" value="MERGED" />
+      </FILE-GROUP>
+      <FILE-GROUP>
+        <option name="myUpdateName" value="Not in repository" />
+        <option name="myStatusName" value="Not in repository" />
+        <option name="mySupportsDeletion" value="true" />
+        <option name="myCanBeAbsent" value="false" />
+        <option name="myId" value="UNKNOWN" />
+      </FILE-GROUP>
+      <FILE-GROUP>
+        <option name="myUpdateName" value="Locally added" />
+        <option name="myStatusName" value="Locally added" />
+        <option name="mySupportsDeletion" value="false" />
+        <option name="myCanBeAbsent" value="false" />
+        <option name="myId" value="LOCALLY_ADDED" />
+      </FILE-GROUP>
+      <FILE-GROUP>
+        <option name="myUpdateName" value="Locally removed" />
+        <option name="myStatusName" value="Locally removed" />
+        <option name="mySupportsDeletion" value="false" />
+        <option name="myCanBeAbsent" value="false" />
+        <option name="myId" value="LOCALLY_REMOVED" />
+      </FILE-GROUP>
+      <FILE-GROUP>
+        <option name="myUpdateName" value="Switched" />
+        <option name="myStatusName" value="Switched" />
+        <option name="mySupportsDeletion" value="false" />
+        <option name="myCanBeAbsent" value="false" />
+        <option name="myId" value="SWITCHED" />
+      </FILE-GROUP>
+    </UpdatedFiles>
   </component>
   <component name="RunDashboard">
     <option name="ruleStates">
@@ -437,7 +464,8 @@
       <workItem from="1525339600078" duration="47000" />
       <workItem from="1525340250510" duration="16434000" />
       <workItem from="1525377620047" duration="2496000" />
-      <workItem from="1525382926417" duration="221000" />
+      <workItem from="1525382926417" duration="445000" />
+      <workItem from="1525441650127" duration="1140000" />
     </task>
     <task id="LOCAL-00001" summary="Initial commit">
       <created>1524731386116</created>
@@ -586,11 +614,18 @@
       <option name="project" value="LOCAL" />
       <updated>1525379933195</updated>
     </task>
-    <option name="localTasksCounter" value="22" />
+    <task id="LOCAL-00022" summary="Rename to packt-gtk">
+      <created>1525383177279</created>
+      <option name="number" value="00022" />
+      <option name="presentableId" value="LOCAL-00022" />
+      <option name="project" value="LOCAL" />
+      <updated>1525383177279</updated>
+    </task>
+    <option name="localTasksCounter" value="23" />
     <servers />
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="92880000" />
+    <option name="totallyTimeSpent" value="94244000" />
   </component>
   <component name="TodoView">
     <todo-panel id="selected-file">
@@ -605,14 +640,14 @@
     <frame x="0" y="-4" width="1920" height="1084" extended-state="6" />
     <editor active="true" />
     <layout>
-      <window_info active="true" content_ui="combo" id="Project" order="0" sideWeight="0.49261603" visible="true" weight="0.13621795" />
+      <window_info content_ui="combo" id="Project" order="0" sideWeight="0.49261603" visible="true" weight="0.11912393" />
       <window_info anchor="bottom" id="TODO" order="5" weight="0.32911393" />
       <window_info anchor="right" id="Cargo" order="3" weight="0.32959402" />
       <window_info anchor="bottom" id="Event Log" order="6" side_tool="true" weight="0.32911393" />
       <window_info anchor="bottom" id="Version Control" order="7" weight="0.32911393" />
-      <window_info anchor="right" id="Run" order="4" weight="0.5117521" />
+      <window_info anchor="right" id="Run" order="4" visible="true" weight="0.5117521" />
       <window_info id="Structure" order="1" sideWeight="0.50738394" side_tool="true" weight="0.13461539" />
-      <window_info anchor="bottom" id="Terminal" order="8" visible="true" weight="0.32911393" />
+      <window_info anchor="bottom" id="Terminal" order="8" weight="0.32805908" />
       <window_info id="Favorites" order="2" side_tool="true" />
       <window_info anchor="bottom" id="Debug" order="2" weight="0.4" />
       <window_info anchor="right" content_ui="combo" id="Hierarchy" order="2" weight="0.25" />
@@ -969,13 +1004,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/build-windows.sh">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="119">
-          <caret line="7" column="42" selection-start-line="7" selection-start-column="42" selection-end-line="7" selection-end-column="42" />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/packt-gtk/src/packt.glade">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="429">
@@ -990,31 +1018,10 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/packt-gtk/src/view.rs">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="136">
-          <caret line="8" column="37" selection-start-line="8" selection-start-column="37" selection-end-line="8" selection-end-column="37" />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/packt-core/src/domain/problem.rs">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="884">
           <caret line="52" column="43" selection-start-line="52" selection-start-column="43" selection-end-line="52" selection-end-column="43" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/packt-core/src/domain/mod.rs">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="170">
-          <caret line="10" column="13" selection-start-line="10" selection-start-column="13" selection-end-line="10" selection-end-column="13" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/packt-gtk/Cargo.toml">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="68">
-          <caret line="4" selection-start-line="4" selection-end-line="4" />
         </state>
       </provider>
     </entry>
@@ -1029,6 +1036,34 @@
       <provider selected="true" editor-type-id="text-editor">
         <state>
           <caret column="8" selection-start-column="8" selection-end-column="8" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/packt-gtk/Cargo.toml">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="68">
+          <caret line="4" selection-start-line="4" selection-end-line="4" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/packt-core/src/domain/mod.rs">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="170">
+          <caret line="10" column="13" selection-start-line="10" selection-start-column="13" selection-end-line="10" selection-end-column="13" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/build-windows.sh">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="187">
+          <caret line="11" column="8" selection-start-line="11" selection-start-column="8" selection-end-line="11" selection-end-column="8" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/packt-gtk/src/view.rs">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="170">
+          <caret line="48" column="50" selection-start-line="48" selection-start-column="50" selection-end-line="48" selection-end-column="50" />
         </state>
       </provider>
     </entry>

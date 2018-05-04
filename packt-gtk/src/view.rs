@@ -25,6 +25,7 @@ pub struct Win {
     variant: VariantOptions,
     rotation: RotationOptions,
     problem_tv: gtk::TextView,
+    save_btn: gtk::Button,
 }
 
 impl Update for Win {
@@ -45,6 +46,7 @@ impl Update for Win {
                 Options::Rotation => self.rotation.toggle(),
             },
             Msg::Generate => {
+                self.save_btn.set_sensitive(true);
                 let mut generator = Generator::new();
                 if !self.container.switch.get_active() {
                     let width =
@@ -199,6 +201,7 @@ impl Widget for Win {
             variant,
             rotation,
             problem_tv,
+            save_btn,
         }
     }
 }
