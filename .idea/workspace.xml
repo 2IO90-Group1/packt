@@ -9,10 +9,8 @@
     </configurations>
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="125db50e-7c23-466e-82aa-24abd0efd882" name="Default" comment="Rename to packt-gtk">
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/build-windows.sh" beforeDir="false" afterPath="$PROJECT_DIR$/build-windows.sh" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/packt-gtk/src/view.rs" beforeDir="false" afterPath="$PROJECT_DIR$/packt-gtk/src/view.rs" afterDir="false" />
+    <list default="true" id="125db50e-7c23-466e-82aa-24abd0efd882" name="Default" comment="">
+      <change beforePath="$PROJECT_DIR$/.gitignore" beforeDir="false" afterPath="$PROJECT_DIR$/.gitignore" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/packt.zip" beforeDir="false" afterPath="$PROJECT_DIR$/packt.zip" afterDir="false" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
@@ -24,7 +22,7 @@
   </component>
   <component name="FileEditorManager">
     <leaf SIDE_TABS_SIZE_LIMIT_KEY="300">
-      <file leaf-file-name="view.rs" pinned="false" current-in-tab="true">
+      <file leaf-file-name="view.rs" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/packt-gtk/src/view.rs">
           <provider selected="true" editor-type-id="text-editor">
             <state relative-caret-position="170">
@@ -60,11 +58,11 @@
           </provider>
         </entry>
       </file>
-      <file leaf-file-name=".gitignore" pinned="false" current-in-tab="false">
+      <file leaf-file-name=".gitignore" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/.gitignore">
           <provider selected="true" editor-type-id="text-editor">
-            <state>
-              <caret column="8" selection-start-column="8" selection-end-column="8" />
+            <state relative-caret-position="68">
+              <caret line="4" column="9" selection-start-line="4" selection-start-column="9" selection-end-line="4" selection-end-column="9" />
             </state>
           </provider>
         </entry>
@@ -121,9 +119,9 @@
         <option value="$PROJECT_DIR$/packt-core/src/domain/mod.rs" />
         <option value="$PROJECT_DIR$/packt-gui/Cargo.toml" />
         <option value="$PROJECT_DIR$/Cargo.toml" />
-        <option value="$PROJECT_DIR$/.gitignore" />
         <option value="$PROJECT_DIR$/build-windows.sh" />
         <option value="$PROJECT_DIR$/packt-gtk/src/view.rs" />
+        <option value="$PROJECT_DIR$/.gitignore" />
       </list>
     </option>
   </component>
@@ -154,6 +152,11 @@
             <path>
               <item name="packt" type="b2602c69:ProjectViewProjectNode" />
               <item name="packt" type="462c0819:PsiDirectoryNode" />
+            </path>
+            <path>
+              <item name="packt" type="b2602c69:ProjectViewProjectNode" />
+              <item name="packt" type="462c0819:PsiDirectoryNode" />
+              <item name=".cargo" type="462c0819:PsiDirectoryNode" />
             </path>
             <path>
               <item name="packt" type="b2602c69:ProjectViewProjectNode" />
@@ -465,7 +468,7 @@
       <workItem from="1525340250510" duration="16434000" />
       <workItem from="1525377620047" duration="2496000" />
       <workItem from="1525382926417" duration="445000" />
-      <workItem from="1525441650127" duration="1140000" />
+      <workItem from="1525441650127" duration="1514000" />
     </task>
     <task id="LOCAL-00001" summary="Initial commit">
       <created>1524731386116</created>
@@ -621,11 +624,25 @@
       <option name="project" value="LOCAL" />
       <updated>1525383177279</updated>
     </task>
-    <option name="localTasksCounter" value="23" />
+    <task id="LOCAL-00023" summary="Fix bug preventing the save button from becoming enabled">
+      <created>1525442840661</created>
+      <option name="number" value="00023" />
+      <option name="presentableId" value="LOCAL-00023" />
+      <option name="project" value="LOCAL" />
+      <updated>1525442840661</updated>
+    </task>
+    <task id="LOCAL-00024" summary="Include windows compilation config in project">
+      <created>1525443038225</created>
+      <option name="number" value="00024" />
+      <option name="presentableId" value="LOCAL-00024" />
+      <option name="project" value="LOCAL" />
+      <updated>1525443038225</updated>
+    </task>
+    <option name="localTasksCounter" value="25" />
     <servers />
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="94244000" />
+    <option name="totallyTimeSpent" value="94618000" />
   </component>
   <component name="TodoView">
     <todo-panel id="selected-file">
@@ -640,7 +657,7 @@
     <frame x="0" y="-4" width="1920" height="1084" extended-state="6" />
     <editor active="true" />
     <layout>
-      <window_info content_ui="combo" id="Project" order="0" sideWeight="0.49261603" visible="true" weight="0.11912393" />
+      <window_info active="true" content_ui="combo" id="Project" order="0" sideWeight="0.49261603" visible="true" weight="0.11912393" />
       <window_info anchor="bottom" id="TODO" order="5" weight="0.32911393" />
       <window_info anchor="right" id="Cargo" order="3" weight="0.32959402" />
       <window_info anchor="bottom" id="Event Log" order="6" side_tool="true" weight="0.32911393" />
@@ -716,7 +733,9 @@
     <MESSAGE value="Fix cross compilation issues" />
     <MESSAGE value="Connect option buttons" />
     <MESSAGE value="Rename to packt-gtk" />
-    <option name="LAST_COMMIT_MESSAGE" value="Rename to packt-gtk" />
+    <MESSAGE value="Fix bug preventing the save button from becoming enabled" />
+    <MESSAGE value="Include windows compilation config in project" />
+    <option name="LAST_COMMIT_MESSAGE" value="Include windows compilation config in project" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
@@ -1032,13 +1051,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/.gitignore">
-      <provider selected="true" editor-type-id="text-editor">
-        <state>
-          <caret column="8" selection-start-column="8" selection-end-column="8" />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/packt-gtk/Cargo.toml">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="68">
@@ -1064,6 +1076,13 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="170">
           <caret line="48" column="50" selection-start-line="48" selection-start-column="50" selection-end-line="48" selection-end-column="50" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/.gitignore">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="68">
+          <caret line="4" column="9" selection-start-line="4" selection-start-column="9" selection-end-line="4" selection-end-column="9" />
         </state>
       </provider>
     </entry>
