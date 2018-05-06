@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 export GTK_INSTALL_PATH=/opt/gtkwin
-export RELEASE=packt-windows
+export RELEASE=release-windows
 
 mkdir ${RELEASE}
 cp target/x86_64-pc-windows-gnu/release/*.exe ${RELEASE}

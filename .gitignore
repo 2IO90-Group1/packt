@@ -1,4 +1,4 @@
-/release
+/release-windows
 /target
 **/*.rs.bk
 Cargo.lock
