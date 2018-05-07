@@ -11,21 +11,22 @@ pub struct Model {
 
 #[derive(Msg)]
 pub enum Msg {
-    Toggle(Options),
+    Toggle(Setting),
     Generate,
     Save,
     Quit,
 }
 
-pub struct Win {
-    model: Model,
+struct Widgets {
     window: gtk::Window,
-    container: ContainerOptions,
-    amount: AmountOptions,
-    variant: VariantOptions,
-    rotation: RotationOptions,
+    settings: SettingsPanel,
     problem_tv: gtk::TextView,
     save_btn: gtk::Button,
+}
+
+pub struct Win {
+    model: Model,
+    widgets: Widgets,
 }
 
 impl Update for Win {
@@ -39,95 +40,25 @@ impl Update for Win {
 
     fn update(&mut self, event: Self::Msg) {
         match event {
-            Msg::Toggle(c) => match c {
-                Options::Container => self.container.toggle(),
-                Options::Amount => self.amount.toggle(),
-                Options::Variant => self.variant.toggle(),
-                Options::Rotation => self.rotation.toggle(),
-            },
-            Msg::Generate => {
-                self.save_btn.set_sensitive(true);
-                let mut generator = Generator::new();
-                if !self.container.switch.get_active() {
-                    let width =
-                        self.container.width_spinbtn.get_value_as_int() as u32;
-                    let height =
-                        self.container.height_spinbtn.get_value_as_int() as u32;
-                    generator.container(Rectangle::new(width, height));
-                }
-
-                if !self.amount.switch.get_active() {
-                    let amount =
-                        self.amount.spinbtn.get_value_as_int() as usize;
-                    generator.rectangles(amount);
-                }
-
-                if !self.variant.switch.get_active() {
-                    let v = if self.variant.fixed_radio.get_active() {
-                        Variant::Fixed(0)
-                    } else {
-                        Variant::Free
-                    };
-
-                    generator.variant(v);
-                }
-
-                if !self.rotation.switch.get_active() {
-                    let r = self.rotation.checkbtn.get_active();
-                    generator.allow_rotation(r);
-                }
-
-                let problem = generator.generate();
-                let problem_text = problem.digest();
-
-                self.model.problem = Some(problem);
-                self.problem_tv
-                    .get_buffer()
-                    .expect("couldn't get buffer")
-                    .set_text(&problem_text);
-            }
-            Msg::Save => {
-                let dialog = gtk::FileChooserDialog::new(
-                    Some("Save File"),
-                    Some(&self.window),
-                    gtk::FileChooserAction::Save,
-                );
-
-                let cancel: i32 = gtk::ResponseType::Cancel.into();
-                let accept: i32 = gtk::ResponseType::Accept.into();
-                dialog.add_button("Cancel", cancel);
-                dialog.add_button("Save", accept);
-
-                if let Ok(p) = std::env::current_dir() {
-                    dialog.set_current_folder(p);
-                } else if let Some(p) = std::env::home_dir() {
-                    dialog.set_current_folder(p);
-                }
-
-                if accept == dialog.run() {
-                    if let Some(path) = dialog.get_filename() {
-                        self.model
-                            .problem
-                            .as_ref()
-                            .unwrap()
-                            .save(path)
-                            .unwrap();
-                    }
-                }
-                dialog.close();
-            }
+            Msg::Toggle(c) => self.widgets.settings.toggle(c),
+            Msg::Generate => self.generate_problem(),
+            Msg::Save => self.save_problem(),
             Msg::Quit => gtk::main_quit(),
         }
     }
 }
 
+
 impl Widget for Win {
     type Root = gtk::Window;
 
     fn root(&self) -> Self::Root {
-        self.window.clone()
+        self.widgets.window.clone()
     }
+
     fn view(relm: &Relm<Self>, model: Self::Model) -> Self {
+        use self::Setting::*;
+
         let glade_src = include_str!("packt.glade");
         let builder = gtk::Builder::new_from_string(glade_src);
 
@@ -141,36 +72,34 @@ impl Widget for Win {
             return (Some(Msg::Quit), Inhibit(false))
         );
 
-        let container = ContainerOptions::from_builder(&builder);
+        let settings = SettingsPanel::from_builder(&builder);
+
         connect!(
             relm,
-            container.switch,
+            settings.container_switch,
             connect_toggled(_),
-            Msg::Toggle(Options::Container)
+            Msg::Toggle(Container)
         );
 
-        let amount = AmountOptions::from_builder(&builder);
         connect!(
             relm,
-            amount.switch,
+            settings.amount_switch,
             connect_toggled(_),
-            Msg::Toggle(Options::Amount)
+            Msg::Toggle(Amount)
         );
 
-        let variant = VariantOptions::from_builder(&builder);
         connect!(
             relm,
-            variant.switch,
+            settings.variant_switch,
             connect_toggled(_),
-            Msg::Toggle(Options::Variant)
+            Msg::Toggle(Variant)
         );
 
-        let rotation = RotationOptions::from_builder(&builder);
         connect!(
             relm,
-            rotation.switch,
+            settings.rotation_switch,
             connect_toggled(_),
-            Msg::Toggle(Options::Rotation)
+            Msg::Toggle(Rotation)
         );
 
         let generate_btn: gtk::Button = builder
@@ -193,128 +122,169 @@ impl Widget for Win {
             .expect("couldn't get problem_textview");
 
         window.show_all();
+
         Win {
             model,
-            window,
-            container,
-            amount,
-            variant,
-            rotation,
-            problem_tv,
-            save_btn,
+            widgets: Widgets {
+                window,
+                settings,
+                problem_tv,
+                save_btn,
+            },
         }
     }
 }
 
-pub enum Options {
+pub enum Setting {
     Container,
     Amount,
     Variant,
     Rotation,
 }
 
-struct ContainerOptions {
-    switch: gtk::CheckButton,
-    filters_box: gtk::Box,
-    width_spinbtn: gtk::SpinButton,
-    height_spinbtn: gtk::SpinButton,
+struct SettingsPanel {
+    container_switch: gtk::CheckButton,
+    container_filters_box: gtk::Box,
+    container_width_spinbtn: gtk::SpinButton,
+    container_height_spinbtn: gtk::SpinButton,
+    amount_switch: gtk::CheckButton,
+    amount_spinbtn: gtk::SpinButton,
+    variant_switch: gtk::CheckButton,
+    variant_btn_box: gtk::ButtonBox,
+    variant_fixed_radio: gtk::RadioButton,
+    rotation_switch: gtk::CheckButton,
+    rotation_checkbtn: gtk::CheckButton,
 }
 
-impl ContainerOptions {
+impl SettingsPanel {
     fn from_builder(builder: &gtk::Builder) -> Self {
-        let switch = builder.get_object("container_btn").unwrap();
-        let filters_box = builder
+        let container_switch = builder.get_object("container_btn").unwrap();
+        let container_filters_box = builder
             .get_object("container_filter_box")
             .unwrap();
-        let width_spinbtn = builder
+        let container_width_spinbtn = builder
             .get_object("container_width_spinbtn")
             .unwrap();
-        let height_spinbtn = builder
+        let container_height_spinbtn = builder
             .get_object("container_height_spinbtn")
             .unwrap();
-
-        ContainerOptions {
-            switch,
-            filters_box,
-            width_spinbtn,
-            height_spinbtn,
-        }
-    }
-
-    fn toggle(&mut self) {
-        self.filters_box
-            .set_sensitive(!self.switch.get_active());
-    }
-}
-
-struct AmountOptions {
-    switch: gtk::CheckButton,
-    spinbtn: gtk::SpinButton,
-}
-
-impl AmountOptions {
-    fn from_builder(builder: &gtk::Builder) -> Self {
-        let switch = builder.get_object("amount_btn").unwrap();
-        let spinbtn = builder.get_object("amount_spinbtn").unwrap();
-        AmountOptions {
-            switch,
-            spinbtn,
-        }
-    }
-
-    fn toggle(&mut self) {
-        self.spinbtn
-            .set_sensitive(!self.switch.get_active());
-    }
-}
-
-struct VariantOptions {
-    switch: gtk::CheckButton,
-    btn_box: gtk::ButtonBox,
-    fixed_radio: gtk::RadioButton,
-}
-
-impl VariantOptions {
-    fn from_builder(builder: &gtk::Builder) -> Self {
-        let switch = builder.get_object("variant_btn").unwrap();
-        let btn_box = builder.get_object("variant_btn_box").unwrap();
-        let fixed_radio = builder
+        let amount_switch = builder.get_object("amount_btn").unwrap();
+        let amount_spinbtn = builder.get_object("amount_spinbtn").unwrap();
+        let variant_switch = builder.get_object("variant_btn").unwrap();
+        let variant_btn_box = builder.get_object("variant_btn_box").unwrap();
+        let variant_fixed_radio = builder
             .get_object("variant_fixed_rbtn")
             .unwrap();
         let _free_radio: gtk::RadioButton =
             builder.get_object("variant_free_rbtn").unwrap();
+        let rotation_switch = builder.get_object("rotation_btn").unwrap();
+        let rotation_checkbtn =
+            builder.get_object("rotation_checkbtn").unwrap();
 
-        VariantOptions {
-            switch,
-            btn_box,
-            fixed_radio,
+        SettingsPanel {
+            container_switch,
+            container_filters_box,
+            container_width_spinbtn,
+            container_height_spinbtn,
+            amount_switch,
+            amount_spinbtn,
+            variant_switch,
+            variant_btn_box,
+            variant_fixed_radio,
+            rotation_switch,
+            rotation_checkbtn,
         }
     }
 
-    fn toggle(&mut self) {
-        self.btn_box
-            .set_sensitive(!self.switch.get_active());
-    }
-}
-
-struct RotationOptions {
-    switch: gtk::CheckButton,
-    checkbtn: gtk::CheckButton,
-}
-
-impl RotationOptions {
-    fn from_builder(builder: &gtk::Builder) -> Self {
-        let switch = builder.get_object("rotation_btn").unwrap();
-        let checkbtn = builder.get_object("rotation_checkbtn").unwrap();
-
-        RotationOptions {
-            switch,
-            checkbtn,
+    fn toggle(&mut self, o: Setting) {
+        use self::Setting::*;
+        match o {
+            Container => self.container_filters_box
+                .set_sensitive(!self.container_switch.get_active()),
+            Amount => self.amount_spinbtn
+                .set_sensitive(!self.amount_switch.get_active()),
+            Variant => self.variant_btn_box
+                .set_sensitive(!self.variant_switch.get_active()),
+            Rotation => self.rotation_checkbtn
+                .set_sensitive(!self.rotation_switch.get_active()),
         }
     }
+}
 
-    fn toggle(&mut self) {
-        self.checkbtn
-            .set_sensitive(!self.switch.get_active());
+impl Win {
+    fn save_problem(&mut self) {
+        let dialog = gtk::FileChooserDialog::new(
+            Some("Save File"),
+            Some(&self.widgets.window),
+            gtk::FileChooserAction::Save,
+        );
+
+        let cancel: i32 = gtk::ResponseType::Cancel.into();
+        let accept: i32 = gtk::ResponseType::Accept.into();
+        dialog.add_button("Cancel", cancel);
+        dialog.add_button("Save", accept);
+
+        if let Ok(p) = std::env::current_dir() {
+            dialog.set_current_folder(p);
+        } else if let Some(p) = std::env::home_dir() {
+            dialog.set_current_folder(p);
+        }
+
+        if accept == dialog.run() {
+            if let Some(path) = dialog.get_filename() {
+                self.model
+                    .problem
+                    .as_ref()
+                    .unwrap()
+                    .save(path)
+                    .unwrap();
+            }
+        }
+        dialog.close();
+    }
+
+    fn generate_problem(&mut self) {
+        let settings = &self.widgets.settings;
+
+        self.widgets.save_btn.set_sensitive(true);
+        let mut generator = Generator::new();
+        if !settings.container_switch.get_active() {
+            let width = settings
+                .container_width_spinbtn
+                .get_value_as_int() as u32;
+            let height = settings
+                .container_height_spinbtn
+                .get_value_as_int() as u32;
+            generator.container(Rectangle::new(width, height));
+        }
+
+        if !settings.amount_switch.get_active() {
+            let amount = settings.amount_spinbtn.get_value_as_int() as usize;
+            generator.rectangles(amount);
+        }
+
+        if !settings.variant_switch.get_active() {
+            let v = if settings.variant_fixed_radio.get_active() {
+                Variant::Fixed(0)
+            } else {
+                Variant::Free
+            };
+
+            generator.variant(v);
+        }
+
+        if !settings.rotation_switch.get_active() {
+            let r = settings.rotation_checkbtn.get_active();
+            generator.allow_rotation(r);
+        }
+
+        let problem = generator.generate();
+        let problem_text = problem.digest();
+        self.model.problem = Some(problem);
+        self.widgets
+            .problem_tv
+            .get_buffer()
+            .expect("couldn't get buffer")
+            .set_text(&problem_text);
     }
 }

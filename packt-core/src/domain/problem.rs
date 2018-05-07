@@ -230,7 +230,6 @@ impl Generator {
         self.rectangles
             .map(|n| min(n, r.area() as usize));
     }
-
 }
 
 #[derive(Clone, Copy, Debug, PartialEq)]
