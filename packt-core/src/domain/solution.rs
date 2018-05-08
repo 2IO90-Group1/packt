@@ -17,8 +17,7 @@ impl Solution {
     /// # Complexity
     ///
     /// Takes quadratic (in `self.placements.len()`) time.
-
-    fn is_valid(&self) -> bool {
+    pub fn is_valid(&self) -> bool {
         self.placements
             .iter()
             .enumerate()
@@ -89,7 +88,6 @@ impl FromStr for Solution {
 }
 
 #[cfg(test)]
-
 mod tests {
 
     use super::*;
@@ -97,10 +95,8 @@ mod tests {
     use std::iter;
 
     #[test]
-
     fn solution_parsing() {
         let r1 = Rectangle::new(12, 8);
-
         let r2 = Rectangle::new(10, 9);
 
         let problem = Problem {
@@ -125,17 +121,13 @@ mod tests {
                      rectangles\n0 0\n24 3";
 
         let result: Solution = input.parse().unwrap();
-
         assert_eq!(result, expected);
     }
 
     #[test]
-
     fn validation() {
         let r = Rectangle::new(10, 9);
-
         let rectangles = vec![r; 10000];
-
         let problem = Problem {
             variant: Variant::Fixed(22),
             allow_rotation: false,
@@ -144,7 +136,6 @@ mod tests {
         };
 
         let mut coord = Point::new(0, 0);
-
         let placements = iter::repeat(r)
             .take(10000)
             .map(|r| {
@@ -164,11 +155,8 @@ mod tests {
         };
 
         assert!(solution.is_valid());
-
         let p = Placement::new(r, Normal, Point::new(0, 0));
-
         solution.placements = vec![p; 10000];
-
         assert!(!solution.is_valid());
     }
 
