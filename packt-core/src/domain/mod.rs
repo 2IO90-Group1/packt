@@ -180,22 +180,15 @@ pub struct Placement {
 }
 
 impl Placement {
-    fn overlaps(&self, rhs: &Placement) -> bool {
-        rhs.bottom_left.y <= self.top_right.y
-            && rhs.bottom_left.x <= self.top_right.x
-            && self.bottom_left.y <= rhs.top_right.y
-            && self.bottom_left.x <= rhs.top_right.x
-    }
-
     fn new(r: Rectangle, rotation: Rotation, bottom_left: Point) -> Placement {
         let (width, height) = match rotation {
             Normal => (r.width, r.height),
             Rotated => (r.height, r.width),
         };
 
-        let x_max = bottom_left.x + width;
+        let x_max = bottom_left.x + width - 1;
 
-        let y_max = bottom_left.y + height;
+        let y_max = bottom_left.y + height - 1;
 
         let top_right = Point::new(x_max, y_max);
 
@@ -205,5 +198,12 @@ impl Placement {
             bottom_left,
             top_right,
         }
+    }
+
+    fn overlaps(&self, rhs: &Placement) -> bool {
+        rhs.bottom_left.y <= self.top_right.y
+            && rhs.bottom_left.x <= self.top_right.x
+            && self.bottom_left.y <= rhs.top_right.y
+            && self.bottom_left.x <= rhs.top_right.x
     }
 }
