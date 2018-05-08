@@ -1,9 +1,15 @@
 use gtk::{self, prelude::*};
+use gtk::{ButtonsType, DialogFlags, MessageType};
 use packt_core::domain;
 use packt_core::domain::problem::{Generator, Variant};
 use packt_core::domain::Rectangle;
+use packt_core::domain::Solution;
 use relm::{Relm, Update, Widget};
 use std;
+use std::fs::DirBuilder;
+use std::io::{Read, Write};
+use std::process::Command;
+use std::process::Stdio;
 
 pub struct Model {
     problem: Option<domain::Problem>,
@@ -14,6 +20,7 @@ pub enum Msg {
     Toggle(Setting),
     Generate,
     Save,
+    Run,
     Quit,
 }
 
@@ -22,6 +29,7 @@ struct Widgets {
     settings: SettingsPanel,
     problem_tv: gtk::TextView,
     save_btn: gtk::Button,
+    run_btn: gtk::Button,
 }
 
 pub struct Win {
@@ -43,6 +51,7 @@ impl Update for Win {
             Msg::Toggle(c) => self.widgets.settings.toggle(c),
             Msg::Generate => self.generate_problem(),
             Msg::Save => self.save_problem(),
+            Msg::Run => self.run_problem(),
             Msg::Quit => gtk::main_quit(),
         }
     }
@@ -63,7 +72,7 @@ impl Widget for Win {
         let builder = gtk::Builder::new_from_string(glade_src);
 
         let window: gtk::Window = builder
-            .get_object("generator_window")
+            .get_object("main_window")
             .expect("couldn't get main_window");
         connect!(
             relm,
@@ -117,6 +126,11 @@ impl Widget for Win {
             .expect("couldn't get save_button");
         connect!(relm, save_btn, connect_clicked(_), Msg::Save);
 
+        let run_btn: gtk::Button = builder
+            .get_object("run_button")
+            .expect("couldn't get run_button");
+        connect!(relm, run_btn, connect_clicked(_), Msg::Run);
+
         let problem_tv: gtk::TextView = builder
             .get_object("problem_textview")
             .expect("couldn't get problem_textview");
@@ -130,6 +144,7 @@ impl Widget for Win {
                 settings,
                 problem_tv,
                 save_btn,
+                run_btn,
             },
         }
     }
@@ -212,6 +227,77 @@ impl SettingsPanel {
 }
 
 impl Win {
+    fn run_problem(&mut self) {
+//        const path: &str = "/tmp/packt";
+//        DirBuilder::new()
+//            .recursive(true)
+//            .create(path)
+//            .unwrap();
+//
+//        Command::new("javac")
+//            .args(&[
+//                "-d",
+//                path,
+//                "-sourcepath",
+//                "/home/frank/dev/dbl-algorithms/solver/src",
+//                "/home/frank/dev/dbl-algorithms/solver/src/PackingSolver.java",
+//            ])
+//            .output()
+//            .unwrap();
+//        let mut child = Command::new("java")
+//            .args(&["-cp", path, "PackingSolver"])
+//            .stdin(Stdio::piped())
+//            .stdout(Stdio::piped())
+//            .spawn()
+//            .expect("Failed to spawn child process");
+
+        const path: &str = "/home/frank/dev/dbl-algorithms/solver/out/artifacts/PackingSolver/PackingSolver.jar";
+
+        let mut child = Command::new("java")
+            .args(&["-jar", path])
+            .stdin(Stdio::piped())
+            .stdout(Stdio::piped())
+            .spawn()
+            .expect("Failed to spawn child process");
+
+        {
+            let stdin = child
+                .stdin
+                .as_mut()
+                .expect("Failed to open stdin");
+            stdin
+                .write_all(&self.model
+                    .problem
+                    .clone()
+                    .unwrap()
+                    .to_string()
+                    .as_bytes())
+                .unwrap();
+        }
+
+        let output = child
+            .wait_with_output()
+            .expect("Failed to read stdout");
+
+        let out = String::from_utf8_lossy(&output.stdout);
+        println!("{}", out);
+        let solution: Solution = out
+            .parse()
+            .unwrap();
+        let dialog = gtk::MessageDialog::new(
+            Some(&self.widgets.window),
+            DialogFlags::DESTROY_WITH_PARENT,
+            MessageType::Info,
+            ButtonsType::Close,
+            if solution.is_valid() { "Valid solution"} else {"Invalid solution"},
+        );
+
+        dialog.run();
+        dialog.close();
+    }
+    //javac -d bin -sourcepath src -cp lib/lib1.jar;lib/lib2.jar
+    // src/com/example/Application.java
+
     fn save_problem(&mut self) {
         let dialog = gtk::FileChooserDialog::new(
             Some("Save File"),
@@ -244,9 +330,10 @@ impl Win {
     }
 
     fn generate_problem(&mut self) {
-        let settings = &self.widgets.settings;
-
         self.widgets.save_btn.set_sensitive(true);
+        self.widgets.run_btn.set_sensitive(true);
+
+        let settings = &self.widgets.settings;
         let mut generator = Generator::new();
         if !settings.container_switch.get_active() {
             let width = settings
