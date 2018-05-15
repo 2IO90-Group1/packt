@@ -3,9 +3,7 @@ use failure::Error;
 use std::iter;
 use std::str::FromStr;
 
-// TODO: consider taking over part of `Problem`s fields instead
 #[derive(Clone, Debug, PartialEq)]
-
 pub struct Solution {
     problem: Problem,
     placements: Vec<Placement>,
@@ -32,8 +30,7 @@ impl FromStr for Solution {
     type Err = Error;
 
     fn from_str(s: &str) -> Result<Self, <Self as FromStr>::Err> {
-        let mut parts = s.split("placement of rectangles")
-            .map(str::trim);
+        let mut parts = s.split("placement of rectangles").map(str::trim);
 
         let problem: Problem = parts
             .next()

@@ -50,10 +50,8 @@ impl Rectangle {
     }
 
     fn gen_with_area(area: u32) -> Rectangle {
-        let divisors: Vec<u32> = (1..=area)
-            .into_iter()
-            .filter(|i| area % i == 0)
-            .collect();
+        let divisors: Vec<u32> =
+            (1..=area).into_iter().filter(|i| area % i == 0).collect();
 
         let mut rng = rand::thread_rng();
         let n = divisors.len() as f64;

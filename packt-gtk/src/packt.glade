@@ -16,11 +16,27 @@
     <property name="step_increment">5</property>
     <property name="page_increment">10</property>
   </object>
+  <object class="GtkFileFilter" id="jar_filter">
+    <mime-types>
+      <mime-type>application/java-archive</mime-type>
+    </mime-types>
+  </object>
+  <object class="GtkAdjustment" id="width_adj">
+    <property name="lower">3</property>
+    <property name="upper">100000000</property>
+    <property name="value">10</property>
+    <property name="step_increment">5</property>
+    <property name="page_increment">10</property>
+  </object>
   <object class="GtkWindow" id="main_window">
     <property name="can_focus">False</property>
     <property name="title" translatable="yes">Packt</property>
     <property name="window_position">center</property>
+    <property name="default_width">750</property>
     <property name="default_height">500</property>
+    <child>
+      <placeholder/>
+    </child>
     <child>
       <object class="GtkPaned" id="main_paned">
         <property name="visible">True</property>
@@ -386,21 +402,6 @@
                     <property name="position">1</property>
                   </packing>
                 </child>
-                <child>
-                  <object class="GtkButton" id="run_button">
-                    <property name="label" translatable="yes">Run</property>
-                    <property name="visible">True</property>
-                    <property name="sensitive">False</property>
-                    <property name="can_focus">True</property>
-                    <property name="receives_default">True</property>
-                    <property name="always_show_image">True</property>
-                  </object>
-                  <packing>
-                    <property name="expand">True</property>
-                    <property name="fill">True</property>
-                    <property name="position">2</property>
-                  </packing>
-                </child>
               </object>
               <packing>
                 <property name="expand">False</property>
@@ -416,13 +417,77 @@
           </packing>
         </child>
         <child>
-          <object class="GtkBox" id="problem_box">
+          <object class="GtkBox" id="runner_box">
             <property name="visible">True</property>
             <property name="can_focus">False</property>
+            <property name="hexpand">True</property>
+            <property name="vexpand">True</property>
+            <property name="orientation">vertical</property>
             <child>
-              <object class="GtkListBox" id="problem_listbox">
+              <object class="GtkBox" id="problem_box">
                 <property name="visible">True</property>
                 <property name="can_focus">False</property>
+                <child>
+                  <object class="GtkListBox" id="selected_listbox">
+                    <property name="visible">True</property>
+                    <property name="can_focus">False</property>
+                  </object>
+                  <packing>
+                    <property name="expand">True</property>
+                    <property name="fill">True</property>
+                    <property name="position">0</property>
+                  </packing>
+                </child>
+                <child>
+                  <object class="GtkToolbar" id="problem_toolbar">
+                    <property name="visible">True</property>
+                    <property name="can_focus">False</property>
+                    <property name="orientation">vertical</property>
+                    <property name="icon_size">1</property>
+                    <child>
+                      <object class="GtkToolButton" id="select_problem_btn">
+                        <property name="visible">True</property>
+                        <property name="sensitive">False</property>
+                        <property name="can_focus">False</property>
+                        <property name="use_underline">True</property>
+                        <property name="icon_name">list-add</property>
+                      </object>
+                      <packing>
+                        <property name="expand">False</property>
+                        <property name="homogeneous">True</property>
+                      </packing>
+                    </child>
+                    <child>
+                      <object class="GtkToolButton" id="unselect_problem_btn">
+                        <property name="visible">True</property>
+                        <property name="sensitive">False</property>
+                        <property name="can_focus">False</property>
+                        <property name="use_underline">True</property>
+                        <property name="icon_name">list-remove</property>
+                      </object>
+                      <packing>
+                        <property name="expand">False</property>
+                        <property name="homogeneous">True</property>
+                      </packing>
+                    </child>
+                  </object>
+                  <packing>
+                    <property name="expand">False</property>
+                    <property name="fill">True</property>
+                    <property name="position">1</property>
+                  </packing>
+                </child>
+                <child>
+                  <object class="GtkListBox" id="problem_listbox">
+                    <property name="visible">True</property>
+                    <property name="can_focus">False</property>
+                  </object>
+                  <packing>
+                    <property name="expand">True</property>
+                    <property name="fill">True</property>
+                    <property name="position">2</property>
+                  </packing>
+                </child>
               </object>
               <packing>
                 <property name="expand">True</property>
@@ -431,51 +496,44 @@
               </packing>
             </child>
             <child>
-              <object class="GtkToolbar" id="problem_toolbar">
+              <object class="GtkButtonBox" id="running_button_box">
                 <property name="visible">True</property>
                 <property name="can_focus">False</property>
-                <property name="orientation">vertical</property>
-                <property name="icon_size">1</property>
+                <property name="homogeneous">True</property>
+                <property name="layout_style">expand</property>
                 <child>
-                  <object class="GtkToolButton" id="select_problem_btn">
+                  <object class="GtkFileChooserButton" id="solver_filechooser">
                     <property name="visible">True</property>
                     <property name="can_focus">False</property>
-                    <property name="use_underline">True</property>
-                    <property name="icon_name">list-add</property>
+                    <property name="filter">jar_filter</property>
+                    <property name="title" translatable="yes">Pick solver</property>
                   </object>
                   <packing>
-                    <property name="expand">False</property>
-                    <property name="homogeneous">True</property>
+                    <property name="expand">True</property>
+                    <property name="fill">True</property>
+                    <property name="position">0</property>
                   </packing>
                 </child>
                 <child>
-                  <object class="GtkToolButton" id="unselect_problem_btn">
+                  <object class="GtkButton" id="run_button">
+                    <property name="label" translatable="yes">Run</property>
                     <property name="visible">True</property>
                     <property name="sensitive">False</property>
-                    <property name="can_focus">False</property>
-                    <property name="use_underline">True</property>
-                    <property name="icon_name">list-remove</property>
+                    <property name="can_focus">True</property>
+                    <property name="receives_default">True</property>
+                    <property name="always_show_image">True</property>
                   </object>
                   <packing>
-                    <property name="expand">False</property>
-                    <property name="homogeneous">True</property>
+                    <property name="expand">True</property>
+                    <property name="fill">True</property>
+                    <property name="position">1</property>
                   </packing>
                 </child>
               </object>
               <packing>
                 <property name="expand">False</property>
                 <property name="fill">True</property>
-                <property name="position">2</property>
-              </packing>
-            </child>
-            <child>
-              <object class="GtkListBox" id="selected_listbox">
-                <property name="visible">True</property>
-                <property name="can_focus">False</property>
-              </object>
-              <packing>
-                <property name="expand">True</property>
-                <property name="fill">True</property>
+                <property name="pack_type">end</property>
                 <property name="position">4</property>
               </packing>
             </child>
@@ -487,12 +545,5 @@
         </child>
       </object>
     </child>
-  </object>
-  <object class="GtkAdjustment" id="width_adj">
-    <property name="lower">3</property>
-    <property name="upper">100000000</property>
-    <property name="value">10</property>
-    <property name="step_increment">5</property>
-    <property name="page_increment">10</property>
   </object>
 </interface>

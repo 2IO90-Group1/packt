@@ -30,6 +30,7 @@ struct Widgets {
     problem_tv: gtk::TextView,
     save_btn: gtk::Button,
     run_btn: gtk::Button,
+    solver_filechooser: gtk::FileChooser,
 }
 
 pub struct Win {
@@ -114,12 +115,7 @@ impl Widget for Win {
         let generate_btn: gtk::Button = builder
             .get_object("generate_button")
             .expect("couldn't get generate_button");
-        connect!(
-            relm,
-            generate_btn,
-            connect_clicked(_),
-            Msg::Generate
-        );
+        connect!(relm, generate_btn, connect_clicked(_), Msg::Generate);
 
         let save_btn: gtk::Button = builder
             .get_object("save_button")
@@ -135,6 +131,10 @@ impl Widget for Win {
             .get_object("problem_textview")
             .expect("couldn't get problem_textview");
 
+        let solver_filechooser: gtk::FileChooser = builder
+            .get_object("solver_filechooser")
+            .expect("failed to get solver_filechooser");
+
         window.show_all();
 
         Win {
@@ -145,6 +145,7 @@ impl Widget for Win {
                 problem_tv,
                 save_btn,
                 run_btn,
+                solver_filechooser,
             },
         }
     }
@@ -174,22 +175,18 @@ struct SettingsPanel {
 impl SettingsPanel {
     fn from_builder(builder: &gtk::Builder) -> Self {
         let container_switch = builder.get_object("container_btn").unwrap();
-        let container_filters_box = builder
-            .get_object("container_filter_box")
-            .unwrap();
-        let container_width_spinbtn = builder
-            .get_object("container_width_spinbtn")
-            .unwrap();
-        let container_height_spinbtn = builder
-            .get_object("container_height_spinbtn")
-            .unwrap();
+        let container_filters_box =
+            builder.get_object("container_filter_box").unwrap();
+        let container_width_spinbtn =
+            builder.get_object("container_width_spinbtn").unwrap();
+        let container_height_spinbtn =
+            builder.get_object("container_height_spinbtn").unwrap();
         let amount_switch = builder.get_object("amount_btn").unwrap();
         let amount_spinbtn = builder.get_object("amount_spinbtn").unwrap();
         let variant_switch = builder.get_object("variant_btn").unwrap();
         let variant_btn_box = builder.get_object("variant_btn_box").unwrap();
-        let variant_fixed_radio = builder
-            .get_object("variant_fixed_rbtn")
-            .unwrap();
+        let variant_fixed_radio =
+            builder.get_object("variant_fixed_rbtn").unwrap();
         let _free_radio: gtk::RadioButton =
             builder.get_object("variant_free_rbtn").unwrap();
         let rotation_switch = builder.get_object("rotation_btn").unwrap();
@@ -228,43 +225,18 @@ impl SettingsPanel {
 
 impl Win {
     fn run_problem(&mut self) {
-//        const path: &str = "/tmp/packt";
-//        DirBuilder::new()
-//            .recursive(true)
-//            .create(path)
-//            .unwrap();
-//
-//        Command::new("javac")
-//            .args(&[
-//                "-d",
-//                path,
-//                "-sourcepath",
-//                "/home/frank/dev/dbl-algorithms/solver/src",
-//                "/home/frank/dev/dbl-algorithms/solver/src/PackingSolver.java",
-//            ])
-//            .output()
-//            .unwrap();
-//        let mut child = Command::new("java")
-//            .args(&["-cp", path, "PackingSolver"])
-//            .stdin(Stdio::piped())
-//            .stdout(Stdio::piped())
-//            .spawn()
-//            .expect("Failed to spawn child process");
-
-        const path: &str = "/home/frank/dev/dbl-algorithms/solver/out/artifacts/PackingSolver/PackingSolver.jar";
-
+        let solver = self.widgets.solver_filechooser.get_filename().unwrap();
         let mut child = Command::new("java")
-            .args(&["-jar", path])
+            .arg("-jar")
+            .arg(solver)
             .stdin(Stdio::piped())
             .stdout(Stdio::piped())
             .spawn()
             .expect("Failed to spawn child process");
 
         {
-            let stdin = child
-                .stdin
-                .as_mut()
-                .expect("Failed to open stdin");
+            let stdin = child.stdin.as_mut().expect("Failed to open stdin");
+
             stdin
                 .write_all(&self.model
                     .problem
@@ -275,28 +247,27 @@ impl Win {
                 .unwrap();
         }
 
-        let output = child
-            .wait_with_output()
-            .expect("Failed to read stdout");
+        let output = child.wait_with_output().expect("Failed to read stdout");
 
         let out = String::from_utf8_lossy(&output.stdout);
         println!("{}", out);
-        let solution: Solution = out
-            .parse()
-            .unwrap();
+        let solution: Solution = out.parse().unwrap();
+
         let dialog = gtk::MessageDialog::new(
             Some(&self.widgets.window),
             DialogFlags::DESTROY_WITH_PARENT,
             MessageType::Info,
             ButtonsType::Close,
-            if solution.is_valid() { "Valid solution"} else {"Invalid solution"},
+            if solution.is_valid() {
+                "Valid solution"
+            } else {
+                "Invalid solution"
+            },
         );
 
         dialog.run();
         dialog.close();
     }
-    //javac -d bin -sourcepath src -cp lib/lib1.jar;lib/lib2.jar
-    // src/com/example/Application.java
 
     fn save_problem(&mut self) {
         let dialog = gtk::FileChooserDialog::new(
@@ -318,12 +289,7 @@ impl Win {
 
         if accept == dialog.run() {
             if let Some(path) = dialog.get_filename() {
-                self.model
-                    .problem
-                    .as_ref()
-                    .unwrap()
-                    .save(path)
-                    .unwrap();
+                self.model.problem.as_ref().unwrap().save(path).unwrap();
             }
         }
         dialog.close();
@@ -336,12 +302,10 @@ impl Win {
         let settings = &self.widgets.settings;
         let mut generator = Generator::new();
         if !settings.container_switch.get_active() {
-            let width = settings
-                .container_width_spinbtn
-                .get_value_as_int() as u32;
-            let height = settings
-                .container_height_spinbtn
-                .get_value_as_int() as u32;
+            let width =
+                settings.container_width_spinbtn.get_value_as_int() as u32;
+            let height =
+                settings.container_height_spinbtn.get_value_as_int() as u32;
             generator.container(Rectangle::new(width, height));
         }
 

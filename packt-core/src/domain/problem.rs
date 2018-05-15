@@ -66,28 +66,21 @@ impl Problem {
         }
     }
 
-    fn config(&self) -> String {
+    fn config_str(&self) -> String {
         format!(
             "container height: {v}\nrotations allowed: {r}\nnumber of \
              rectangles: {n}",
             v = self.variant,
-            r = if self.allow_rotation {
-                "yes"
-            } else {
-                "no"
-            },
+            r = if self.allow_rotation { "yes" } else { "no" },
             n = self.rectangles.len()
         )
     }
 
     pub fn digest(&self) -> String {
-        let mut s = self.config();
+        let mut s = self.config_str();
 
         if let Some(source) = self.source {
-            s.push_str(&format!(
-                "\nbounding box: {}",
-                source.to_string()
-            ));
+            s.push_str(&format!("\nbounding box: {}", source.to_string()));
         }
 
         self.rectangles
@@ -103,10 +96,7 @@ impl Problem {
     }
 
     pub fn save(&self, path: PathBuf) -> io::Result<()> {
-        let mut file = OpenOptions::new()
-            .write(true)
-            .create(true)
-            .open(path)?;
+        let mut file = OpenOptions::new().write(true).create(true).open(path)?;
 
         file.write_all(self.to_string().as_bytes())
     }
@@ -115,7 +105,7 @@ impl Problem {
 impl fmt::Display for Problem {
     //noinspection RsTypeCheck
     fn fmt(&self, f: &mut Formatter) -> fmt::Result {
-        let mut s = self.config();
+        let mut s = self.config_str();
 
         self.rectangles
             .iter()
@@ -227,8 +217,7 @@ impl Generator {
 
     pub fn container(&mut self, mut r: Rectangle) {
         self.container = Some(r);
-        self.rectangles
-            .map(|n| min(n, r.area() as usize));
+        self.rectangles.map(|n| min(n, r.area() as usize));
     }
 }
 
@@ -270,20 +259,14 @@ mod tests {
 
     #[test]
     fn format_parse() {
-        assert_eq!(
-            input,
-            format!("{}", input.parse::<Problem>().unwrap())
-        )
+        assert_eq!(input, format!("{}", input.parse::<Problem>().unwrap()))
     }
 
     #[test]
     fn generate_from() {
         let r = Rectangle::new(1000, 1000);
         let p = Problem::generate_from(r, 50, Variant::Free, false);
-        let a: u32 = p.rectangles
-            .into_iter()
-            .map(|r| r.height * r.width)
-            .sum();
+        let a: u32 = p.rectangles.into_iter().map(|r| r.height * r.width).sum();
 
         assert_eq!(a, 1000 * 1000);
     }
