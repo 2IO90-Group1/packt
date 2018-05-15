@@ -10,7 +10,9 @@ use std::fs::DirBuilder;
 use std::io::{Read, Write};
 use std::process::Command;
 use std::process::Stdio;
+use std::path::PathBuf;
 
+#[derive(Default)]
 pub struct Model {
     problem: Option<domain::Problem>,
 }
@@ -44,7 +46,7 @@ impl Update for Win {
     type Msg = Msg;
 
     fn model(_relm: &Relm<Self>, _param: ()) -> Self::Model {
-        Model { problem: None }
+        Model::default()
     }
 
     fn update(&mut self, event: Self::Msg) {
@@ -225,7 +227,23 @@ impl SettingsPanel {
 
 impl Win {
     fn run_problem(&mut self) {
-        let solver = self.widgets.solver_filechooser.get_filename().unwrap();
+        let solver = match self.widgets.solver_filechooser.get_filename() {
+            Some(solver) => solver,
+            None => {
+                let dialog = gtk::MessageDialog::new(
+                    Some(&self.widgets.window),
+                    DialogFlags::DESTROY_WITH_PARENT,
+                    MessageType::Warning,
+                    ButtonsType::Close,
+                    "Please select a solver first",
+                );
+
+                dialog.run();
+                dialog.close();
+                return;
+            }
+        };
+
         let mut child = Command::new("java")
             .arg("-jar")
             .arg(solver)
