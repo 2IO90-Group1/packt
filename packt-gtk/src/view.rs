@@ -1,3 +1,4 @@
+use failure::Error;
 use gtk::{self, prelude::*};
 use gtk::{ButtonsType, DialogFlags, MessageType};
 use packt_core::domain;
@@ -6,13 +7,13 @@ use packt_core::domain::Rectangle;
 use packt_core::domain::Solution;
 use relm::{Relm, Update, Widget};
 use std;
-use std::fs::DirBuilder;
-use std::io::{Read, Write};
+use std::io::Write;
 use std::process::Command;
 use std::process::Stdio;
-use std::path::PathBuf;
+use tokio::prelude::*;
+use tokio_core::reactor::{self, Core};
+use tokio_process::CommandExt;
 
-#[derive(Default)]
 pub struct Model {
     problem: Option<domain::Problem>,
 }
@@ -22,6 +23,7 @@ pub enum Msg {
     Toggle(Setting),
     Generate,
     Save,
+    Completed(Result<Solution, Error>),
     Run,
     Quit,
 }
@@ -36,8 +38,10 @@ struct Widgets {
 }
 
 pub struct Win {
+    relm: Relm<Win>,
     model: Model,
     widgets: Widgets,
+    core: reactor::Core,
 }
 
 impl Update for Win {
@@ -46,13 +50,16 @@ impl Update for Win {
     type Msg = Msg;
 
     fn model(_relm: &Relm<Self>, _param: ()) -> Self::Model {
-        Model::default()
+        Model {
+            problem: None,
+        }
     }
 
     fn update(&mut self, event: Self::Msg) {
         match event {
             Msg::Toggle(c) => self.widgets.settings.toggle(c),
             Msg::Generate => self.generate_problem(),
+            Msg::Completed(s) => self.display_solution(s),
             Msg::Save => self.save_problem(),
             Msg::Run => self.run_problem(),
             Msg::Quit => gtk::main_quit(),
@@ -76,7 +83,7 @@ impl Widget for Win {
 
         let window: gtk::Window = builder
             .get_object("main_window")
-            .expect("couldn't get main_window");
+            .expect("failed to get main_window");
         connect!(
             relm,
             window,
@@ -116,22 +123,22 @@ impl Widget for Win {
 
         let generate_btn: gtk::Button = builder
             .get_object("generate_button")
-            .expect("couldn't get generate_button");
+            .expect("failed to get generate_button");
         connect!(relm, generate_btn, connect_clicked(_), Msg::Generate);
 
         let save_btn: gtk::Button = builder
             .get_object("save_button")
-            .expect("couldn't get save_button");
+            .expect("failed to get save_button");
         connect!(relm, save_btn, connect_clicked(_), Msg::Save);
 
         let run_btn: gtk::Button = builder
             .get_object("run_button")
-            .expect("couldn't get run_button");
+            .expect("failed to get run_button");
         connect!(relm, run_btn, connect_clicked(_), Msg::Run);
 
         let problem_tv: gtk::TextView = builder
             .get_object("problem_textview")
-            .expect("couldn't get problem_textview");
+            .expect("failed to get problem_textview");
 
         let solver_filechooser: gtk::FileChooser = builder
             .get_object("solver_filechooser")
@@ -140,6 +147,8 @@ impl Widget for Win {
         window.show_all();
 
         Win {
+            relm: relm.clone(),
+            core: Core::new().unwrap(),
             model,
             widgets: Widgets {
                 window,
@@ -226,34 +235,69 @@ impl SettingsPanel {
 }
 
 impl Win {
+    fn error_dialog(&self, msg: &str) -> gtk::MessageDialog {
+        gtk::MessageDialog::new(
+            Some(&self.widgets.window),
+            DialogFlags::DESTROY_WITH_PARENT,
+            MessageType::Warning,
+            ButtonsType::Close,
+            msg,
+        )
+    }
+
+    fn info_dialog(&self, msg: &str) -> gtk::MessageDialog {
+        gtk::MessageDialog::new(
+            Some(&self.widgets.window),
+            DialogFlags::DESTROY_WITH_PARENT,
+            MessageType::Info,
+            ButtonsType::Close,
+            msg,
+        )
+    }
+
+    fn display_solution(&self, result: Result<Solution, Error>) {
+        let dialog = match result {
+            Ok(solution) => {
+                let msg = if solution.is_valid() {
+                    "Valid solution"
+                } else {
+                    "Invalid solution"
+                };
+
+                self.info_dialog(msg)
+            }
+            Err(e) => {
+                self.error_dialog(&format!("Something went wrong: {:?}", e))
+            }
+        };
+
+        dialog.run();
+        dialog.close();
+    }
+
     fn run_problem(&mut self) {
         let solver = match self.widgets.solver_filechooser.get_filename() {
             Some(solver) => solver,
             None => {
-                let dialog = gtk::MessageDialog::new(
-                    Some(&self.widgets.window),
-                    DialogFlags::DESTROY_WITH_PARENT,
-                    MessageType::Warning,
-                    ButtonsType::Close,
-                    "Please select a solver first",
-                );
-
+                let dialog = self.error_dialog("Please select a solver first");
                 dialog.run();
                 dialog.close();
                 return;
             }
         };
 
+        let handle = self.core.handle();
+
         let mut child = Command::new("java")
             .arg("-jar")
             .arg(solver)
             .stdin(Stdio::piped())
             .stdout(Stdio::piped())
-            .spawn()
+            .spawn_async(&handle)
             .expect("Failed to spawn child process");
 
         {
-            let stdin = child.stdin.as_mut().expect("Failed to open stdin");
+            let stdin = child.stdin().as_mut().expect("Failed to open stdin");
 
             stdin
                 .write_all(&self.model
@@ -265,26 +309,21 @@ impl Win {
                 .unwrap();
         }
 
-        let output = child.wait_with_output().expect("Failed to read stdout");
+        let stream = self.relm.stream().clone();
+        let child = child
+            .wait_with_output()
+            .from_err()
+            .and_then(|output| {
+                let output = String::from_utf8_lossy(&output.stdout);
+                output.parse::<Solution>()
+            })
+            .then(move |result| {
+                println!("Emitting!");
+                stream.emit(Msg::Completed(result));
+                Ok(())
+            });
 
-        let out = String::from_utf8_lossy(&output.stdout);
-        println!("{}", out);
-        let solution: Solution = out.parse().unwrap();
-
-        let dialog = gtk::MessageDialog::new(
-            Some(&self.widgets.window),
-            DialogFlags::DESTROY_WITH_PARENT,
-            MessageType::Info,
-            ButtonsType::Close,
-            if solution.is_valid() {
-                "Valid solution"
-            } else {
-                "Invalid solution"
-            },
-        );
-
-        dialog.run();
-        dialog.close();
+        handle.spawn(child)
     }
 
     fn save_problem(&mut self) {
@@ -353,7 +392,7 @@ impl Win {
         self.widgets
             .problem_tv
             .get_buffer()
-            .expect("couldn't get buffer")
+            .expect("failed to get buffer")
             .set_text(&problem_text);
     }
 }

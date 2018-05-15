@@ -28,7 +28,7 @@ impl Point {
 pub struct Rectangle {
     width: u32,
     height: u32,
-    area: Option<u32>,
+    area: Option<u64>,
 }
 
 impl Rectangle {
@@ -69,7 +69,7 @@ impl Rectangle {
         Rectangle {
             width,
             height,
-            area: Some(area),
+            area: Some(area.into()),
         }
     }
 
@@ -101,11 +101,11 @@ impl Rectangle {
         self.split(cut)
     }
 
-    fn area(&mut self) -> u32 {
+    fn area(&mut self) -> u64 {
         match self.area {
             Some(a) => a,
             None => {
-                let a = self.width * self.height;
+                let a = self.width as u64 * self.height as u64;
                 self.area = Some(a);
                 a
             }
