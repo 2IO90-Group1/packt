@@ -1,3 +1,4 @@
+use crossbeam_channel::{self, Sender};
 use failure::Error;
 use gtk::{self, prelude::*};
 use gtk::{ButtonsType, DialogFlags, MessageType};
@@ -8,10 +9,11 @@ use packt_core::domain::Solution;
 use relm::{Relm, Update, Widget};
 use std;
 use std::io::Write;
-use std::process::Command;
-use std::process::Stdio;
+use std::process::{Command, Stdio};
+use std::thread;
 use tokio::prelude::*;
-use tokio_core::reactor::{self, Core};
+use tokio_core::reactor::Core;
+use tokio_io::io;
 use tokio_process::CommandExt;
 
 pub struct Model {
@@ -41,7 +43,7 @@ pub struct Win {
     relm: Relm<Win>,
     model: Model,
     widgets: Widgets,
-    core: reactor::Core,
+    sender: Sender<(domain::Problem, Command)>,
 }
 
 impl Update for Win {
@@ -50,9 +52,7 @@ impl Update for Win {
     type Msg = Msg;
 
     fn model(_relm: &Relm<Self>, _param: ()) -> Self::Model {
-        Model {
-            problem: None,
-        }
+        Model { problem: None }
     }
 
     fn update(&mut self, event: Self::Msg) {
@@ -66,7 +66,6 @@ impl Update for Win {
         }
     }
 }
-
 
 impl Widget for Win {
     type Root = gtk::Window;
@@ -146,9 +145,40 @@ impl Widget for Win {
 
         window.show_all();
 
+        let stream = relm.stream().clone();
+        let (tx, rx) = crossbeam_channel::unbounded();
+        thread::spawn(move || {
+            let mut core = Core::new().unwrap();
+            rx.iter()
+                .for_each(|(problem, mut command): (domain::Problem, Command)| {
+                    let mut child = command
+                        .spawn_async(&core.handle())
+                        .expect("Failed to spawn child process");
+
+                    {
+                        let stdin = child.stdin().as_mut().expect("Failed to open stdin");
+                        stdin.write_all(&problem.to_string().as_bytes()).unwrap();
+                    }
+
+                    let child = child
+                        .wait_with_output()
+                        .from_err()
+                        .and_then(|output| {
+                            let output = String::from_utf8_lossy(&output.stdout);
+                            output.parse::<Solution>()
+                        })
+                        .then(|result| -> Result<(), Error> {
+                            stream.emit(Msg::Completed(result));
+                            Ok(())
+                        });
+
+                    core.run(child);
+                })
+        });
+
         Win {
             relm: relm.clone(),
-            core: Core::new().unwrap(),
+            sender: tx,
             model,
             widgets: Widgets {
                 window,
@@ -186,23 +216,17 @@ struct SettingsPanel {
 impl SettingsPanel {
     fn from_builder(builder: &gtk::Builder) -> Self {
         let container_switch = builder.get_object("container_btn").unwrap();
-        let container_filters_box =
-            builder.get_object("container_filter_box").unwrap();
-        let container_width_spinbtn =
-            builder.get_object("container_width_spinbtn").unwrap();
-        let container_height_spinbtn =
-            builder.get_object("container_height_spinbtn").unwrap();
+        let container_filters_box = builder.get_object("container_filter_box").unwrap();
+        let container_width_spinbtn = builder.get_object("container_width_spinbtn").unwrap();
+        let container_height_spinbtn = builder.get_object("container_height_spinbtn").unwrap();
         let amount_switch = builder.get_object("amount_btn").unwrap();
         let amount_spinbtn = builder.get_object("amount_spinbtn").unwrap();
         let variant_switch = builder.get_object("variant_btn").unwrap();
         let variant_btn_box = builder.get_object("variant_btn_box").unwrap();
-        let variant_fixed_radio =
-            builder.get_object("variant_fixed_rbtn").unwrap();
-        let _free_radio: gtk::RadioButton =
-            builder.get_object("variant_free_rbtn").unwrap();
+        let variant_fixed_radio = builder.get_object("variant_fixed_rbtn").unwrap();
+        let _free_radio: gtk::RadioButton = builder.get_object("variant_free_rbtn").unwrap();
         let rotation_switch = builder.get_object("rotation_btn").unwrap();
-        let rotation_checkbtn =
-            builder.get_object("rotation_checkbtn").unwrap();
+        let rotation_checkbtn = builder.get_object("rotation_checkbtn").unwrap();
 
         SettingsPanel {
             container_switch,
@@ -266,9 +290,7 @@ impl Win {
 
                 self.info_dialog(msg)
             }
-            Err(e) => {
-                self.error_dialog(&format!("Something went wrong: {:?}", e))
-            }
+            Err(e) => self.error_dialog(&format!("Something went wrong: {:?}", e)),
         };
 
         dialog.run();
@@ -286,44 +308,15 @@ impl Win {
             }
         };
 
-        let handle = self.core.handle();
-
-        let mut child = Command::new("java")
+        let mut child = Command::new("java");
+        child
             .arg("-jar")
             .arg(solver)
             .stdin(Stdio::piped())
-            .stdout(Stdio::piped())
-            .spawn_async(&handle)
-            .expect("Failed to spawn child process");
+            .stdout(Stdio::piped());
 
-        {
-            let stdin = child.stdin().as_mut().expect("Failed to open stdin");
-
-            stdin
-                .write_all(&self.model
-                    .problem
-                    .clone()
-                    .unwrap()
-                    .to_string()
-                    .as_bytes())
-                .unwrap();
-        }
-
-        let stream = self.relm.stream().clone();
-        let child = child
-            .wait_with_output()
-            .from_err()
-            .and_then(|output| {
-                let output = String::from_utf8_lossy(&output.stdout);
-                output.parse::<Solution>()
-            })
-            .then(move |result| {
-                println!("Emitting!");
-                stream.emit(Msg::Completed(result));
-                Ok(())
-            });
-
-        handle.spawn(child)
+        self.sender
+            .send((self.model.problem.as_ref().unwrap().clone(), child));
     }
 
     fn save_problem(&mut self) {
@@ -359,10 +352,8 @@ impl Win {
         let settings = &self.widgets.settings;
         let mut generator = Generator::new();
         if !settings.container_switch.get_active() {
-            let width =
-                settings.container_width_spinbtn.get_value_as_int() as u32;
-            let height =
-                settings.container_height_spinbtn.get_value_as_int() as u32;
+            let width = settings.container_width_spinbtn.get_value_as_int() as u32;
+            let height = settings.container_height_spinbtn.get_value_as_int() as u32;
             generator.container(Rectangle::new(width, height));
         }
 

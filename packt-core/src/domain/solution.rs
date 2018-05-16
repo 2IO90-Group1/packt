@@ -19,9 +19,7 @@ impl Solution {
         self.placements
             .iter()
             .enumerate()
-            .flat_map(|(i, p)| {
-                iter::repeat(p).zip(self.placements.iter().skip(i + 1))
-            })
+            .flat_map(|(i, p)| iter::repeat(p).zip(self.placements.iter().skip(i + 1)))
             .all(|(p1, p2)| !p1.overlaps(p2))
     }
 }
@@ -72,9 +70,7 @@ impl FromStr for Solution {
                 Ok(result)
             })
             .zip(problem.rectangles.iter())
-            .map(|(result, &r)| {
-                result.map(|(rot, coord)| Placement::new(r, rot, coord))
-            })
+            .map(|(result, &r)| result.map(|(rot, coord)| Placement::new(r, rot, coord)))
             .collect::<Result<_, _>>()?;
 
         Ok(Solution {

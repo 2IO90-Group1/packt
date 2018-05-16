@@ -11,5 +11,7 @@ packt-core = { path = "../packt-core" }
 tokio-process = "0.1.6"
 futures = "0.2.1"
 tokio = "0.1.6"
+tokio-io = "0.1.6"
 tokio-core = "0.1.17"
 failure = "0.1.1"
+crossbeam-channel = "0.1.2"

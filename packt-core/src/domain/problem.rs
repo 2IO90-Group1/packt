@@ -9,7 +9,7 @@ use std::io::{self, Write};
 use std::path::PathBuf;
 use std::str::FromStr;
 
-const N_DEFAULTS: [usize; 5] = [3, 5, 10, 25, 10000];
+const N_DEFAULTS: [usize; 5] = [3, 5, 10, 25, 5000];
 const AVG_RECTANGLE_AREA: u32 = 50;
 
 #[derive(Clone, Debug, PartialEq)]
@@ -22,12 +22,7 @@ pub struct Problem {
 
 impl Problem {
     // TODO: Add rotated rectangles
-    fn generate_from(
-        mut r: Rectangle,
-        n: usize,
-        v: Variant,
-        allow_rotation: bool,
-    ) -> Problem {
+    fn generate_from(mut r: Rectangle, n: usize, v: Variant, allow_rotation: bool) -> Problem {
         let a = r.area() as usize;
         if n > a {
             panic!("{:?} cannot be split into {} rectangles", r, n)
@@ -209,7 +204,6 @@ impl Generator {
     pub fn allow_rotation(&mut self, b: bool) {
         self.allow_rotation = Some(b);
     }
-
 
     pub fn variant(&mut self, v: Variant) {
         self.variant = Some(v);
