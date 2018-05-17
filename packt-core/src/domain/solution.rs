@@ -103,21 +103,14 @@ mod tests {
         let r1 = Rectangle::new(12, 8);
         let r2 = Rectangle::new(10, 9);
 
-        let problem = Problem {
+        let expected = Solution {
             variant: Variant::Fixed(22),
             allow_rotation: false,
-            rectangles: vec![r1, r2],
             source: None,
-        };
-
-        let expected = {
-            Solution {
-                problem,
-                placements: vec![
-                    Placement::new(r1, Normal, Point::new(0, 0)),
-                    Placement::new(r2, Normal, Point::new(24, 3)),
-                ],
-            }
+            placements: vec![
+                Placement::new(r1, Normal, Point::new(0, 0)),
+                Placement::new(r2, Normal, Point::new(24, 3)),
+            ],
         };
 
         let input = "container height: fixed 22\nrotations allowed: \
@@ -131,35 +124,29 @@ mod tests {
     #[test]
     fn validation() {
         let r = Rectangle::new(10, 9);
-        let rectangles = vec![r; 10000];
-        let problem = Problem {
-            variant: Variant::Fixed(22),
-            allow_rotation: false,
-            rectangles: rectangles.clone(),
-            source: None,
-        };
 
         let mut coord = Point::new(0, 0);
         let placements = iter::repeat(r)
             .take(10000)
             .map(|r| {
                 let result = Placement::new(r, Normal, coord);
-
                 coord.x += 11;
-
                 result
             })
             .collect();
 
         let mut solution = {
             Solution {
-                problem,
+                variant: Variant::Fixed(22),
+                allow_rotation: false,
+                source: None,
                 placements,
             }
         };
 
         assert!(solution.is_valid());
         let p = Placement::new(r, Normal, Point::new(0, 0));
+
         solution.placements = vec![p; 10000];
         assert!(!solution.is_valid());
     }
