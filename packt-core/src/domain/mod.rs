@@ -28,7 +28,7 @@ impl Point {
 pub struct Rectangle {
     width: u32,
     height: u32,
-    area: Option<u64>,
+    area: u64,
 }
 
 impl Rectangle {
@@ -49,9 +49,11 @@ impl Rectangle {
         }
     }
 
-    fn gen_with_area(area: u32) -> Rectangle {
-        let divisors: Vec<u32> =
-            (1..=area).into_iter().filter(|i| area % i == 0).collect();
+    fn gen_with_area(area: u64) -> Rectangle {
+        let divisors = (1..=(area as f64).sqrt() as u64)
+            .into_iter()
+            .filter(|i| area % i == 0)
+            .collect::<Vec<u64>>();
 
         let mut rng = rand::thread_rng();
         let n = divisors.len() as f64;
@@ -65,11 +67,13 @@ impl Rectangle {
             let height = divisors[i];
             (area / height, height)
         };
+        let width = width as u32;
+        let height = height as u32;
 
         Rectangle {
             width,
             height,
-            area: Some(area.into()),
+            area,
         }
     }
 
@@ -101,22 +105,16 @@ impl Rectangle {
         self.split(cut)
     }
 
-    fn area(&mut self) -> u64 {
-        match self.area {
-            Some(a) => a,
-            None => {
-                let a = self.width as u64 * self.height as u64;
-                self.area = Some(a);
-                a
-            }
-        }
+    fn area(&self) -> u64 {
+        self.area
     }
+
 
     pub fn new(width: u32, height: u32) -> Rectangle {
         Rectangle {
             width,
             height,
-            area: None,
+            area: height as u64 * width as u64,
         }
     }
 }

@@ -57,12 +57,20 @@ impl Solution {
     }
 
     pub fn bounding_box(&self) -> Rectangle {
+        use std::cmp::max;
+
         let (x, y) = self.placements.iter().fold((0, 0), |(x, y), p| {
             let tr = p.top_right;
-            (x.max(tr.x), y.max(tr.y))
+            let x = max(x, tr.x);
+            let y = max(y, tr.y);
+            (x, y)
         });
 
-        Rectangle::new(x, y)
+        Rectangle::new(x+1, y+1)
+    }
+
+    pub fn source(&mut self, r: Option<Rectangle>) {
+        self.source = r;
     }
 }
 
@@ -82,7 +90,7 @@ impl fmt::Display for Evaluation {
             is_valid,
             can_optimal,
             min_area,
-            mut bounding_box,
+            bounding_box,
             empty_area,
             utilization,
         } = self;

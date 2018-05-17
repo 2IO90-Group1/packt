@@ -10,7 +10,7 @@ use std::path::PathBuf;
 use std::str::FromStr;
 
 const N_DEFAULTS: [usize; 5] = [3, 5, 10, 25, 5000];
-const AVG_RECTANGLE_AREA: u32 = 50;
+const AVG_RECTANGLE_AREA: u64 = 50;
 
 #[derive(Clone, Debug, PartialEq)]
 pub struct Problem {
@@ -23,7 +23,7 @@ pub struct Problem {
 impl Problem {
     // TODO: Add rotated rectangles
     fn generate_from(
-        mut r: Rectangle,
+        r: Rectangle,
         n: usize,
         v: Variant,
         allow_rotation: bool,
@@ -174,8 +174,8 @@ impl Generator {
         let mut n = self.rectangles
             .unwrap_or_else(|| seq::sample_slice(&mut rng, &N_DEFAULTS, 1)[0]);
 
-        let mut r = self.container.unwrap_or_else(|| {
-            let area = n as u32 * AVG_RECTANGLE_AREA;
+        let r = self.container.unwrap_or_else(|| {
+            let area = n as u64 * AVG_RECTANGLE_AREA;
 
             Rectangle::gen_with_area(area)
         });
@@ -214,7 +214,7 @@ impl Generator {
         self.variant = Some(v);
     }
 
-    pub fn container(&mut self, mut r: Rectangle) {
+    pub fn container(&mut self, r: Rectangle) {
         self.container = Some(r);
         self.rectangles.map(|n| min(n, r.area() as usize));
     }

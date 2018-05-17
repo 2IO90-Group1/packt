@@ -9,12 +9,11 @@
     </configurations>
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="125db50e-7c23-466e-82aa-24abd0efd882" name="Default" comment="Make run button robust">
+    <list default="true" id="125db50e-7c23-466e-82aa-24abd0efd882" name="Default" comment="format">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/packt-core/src/domain/mod.rs" beforeDir="false" afterPath="$PROJECT_DIR$/packt-core/src/domain/mod.rs" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/packt-core/src/domain/problem.rs" beforeDir="false" afterPath="$PROJECT_DIR$/packt-core/src/domain/problem.rs" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/packt-core/src/domain/solution.rs" beforeDir="false" afterPath="$PROJECT_DIR$/packt-core/src/domain/solution.rs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/packt-gtk/src/main.rs" beforeDir="false" afterPath="$PROJECT_DIR$/packt-gtk/src/main.rs" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/packt-gtk/src/view.rs" beforeDir="false" afterPath="$PROJECT_DIR$/packt-gtk/src/view.rs" afterDir="false" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
@@ -26,11 +25,24 @@
   </component>
   <component name="FileEditorManager">
     <leaf SIDE_TABS_SIZE_LIMIT_KEY="300">
-      <file leaf-file-name="view.rs" pinned="false" current-in-tab="true">
+      <file leaf-file-name="view.rs" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/packt-gtk/src/view.rs">
           <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="17">
+              <caret line="342" column="39" selection-start-line="342" selection-start-column="39" selection-end-line="342" selection-end-column="39" />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="solution.rs" pinned="false" current-in-tab="true">
+        <entry file="file://$PROJECT_DIR$/packt-core/src/domain/solution.rs">
+          <provider selected="true" editor-type-id="text-editor">
             <state relative-caret-position="349">
-              <caret line="149" column="70" selection-start-line="149" selection-start-column="70" selection-end-line="149" selection-end-column="70" />
+              <caret line="43" column="25" selection-start-line="43" selection-start-column="25" selection-end-line="43" selection-end-column="25" />
+              <folding>
+                <element signature="e#2095#2096#0" expanded="true" />
+                <element signature="e#2126#2127#0" expanded="true" />
+              </folding>
             </state>
           </provider>
         </entry>
@@ -65,8 +77,21 @@
       <file leaf-file-name="mod.rs" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/packt-core/src/domain/mod.rs">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="1785">
-              <caret line="107" column="62" selection-start-line="107" selection-start-column="62" selection-end-line="107" selection-end-column="62" />
+            <state relative-caret-position="621">
+              <caret line="116" column="46" selection-start-line="116" selection-start-column="46" selection-end-line="116" selection-end-column="46" />
+              <folding>
+                <element signature="e#2578#2579#0" expanded="true" />
+                <element signature="e#2602#2603#0" expanded="true" />
+              </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="problem.rs" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/packt-core/src/domain/problem.rs">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="298">
+              <caret line="216" column="32" selection-start-line="216" selection-start-column="32" selection-end-line="216" selection-end-column="32" />
             </state>
           </provider>
         </entry>
@@ -118,12 +143,12 @@
         <option value="$PROJECT_DIR$/.gitignore" />
         <option value="$PROJECT_DIR$/build-windows.sh" />
         <option value="$PROJECT_DIR$/packt-gtk/src/view2.rs" />
-        <option value="$PROJECT_DIR$/packt-core/src/domain/solution.rs" />
-        <option value="$PROJECT_DIR$/packt-core/src/domain/problem.rs" />
-        <option value="$PROJECT_DIR$/packt-core/src/domain/mod.rs" />
         <option value="$PROJECT_DIR$/packt-gtk/Cargo.toml" />
         <option value="$PROJECT_DIR$/packt-gtk/src/main.rs" />
         <option value="$PROJECT_DIR$/packt-gtk/src/view.rs" />
+        <option value="$PROJECT_DIR$/packt-core/src/domain/mod.rs" />
+        <option value="$PROJECT_DIR$/packt-core/src/domain/problem.rs" />
+        <option value="$PROJECT_DIR$/packt-core/src/domain/solution.rs" />
       </list>
     </option>
   </component>
@@ -148,13 +173,30 @@
       <foldersAlwaysOnTop value="true" />
     </navigator>
     <panes>
-      <pane id="Scope" />
       <pane id="ProjectPane">
         <subPane>
           <expand>
             <path>
               <item name="packt" type="b2602c69:ProjectViewProjectNode" />
               <item name="packt" type="462c0819:PsiDirectoryNode" />
+            </path>
+            <path>
+              <item name="packt" type="b2602c69:ProjectViewProjectNode" />
+              <item name="packt" type="462c0819:PsiDirectoryNode" />
+              <item name="packt-core" type="462c0819:PsiDirectoryNode" />
+            </path>
+            <path>
+              <item name="packt" type="b2602c69:ProjectViewProjectNode" />
+              <item name="packt" type="462c0819:PsiDirectoryNode" />
+              <item name="packt-core" type="462c0819:PsiDirectoryNode" />
+              <item name="src" type="462c0819:PsiDirectoryNode" />
+            </path>
+            <path>
+              <item name="packt" type="b2602c69:ProjectViewProjectNode" />
+              <item name="packt" type="462c0819:PsiDirectoryNode" />
+              <item name="packt-core" type="462c0819:PsiDirectoryNode" />
+              <item name="src" type="462c0819:PsiDirectoryNode" />
+              <item name="domain" type="462c0819:PsiDirectoryNode" />
             </path>
             <path>
               <item name="packt" type="b2602c69:ProjectViewProjectNode" />
@@ -171,6 +213,7 @@
           <select />
         </subPane>
       </pane>
+      <pane id="Scope" />
     </panes>
   </component>
   <component name="PropertiesComponent">
@@ -186,122 +229,6 @@
       <recent name="$PROJECT_DIR$/packt-core/src/domain" />
       <recent name="$PROJECT_DIR$" />
     </key>
-  </component>
-  <component name="RestoreUpdateTree" date="Moments ago" ActionInfo="_Update">
-    <UpdatedFiles>
-      <FILE-GROUP>
-        <option name="myUpdateName" value="Updated from server" />
-        <option name="myStatusName" value="Changed on server" />
-        <option name="mySupportsDeletion" value="false" />
-        <option name="myCanBeAbsent" value="false" />
-        <option name="myId" value="CHANGED_ON_SERVER" />
-        <FILE-GROUP>
-          <option name="myUpdateName" value="Updated" />
-          <option name="myStatusName" value="Changed" />
-          <option name="mySupportsDeletion" value="false" />
-          <option name="myCanBeAbsent" value="false" />
-          <option name="myId" value="UPDATED" />
-          <PATH vcs="Git" revision="">$PROJECT_DIR$/.idea/workspace.xml</PATH>
-          <PATH vcs="Git" revision="">$PROJECT_DIR$/packt-core/src/domain/mod.rs</PATH>
-          <PATH vcs="Git" revision="">$PROJECT_DIR$/packt-core/src/domain/problem.rs</PATH>
-          <PATH vcs="Git" revision="">$PROJECT_DIR$/packt-core/src/domain/solution.rs</PATH>
-          <PATH vcs="Git" revision="">$PROJECT_DIR$/packt-gtk/Cargo.toml</PATH>
-          <PATH vcs="Git" revision="">$PROJECT_DIR$/packt-gtk/src/main.rs</PATH>
-          <PATH vcs="Git" revision="">$PROJECT_DIR$/packt-gtk/src/view.rs</PATH>
-        </FILE-GROUP>
-        <FILE-GROUP>
-          <option name="myUpdateName" value="Created" />
-          <option name="myStatusName" value="Created" />
-          <option name="mySupportsDeletion" value="false" />
-          <option name="myCanBeAbsent" value="false" />
-          <option name="myId" value="CREATED" />
-        </FILE-GROUP>
-        <FILE-GROUP>
-          <option name="myUpdateName" value="Deleted" />
-          <option name="myStatusName" value="Deleted" />
-          <option name="mySupportsDeletion" value="false" />
-          <option name="myCanBeAbsent" value="true" />
-          <option name="myId" value="REMOVED_FROM_REPOSITORY" />
-        </FILE-GROUP>
-        <FILE-GROUP>
-          <option name="myUpdateName" value="Restored" />
-          <option name="myStatusName" value="Will be restored" />
-          <option name="mySupportsDeletion" value="false" />
-          <option name="myCanBeAbsent" value="false" />
-          <option name="myId" value="RESTORED" />
-        </FILE-GROUP>
-      </FILE-GROUP>
-      <FILE-GROUP>
-        <option name="myUpdateName" value="Modified" />
-        <option name="myStatusName" value="Modified" />
-        <option name="mySupportsDeletion" value="false" />
-        <option name="myCanBeAbsent" value="false" />
-        <option name="myId" value="MODIFIED" />
-      </FILE-GROUP>
-      <FILE-GROUP>
-        <option name="myUpdateName" value="Skipped" />
-        <option name="myStatusName" value="Skipped" />
-        <option name="mySupportsDeletion" value="false" />
-        <option name="myCanBeAbsent" value="false" />
-        <option name="myId" value="SKIPPED" />
-      </FILE-GROUP>
-      <FILE-GROUP>
-        <option name="myUpdateName" value="Merged with conflicts" />
-        <option name="myStatusName" value="Will be merged with conflicts" />
-        <option name="mySupportsDeletion" value="false" />
-        <option name="myCanBeAbsent" value="false" />
-        <option name="myId" value="MERGED_WITH_CONFLICTS" />
-      </FILE-GROUP>
-      <FILE-GROUP>
-        <option name="myUpdateName" value="Merged with tree conflicts" />
-        <option name="myStatusName" value="Merged with tree conflicts" />
-        <option name="mySupportsDeletion" value="false" />
-        <option name="myCanBeAbsent" value="false" />
-        <option name="myId" value="MERGED_WITH_TREE_CONFLICT" />
-      </FILE-GROUP>
-      <FILE-GROUP>
-        <option name="myUpdateName" value="Merged with property conflicts" />
-        <option name="myStatusName" value="Will be merged with property conflicts" />
-        <option name="mySupportsDeletion" value="false" />
-        <option name="myCanBeAbsent" value="false" />
-        <option name="myId" value="MERGED_WITH_PROPERTY_CONFLICT" />
-      </FILE-GROUP>
-      <FILE-GROUP>
-        <option name="myUpdateName" value="Merged" />
-        <option name="myStatusName" value="Will be merged" />
-        <option name="mySupportsDeletion" value="false" />
-        <option name="myCanBeAbsent" value="false" />
-        <option name="myId" value="MERGED" />
-      </FILE-GROUP>
-      <FILE-GROUP>
-        <option name="myUpdateName" value="Not in repository" />
-        <option name="myStatusName" value="Not in repository" />
-        <option name="mySupportsDeletion" value="true" />
-        <option name="myCanBeAbsent" value="false" />
-        <option name="myId" value="UNKNOWN" />
-      </FILE-GROUP>
-      <FILE-GROUP>
-        <option name="myUpdateName" value="Locally added" />
-        <option name="myStatusName" value="Locally added" />
-        <option name="mySupportsDeletion" value="false" />
-        <option name="myCanBeAbsent" value="false" />
-        <option name="myId" value="LOCALLY_ADDED" />
-      </FILE-GROUP>
-      <FILE-GROUP>
-        <option name="myUpdateName" value="Locally removed" />
-        <option name="myStatusName" value="Locally removed" />
-        <option name="mySupportsDeletion" value="false" />
-        <option name="myCanBeAbsent" value="false" />
-        <option name="myId" value="LOCALLY_REMOVED" />
-      </FILE-GROUP>
-      <FILE-GROUP>
-        <option name="myUpdateName" value="Switched" />
-        <option name="myStatusName" value="Switched" />
-        <option name="mySupportsDeletion" value="false" />
-        <option name="myCanBeAbsent" value="false" />
-        <option name="myId" value="SWITCHED" />
-      </FILE-GROUP>
-    </UpdatedFiles>
   </component>
   <component name="RunDashboard">
     <option name="ruleStates">
@@ -498,6 +425,9 @@
       <workItem from="1526457165974" duration="3049000" />
       <workItem from="1526471289595" duration="2092000" />
       <workItem from="1526476997080" duration="850000" />
+      <workItem from="1526509081653" duration="52000" />
+      <workItem from="1526584893385" duration="32000" />
+      <workItem from="1526590552823" duration="1658000" />
     </task>
     <task id="LOCAL-00001" summary="Initial commit">
       <created>1524731386116</created>
@@ -730,11 +660,25 @@
       <option name="project" value="LOCAL" />
       <updated>1526398131667</updated>
     </task>
-    <option name="localTasksCounter" value="34" />
+    <task id="LOCAL-00034" summary="format">
+      <created>1526492468586</created>
+      <option name="number" value="00034" />
+      <option name="presentableId" value="LOCAL-00034" />
+      <option name="project" value="LOCAL" />
+      <updated>1526492468586</updated>
+    </task>
+    <task id="LOCAL-00035" summary="format">
+      <created>1526492505125</created>
+      <option name="number" value="00035" />
+      <option name="presentableId" value="LOCAL-00035" />
+      <option name="project" value="LOCAL" />
+      <updated>1526492505125</updated>
+    </task>
+    <option name="localTasksCounter" value="36" />
     <servers />
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="132267000" />
+    <option name="totallyTimeSpent" value="135707000" />
   </component>
   <component name="TodoView">
     <todo-panel id="selected-file">
@@ -749,34 +693,24 @@
     <frame x="0" y="-4" width="1920" height="1084" extended-state="6" />
     <editor active="true" />
     <layout>
-      <window_info content_ui="combo" id="Project" order="0" sideWeight="0.49261603" weight="0.12713675" />
+      <window_info content_ui="combo" id="Project" order="0" sideWeight="0.49261603" weight="0.12873931" />
       <window_info anchor="bottom" id="TODO" order="5" weight="0.32911393" />
       <window_info anchor="right" id="Cargo" order="3" weight="0.32959402" />
-      <window_info anchor="bottom" id="Messages" order="6" weight="0.32911393" />
       <window_info anchor="bottom" id="Event Log" order="6" side_tool="true" weight="0.32911393" />
       <window_info anchor="bottom" id="Version Control" order="7" weight="0.32911393" />
-      <window_info active="true" anchor="right" id="Run" order="4" visible="true" weight="0.5833333" />
+      <window_info active="true" anchor="right" id="Run" order="4" visible="true" weight="0.50641024" />
       <window_info id="Structure" order="1" sideWeight="0.50738394" side_tool="true" weight="0.13461539" />
       <window_info anchor="bottom" id="Terminal" order="8" weight="0.32805908" />
       <window_info id="Favorites" order="2" side_tool="true" />
       <window_info anchor="bottom" id="Debug" order="2" weight="0.4" />
       <window_info anchor="right" content_ui="combo" id="Hierarchy" order="2" weight="0.25" />
       <window_info anchor="bottom" id="Inspection" order="4" weight="0.4" />
-      <window_info anchor="right" id="Cargo" order="3" weight="0.32959402" />
-      <window_info content_ui="combo" id="Project" order="0" sideWeight="0.49261603" weight="0.12713675" />
-      <window_info id="Structure" order="1" sideWeight="0.50738394" side_tool="true" weight="0.13461539" />
       <window_info anchor="right" id="Commander" internal_type="SLIDING" order="0" type="SLIDING" weight="0.4" />
       <window_info anchor="right" id="Ant Build" order="1" weight="0.25" />
-      <window_info anchor="bottom" id="TODO" order="5" weight="0.32911393" />
-      <window_info anchor="bottom" id="Version Control" order="7" weight="0.32911393" />
-      <window_info active="true" anchor="right" id="Run" order="4" visible="true" weight="0.5138445" />
-      <window_info anchor="bottom" id="Debug" order="2" weight="0.4" />
+      <window_info anchor="bottom" id="Messages" order="6" weight="0.32911393" />
       <window_info anchor="bottom" id="Message" order="0" />
-      <window_info anchor="bottom" id="Event Log" order="6" side_tool="true" weight="0.32911393" />
       <window_info anchor="bottom" id="Cvs" order="3" weight="0.25" />
       <window_info anchor="bottom" id="Find" order="1" weight="0.32911393" />
-      <window_info anchor="bottom" id="Terminal" order="8" weight="0.32805908" />
-      <window_info id="Favorites" order="2" side_tool="true" />
     </layout>
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -816,8 +750,6 @@
       <path value="$PROJECT_DIR$/packt-core" />
       <path value="$PROJECT_DIR$" />
     </ignored-roots>
-    <MESSAGE value="Refactor packt-core" />
-    <MESSAGE value="Add rectangle splitting" />
     <MESSAGE value="Add simple problem generation" />
     <MESSAGE value="Add string conversion for `Problem`" />
     <MESSAGE value="Disable bugged inspections" />
@@ -841,7 +773,9 @@
     <MESSAGE value="clean" />
     <MESSAGE value="Add file picker to select the solver jar" />
     <MESSAGE value="Make run button robust" />
-    <option name="LAST_COMMIT_MESSAGE" value="Make run button robust" />
+    <MESSAGE value="Naive async running" />
+    <MESSAGE value="format" />
+    <option name="LAST_COMMIT_MESSAGE" value="format" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
@@ -1150,28 +1084,7 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/packt-core/src/domain/solution.rs">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="170">
-          <caret line="10" selection-start-line="10" selection-end-line="10" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/packt-core/src/domain/problem.rs">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="1139">
-          <caret line="67" selection-start-line="67" selection-end-line="67" />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$USER_HOME$/.cargo/registry/src/github.com-1ecc6299db9ec823/backtrace-0.3.6/src/backtrace/libunwind.rs" />
-    <entry file="file://$PROJECT_DIR$/packt-core/src/domain/mod.rs">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="1785">
-          <caret line="107" column="62" selection-start-line="107" selection-start-column="62" selection-end-line="107" selection-end-column="62" />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/Cargo.toml">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="136">
@@ -1195,8 +1108,37 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/packt-gtk/src/view.rs">
       <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="17">
+          <caret line="342" column="39" selection-start-line="342" selection-start-column="39" selection-end-line="342" selection-end-column="39" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/packt-core/src/domain/mod.rs">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="621">
+          <caret line="116" column="46" selection-start-line="116" selection-start-column="46" selection-end-line="116" selection-end-column="46" />
+          <folding>
+            <element signature="e#2578#2579#0" expanded="true" />
+            <element signature="e#2602#2603#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/packt-core/src/domain/problem.rs">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="298">
+          <caret line="216" column="32" selection-start-line="216" selection-start-column="32" selection-end-line="216" selection-end-column="32" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/packt-core/src/domain/solution.rs">
+      <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="349">
-          <caret line="149" column="70" selection-start-line="149" selection-start-column="70" selection-end-line="149" selection-end-column="70" />
+          <caret line="43" column="25" selection-start-line="43" selection-start-column="25" selection-end-line="43" selection-end-column="25" />
+          <folding>
+            <element signature="e#2095#2096#0" expanded="true" />
+            <element signature="e#2126#2127#0" expanded="true" />
+          </folding>
         </state>
       </provider>
     </entry>
