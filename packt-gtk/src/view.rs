@@ -5,13 +5,12 @@ use gtk::{ButtonsType, DialogFlags, MessageType};
 use packt_core::domain::problem::{Generator, Variant};
 use packt_core::domain::{self, Rectangle, Solution};
 use relm::{Relm, Update, Widget};
-use std::io::Write;
 use std::process::{Command, Stdio};
 use std::{self, thread};
 use tokio::prelude::*;
 use tokio_core::reactor::Core;
 use tokio_io::io;
-use tokio_process::CommandExt;
+use tokio_process::{Child, CommandExt};
 
 pub struct Model {
     problem: Option<domain::Problem>,
@@ -152,30 +151,25 @@ impl Widget for Win {
                         .spawn_async(&core.handle())
                         .expect("Failed to spawn child process");
 
-                    {
-                        let stdin = child
-                            .stdin()
-                            .as_mut()
-                            .expect("Failed to open stdin");
-                        stdin
-                            .write_all(&problem.to_string().as_bytes())
-                            .unwrap();
-                    }
+                    let stdin =
+                        child.stdin().take().expect("Failed to open stdin");
 
-                    let child = child
-                        .wait_with_output()
-                        .from_err()
-                        .and_then(|output| {
-                            let output =
-                                String::from_utf8_lossy(&output.stdout);
-                            output.parse::<Solution>()
-                        })
-                        .then(|result| -> Result<(), Error> {
-                            stream.emit(Msg::Completed(result));
-                            Ok(())
-                        });
+                    let child =
+                        io::write_all(stdin, problem.to_string().into_bytes())
+                            .map(|_| child)
+                            .and_then(Child::wait_with_output)
+                            .from_err()
+                            .and_then(|output| {
+                                let output =
+                                    String::from_utf8_lossy(&output.stdout);
+                                output.parse::<Solution>()
+                            })
+                            .then(|result| -> Result<(), ()> {
+                                stream.emit(Msg::Completed(result));
+                                Ok(())
+                            });
 
-                    core.run(child);
+                    let _ = core.run(child);
                 },
             )
         });
@@ -327,7 +321,7 @@ impl Win {
             .stdin(Stdio::piped())
             .stdout(Stdio::piped());
 
-        self.sender
+        let _ = self.sender
             .send((self.model.problem.as_ref().unwrap().clone(), child));
     }
 
