@@ -1,11 +1,14 @@
-use domain::{Placement, Point, Problem, Rotation::*};
+use domain::problem::Variant;
+use domain::{Placement, Point, Problem, Rectangle, Rotation::*};
 use failure::Error;
 use std::iter;
 use std::str::FromStr;
 
 #[derive(Clone, Debug, PartialEq)]
 pub struct Solution {
-    problem: Problem,
+    variant: Variant,
+    allow_rotation: bool,
+    source: Option<Rectangle>,
     placements: Vec<Placement>,
 }
 
@@ -37,33 +40,28 @@ impl FromStr for Solution {
             .ok_or_else(|| format_err!("Unexpected end of file"))?
             .parse()?;
 
-        let placements: Vec<&str> = parts
+        let Problem {
+            variant,
+            allow_rotation,
+            source,
+            rectangles,
+        } = problem;
+
+        let n = rectangles.len();
+        let placements: Vec<Placement> = parts
             .next()
             .ok_or_else(|| format_err!("Unexpected end of file"))?
             .lines()
-            .collect();
-
-        if placements.len() != problem.rectangles.len() {
-            bail!(
-                "Solution contains a different number of placements than \
-                 rectangles"
-            );
-        }
-
-        let placements: Vec<Placement> = placements
-            .into_iter()
             .map(|s| {
                 let tokens: Vec<&str> = s.split_whitespace().collect();
 
-                let result = match (problem.allow_rotation, tokens.as_slice()) {
+                let result = match (allow_rotation, tokens.as_slice()) {
                     (false, [x, y]) => {
                         let p = Point::new(x.parse()?, y.parse()?);
-
                         (Normal, p)
                     }
                     (true, [rot, x, y]) => {
                         let p = Point::new(x.parse()?, y.parse()?);
-
                         (rot.parse()?, p)
                     }
                     _ => bail!("Invalid format: {}", tokens.join(" ")),
@@ -71,14 +69,23 @@ impl FromStr for Solution {
 
                 Ok(result)
             })
-            .zip(problem.rectangles.iter())
+            .zip(rectangles.iter())
             .map(|(result, &r)| {
                 result.map(|(rot, coord)| Placement::new(r, rot, coord))
             })
             .collect::<Result<_, _>>()?;
 
+        if placements.len() != n {
+            bail!(
+                "Solution contains a different number of placements than \
+                 rectangles"
+            );
+        }
+
         Ok(Solution {
-            problem,
+            variant,
+            allow_rotation,
+            source,
             placements,
         })
     }
