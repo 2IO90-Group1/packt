@@ -87,7 +87,6 @@ impl Widget for Win {
         );
 
         let settings = SettingsPanel::from_builder(&builder);
-
         connect!(
             relm,
             settings.container_switch,

@@ -1,6 +1,7 @@
 use domain::problem::Variant;
 use domain::{Placement, Point, Problem, Rectangle, Rotation::*};
 use failure::Error;
+use std::fmt::{self, Formatter};
 use std::iter;
 use std::str::FromStr;
 
@@ -10,6 +11,7 @@ pub struct Solution {
     allow_rotation: bool,
     source: Option<Rectangle>,
     placements: Vec<Placement>,
+    evaluation: Option<Evaluation>,
 }
 
 impl Solution {
@@ -26,6 +28,79 @@ impl Solution {
                 iter::repeat(p).zip(self.placements.iter().skip(i + 1))
             })
             .all(|(p1, p2)| !p1.overlaps(p2))
+    }
+
+    pub fn evaluate(&mut self) -> Evaluation {
+        match self.evaluation {
+            Some(eval) => eval,
+            None => {
+                let is_valid = self.is_valid();
+                let can_optimal = self.source.is_some();
+                let mut bounding_box = self.bounding_box();
+                let min_area = self.placements
+                    .iter_mut()
+                    .map(|p| p.rectangle.area())
+                    .sum();
+                let empty_area = bounding_box.area() - min_area;
+                let utilization = min_area as f32 / bounding_box.area() as f32;
+
+                Evaluation {
+                    is_valid,
+                    can_optimal,
+                    bounding_box,
+                    min_area,
+                    empty_area,
+                    utilization,
+                }
+            }
+        }
+    }
+
+    pub fn bounding_box(&self) -> Rectangle {
+        let (x, y) = self.placements.iter().fold((0, 0), |(x, y), p| {
+            let tr = p.top_right;
+            (x.max(tr.x), y.max(tr.y))
+        });
+
+        Rectangle::new(x, y)
+    }
+}
+
+#[derive(Clone, Copy, Debug, PartialEq)]
+pub struct Evaluation {
+    is_valid: bool,
+    can_optimal: bool,
+    bounding_box: Rectangle,
+    min_area: u64,
+    empty_area: u64,
+    utilization: f32,
+}
+
+impl fmt::Display for Evaluation {
+    fn fmt(&self, f: &mut Formatter) -> fmt::Result {
+        let Evaluation {
+            is_valid,
+            can_optimal,
+            min_area,
+            mut bounding_box,
+            empty_area,
+            utilization,
+        } = self;
+        let bb_area = bounding_box.area();
+
+        write!(
+            f,
+            "is valid: {}\ncan be optimal: {}\nlower bound on area: \
+             {}\nbounding box: {}, area: {}\nunused area in bounding box: \
+             {}\nutilization: {:.2}",
+            is_valid,
+            can_optimal,
+            min_area,
+            bounding_box,
+            bb_area,
+            empty_area,
+            utilization
+        )
     }
 }
 
@@ -87,9 +162,11 @@ impl FromStr for Solution {
             allow_rotation,
             source,
             placements,
+            evaluation: None,
         })
     }
 }
+
 
 #[cfg(test)]
 mod tests {

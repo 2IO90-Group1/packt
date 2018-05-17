@@ -171,10 +171,10 @@ impl FromStr for Rotation {
 
 #[derive(Clone, Copy, Debug, PartialEq)]
 pub struct Placement {
-    rectangle: Rectangle,
-    rotation: Rotation,
-    bottom_left: Point,
-    top_right: Point,
+    pub rectangle: Rectangle,
+    pub rotation: Rotation,
+    pub bottom_left: Point,
+    pub top_right: Point,
 }
 
 impl Placement {
