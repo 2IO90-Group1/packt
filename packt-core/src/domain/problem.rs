@@ -6,7 +6,7 @@ use std::fmt;
 use std::fmt::Formatter;
 use std::fs::OpenOptions;
 use std::io::{self, Write};
-use std::path::PathBuf;
+use std::path::{Path, PathBuf};
 use std::str::FromStr;
 
 const N_DEFAULTS: [usize; 5] = [3, 5, 10, 25, 5000];
@@ -99,6 +99,10 @@ impl Problem {
         let mut file = OpenOptions::new().write(true).create(true).open(path)?;
 
         file.write_all(self.to_string().as_bytes())
+    }
+
+    pub fn from_path<P: AsRef<Path>>(path: P) -> io::Result<Problem> {
+        unimplemented!();
     }
 }
 

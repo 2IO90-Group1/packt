@@ -66,7 +66,7 @@ impl Solution {
             (x, y)
         });
 
-        Rectangle::new(x+1, y+1)
+        Rectangle::new(x + 1, y + 1)
     }
 
     pub fn source(&mut self, r: Option<Rectangle>) {
