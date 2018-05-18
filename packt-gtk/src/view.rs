@@ -384,26 +384,26 @@ impl Win {
                     let stdin =
                         child.stdin().take().expect("Failed to open stdin");
 
-                    let child = io::write_all(
-                        stdin,
-                        problem.to_string().into_bytes(),
-                    ).map(|_| child)
-                        .and_then(Child::wait_with_output)
-                        .from_err()
-                        .and_then(|output| {
-                            let output =
-                                String::from_utf8_lossy(&output.stdout);
-                            output.parse::<Solution>()
-                        })
-                        .map(|mut solution| {
-                            solution.source(problem.source);
-                            solution.evaluate()
-                        })
-                        .then(|result| -> Result<(), ()> {
-                            stream.emit(Msg::Completed(result));
-                            Ok(())
-                        })
-                        .deadline(Instant::now() + Duration::from_secs(300));
+                    let start = Instant::now();
+                    let child =
+                        io::write_all(stdin, problem.to_string().into_bytes())
+                            .map(|_| child)
+                            .and_then(Child::wait_with_output)
+                            .from_err()
+                            .and_then(|output| {
+                                let output =
+                                    String::from_utf8_lossy(&output.stdout);
+                                output.parse::<Solution>()
+                            })
+                            .map(|mut solution| {
+                                solution.source(problem.source);
+                                solution.evaluate(start)
+                            })
+                            .then(|result| -> Result<(), ()> {
+                                stream.emit(Msg::Completed(result));
+                                Ok(())
+                            })
+                            .deadline(start + Duration::from_secs(300));
 
                     let _ = core.run(child);
                 },
