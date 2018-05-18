@@ -6,7 +6,7 @@ use std::fmt;
 use std::fmt::Formatter;
 use std::fs::OpenOptions;
 use std::io::{self, Write};
-use std::path::{Path, PathBuf};
+use std::path::Path;
 use std::str::FromStr;
 
 const N_DEFAULTS: [usize; 5] = [3, 5, 10, 25, 5000];
@@ -22,12 +22,7 @@ pub struct Problem {
 
 impl Problem {
     // TODO: Add rotated rectangles
-    fn generate_from(
-        r: Rectangle,
-        n: usize,
-        v: Variant,
-        allow_rotation: bool,
-    ) -> Problem {
+    fn generate_from(r: Rectangle, n: usize, v: Variant, allow_rotation: bool) -> Problem {
         let a = r.area() as usize;
         if n > a {
             panic!("{:?} cannot be split into {} rectangles", r, n)
@@ -95,7 +90,7 @@ impl Problem {
         s
     }
 
-    pub fn save(&self, path: PathBuf) -> io::Result<()> {
+    pub fn save<P: AsRef<Path>>(&self, path: P) -> io::Result<()> {
         let mut file = OpenOptions::new().write(true).create(true).open(path)?;
 
         file.write_all(self.to_string().as_bytes())
