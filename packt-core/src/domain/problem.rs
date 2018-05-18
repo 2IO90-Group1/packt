@@ -23,7 +23,12 @@ pub struct Problem {
 
 impl Problem {
     // TODO: Add rotated rectangles
-    fn generate_from(r: Rectangle, n: usize, v: Variant, allow_rotation: bool) -> Problem {
+    fn generate_from(
+        r: Rectangle,
+        n: usize,
+        v: Variant,
+        allow_rotation: bool,
+    ) -> Problem {
         let a = r.area() as usize;
         if n > a {
             panic!("{:?} cannot be split into {} rectangles", r, n)
@@ -173,7 +178,8 @@ impl Generator {
 
     pub fn generate(&self) -> Problem {
         let mut rng = rand::thread_rng();
-        let mut n = self.rectangles
+        let mut n = self
+            .rectangles
             .unwrap_or_else(|| seq::sample_slice(&mut rng, &N_DEFAULTS, 1)[0]);
 
         let r = self.container.unwrap_or_else(|| {
@@ -183,7 +189,8 @@ impl Generator {
         });
 
         n = min(n, r.area() as usize);
-        let variant = self.variant
+        let variant = self
+            .variant
             .map(|v| match v {
                 Variant::Fixed(_h) => Variant::Fixed(r.height),
                 v => v,

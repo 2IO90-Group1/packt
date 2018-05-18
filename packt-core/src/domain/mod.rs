@@ -40,8 +40,12 @@ impl Rectangle {
         } = self;
 
         match sp {
-            Cut::Horizontal(y) => (Rectangle::new(w, h - y), Rectangle::new(w, y)),
-            Cut::Vertical(x) => (Rectangle::new(w - x, h), Rectangle::new(x, h)),
+            Cut::Horizontal(y) => {
+                (Rectangle::new(w, h - y), Rectangle::new(w, y))
+            }
+            Cut::Vertical(x) => {
+                (Rectangle::new(w - x, h), Rectangle::new(x, h))
+            }
         }
     }
 
@@ -130,10 +134,13 @@ impl FromStr for Rectangle {
     type Err = Error;
 
     fn from_str(s: &str) -> Result<Self, <Self as FromStr>::Err> {
-        let result = match s.split_whitespace().collect::<Vec<&str>>().as_slice() {
-            [width, height] => Rectangle::new(width.parse()?, height.parse()?),
-            _ => bail!("Invalid format: {}", s),
-        };
+        let result =
+            match s.split_whitespace().collect::<Vec<&str>>().as_slice() {
+                [width, height] => {
+                    Rectangle::new(width.parse()?, height.parse()?)
+                }
+                _ => bail!("Invalid format: {}", s),
+            };
 
         Ok(result)
     }
@@ -189,7 +196,8 @@ impl Placement {
     }
 
     fn overlaps(&self, rhs: &Placement) -> bool {
-        rhs.bottom_left.y <= self.top_right.y && rhs.bottom_left.x <= self.top_right.x
+        rhs.bottom_left.y <= self.top_right.y
+            && rhs.bottom_left.x <= self.top_right.x
             && self.bottom_left.y <= rhs.top_right.y
             && self.bottom_left.x <= rhs.top_right.x
     }

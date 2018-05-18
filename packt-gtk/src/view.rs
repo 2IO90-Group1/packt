@@ -44,7 +44,6 @@ struct Widgets {
     runner_tv: gtk::TextView,
     add_btn: gtk::Button,
     save_btn: gtk::ToolButton,
-    import_btn: gtk::ToolButton,
     run_btn: gtk::Button,
     solver_filechooser: gtk::FileChooser,
 }
@@ -183,7 +182,6 @@ impl Widget for Win {
                 runner_tv,
                 add_btn,
                 save_btn,
-                import_btn,
                 run_btn,
                 solver_filechooser,
             },
@@ -218,7 +216,9 @@ impl Win {
                 let msg = evaluation.to_string();
                 self.info_dialog(&msg)
             }
-            Err(e) => self.error_dialog(&format!("Something went wrong: {:?}", e)),
+            Err(e) => {
+                self.error_dialog(&format!("Something went wrong: {:?}", e))
+            }
         };
 
         dialog.run();
@@ -243,8 +243,10 @@ impl Win {
             .stdin(Stdio::piped())
             .stdout(Stdio::piped());
 
-        let _ = self.sender
-            .send((self.model.selected_problem.as_ref().unwrap().clone(), child));
+        let _ = self.sender.send((
+            self.model.selected_problem.as_ref().unwrap().clone(),
+            child,
+        ));
     }
 
     fn save_problem(&mut self) {
@@ -275,7 +277,6 @@ impl Win {
                     .unwrap();
             }
         }
-
         dialog.close();
     }
 
@@ -330,8 +331,10 @@ impl Win {
         let settings = &self.widgets.settings;
         let mut generator = Generator::new();
         if !settings.container_switch.get_active() {
-            let width = settings.container_width_spinbtn.get_value_as_int() as u32;
-            let height = settings.container_height_spinbtn.get_value_as_int() as u32;
+            let width =
+                settings.container_width_spinbtn.get_value_as_int() as u32;
+            let height =
+                settings.container_height_spinbtn.get_value_as_int() as u32;
             generator.container(Rectangle::new(width, height));
         }
 
@@ -372,20 +375,24 @@ impl Win {
         let (tx, rx) = crossbeam_channel::unbounded();
         thread::spawn(move || {
             let mut core = Core::new().unwrap();
-            rx.iter()
-                .for_each(|(problem, mut command): (domain::Problem, Command)| {
+            rx.iter().for_each(
+                |(problem, mut command): (domain::Problem, Command)| {
                     let mut child = command
                         .spawn_async(&core.handle())
                         .expect("Failed to spawn child process");
 
-                    let stdin = child.stdin().take().expect("Failed to open stdin");
+                    let stdin =
+                        child.stdin().take().expect("Failed to open stdin");
 
-                    let child = io::write_all(stdin, problem.to_string().into_bytes())
-                        .map(|_| child)
+                    let child = io::write_all(
+                        stdin,
+                        problem.to_string().into_bytes(),
+                    ).map(|_| child)
                         .and_then(Child::wait_with_output)
                         .from_err()
                         .and_then(|output| {
-                            let output = String::from_utf8_lossy(&output.stdout);
+                            let output =
+                                String::from_utf8_lossy(&output.stdout);
                             output.parse::<Solution>()
                         })
                         .map(|mut solution| {
@@ -399,7 +406,8 @@ impl Win {
                         .deadline(Instant::now() + Duration::from_secs(300));
 
                     let _ = core.run(child);
-                })
+                },
+            )
         });
         tx
     }
@@ -429,17 +437,23 @@ struct SettingsPanel {
 impl SettingsPanel {
     fn from_builder(builder: &gtk::Builder) -> Self {
         let container_switch = builder.get_object("container_btn").unwrap();
-        let container_filters_box = builder.get_object("container_filter_box").unwrap();
-        let container_width_spinbtn = builder.get_object("container_width_spinbtn").unwrap();
-        let container_height_spinbtn = builder.get_object("container_height_spinbtn").unwrap();
+        let container_filters_box =
+            builder.get_object("container_filter_box").unwrap();
+        let container_width_spinbtn =
+            builder.get_object("container_width_spinbtn").unwrap();
+        let container_height_spinbtn =
+            builder.get_object("container_height_spinbtn").unwrap();
         let amount_switch = builder.get_object("amount_btn").unwrap();
         let amount_spinbtn = builder.get_object("amount_spinbtn").unwrap();
         let variant_switch = builder.get_object("variant_btn").unwrap();
         let variant_btn_box = builder.get_object("variant_btn_box").unwrap();
-        let variant_fixed_radio = builder.get_object("variant_fixed_rbtn").unwrap();
-        let _free_radio: gtk::RadioButton = builder.get_object("variant_free_rbtn").unwrap();
+        let variant_fixed_radio =
+            builder.get_object("variant_fixed_rbtn").unwrap();
+        let _free_radio: gtk::RadioButton =
+            builder.get_object("variant_free_rbtn").unwrap();
         let rotation_switch = builder.get_object("rotation_btn").unwrap();
-        let rotation_checkbtn = builder.get_object("rotation_checkbtn").unwrap();
+        let rotation_checkbtn =
+            builder.get_object("rotation_checkbtn").unwrap();
 
         SettingsPanel {
             container_switch,
@@ -459,13 +473,17 @@ impl SettingsPanel {
     fn toggle(&mut self, o: Setting) {
         use self::Setting::*;
         match o {
-            Container => self.container_filters_box
+            Container => self
+                .container_filters_box
                 .set_sensitive(!self.container_switch.get_active()),
-            Amount => self.amount_spinbtn
+            Amount => self
+                .amount_spinbtn
                 .set_sensitive(!self.amount_switch.get_active()),
-            Variant => self.variant_btn_box
+            Variant => self
+                .variant_btn_box
                 .set_sensitive(!self.variant_switch.get_active()),
-            Rotation => self.rotation_checkbtn
+            Rotation => self
+                .rotation_checkbtn
                 .set_sensitive(!self.rotation_switch.get_active()),
         }
     }
