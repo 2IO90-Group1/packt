@@ -1,8 +1,10 @@
 #!/usr/bin/env bash
 export GTK_INSTALL_PATH=/opt/gtkwin
 export RELEASE=release-windows
+export PKG_CONFIG_ALLOW_CROSS=1 
+export PKG_CONFIG_PATH=/opt/gtkwin/lib/pkgconfig 
 
-PKG_CONFIG_ALLOW_CROSS=1 PKG_CONFIG_PATH=/opt/gtkwin/lib/pkgconfig cargo build --target=x86_64-pc-windows-gnu --release
+cargo build --target=x86_64-pc-windows-gnu --release
 mkdir ${RELEASE}
 cp target/x86_64-pc-windows-gnu/release/*.exe ${RELEASE}
 cp ${GTK_INSTALL_PATH}/bin/*.dll ${RELEASE}
