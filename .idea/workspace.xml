@@ -9,13 +9,7 @@
     </configurations>
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="125db50e-7c23-466e-82aa-24abd0efd882" name="Default" comment="format">
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/packt-core/src/domain/mod.rs" beforeDir="false" afterPath="$PROJECT_DIR$/packt-core/src/domain/mod.rs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/packt-core/src/domain/problem.rs" beforeDir="false" afterPath="$PROJECT_DIR$/packt-core/src/domain/problem.rs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/packt-core/src/domain/solution.rs" beforeDir="false" afterPath="$PROJECT_DIR$/packt-core/src/domain/solution.rs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/packt-gtk/src/view.rs" beforeDir="false" afterPath="$PROJECT_DIR$/packt-gtk/src/view.rs" afterDir="false" />
-    </list>
+    <list default="true" id="125db50e-7c23-466e-82aa-24abd0efd882" name="Default" comment="" />
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="TRACKING_ENABLED" value="true" />
     <option name="SHOW_DIALOG" value="false" />
@@ -25,63 +19,16 @@
   </component>
   <component name="FileEditorManager">
     <leaf SIDE_TABS_SIZE_LIMIT_KEY="300">
-      <file leaf-file-name="view.rs" pinned="false" current-in-tab="false">
+      <file leaf-file-name="view.rs" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/packt-gtk/src/view.rs">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="17">
-              <caret line="342" column="39" selection-start-line="342" selection-start-column="39" selection-end-line="342" selection-end-column="39" />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="solution.rs" pinned="false" current-in-tab="true">
-        <entry file="file://$PROJECT_DIR$/packt-core/src/domain/solution.rs">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="349">
-              <caret line="43" column="25" selection-start-line="43" selection-start-column="25" selection-end-line="43" selection-end-column="25" />
+            <state relative-caret-position="6773">
+              <caret line="437" column="21" selection-start-line="437" selection-start-column="21" selection-end-line="437" selection-end-column="21" />
               <folding>
-                <element signature="e#2095#2096#0" expanded="true" />
-                <element signature="e#2126#2127#0" expanded="true" />
-              </folding>
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="Cargo.toml" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/packt-gtk/Cargo.toml">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="170">
-              <caret line="10" column="22" selection-start-line="10" selection-start-column="22" selection-end-line="10" selection-end-column="22" />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="Cargo.toml" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/Cargo.toml">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="136">
-              <caret line="8" column="74" selection-start-line="8" selection-start-column="74" selection-end-line="8" selection-end-column="74" />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="main.rs" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/packt-gtk/src/main.rs">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="17">
-              <caret line="1" column="14" selection-start-line="1" selection-start-column="14" selection-end-line="1" selection-end-column="14" />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="mod.rs" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/packt-core/src/domain/mod.rs">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="621">
-              <caret line="116" column="46" selection-start-line="116" selection-start-column="46" selection-end-line="116" selection-end-column="46" />
-              <folding>
-                <element signature="e#2578#2579#0" expanded="true" />
-                <element signature="e#2602#2603#0" expanded="true" />
+                <element signature="e#1490#1491#0" expanded="true" />
+                <element signature="e#1533#1534#0" expanded="true" />
+                <element signature="e#2098#2099#0" expanded="true" />
+                <element signature="e#2140#2141#0" expanded="true" />
               </folding>
             </state>
           </provider>
@@ -90,8 +37,24 @@
       <file leaf-file-name="problem.rs" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/packt-core/src/domain/problem.rs">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="298">
-              <caret line="216" column="32" selection-start-line="216" selection-start-column="32" selection-end-line="216" selection-end-column="32" />
+            <state relative-caret-position="136">
+              <caret line="8" column="22" selection-start-line="8" selection-start-column="22" selection-end-line="8" selection-end-column="22" />
+              <folding>
+                <element signature="e#2775#2776#0" expanded="true" />
+                <element signature="e#2793#2794#0" expanded="true" />
+              </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="main.rs" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/packt-gtk/src/main.rs">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="340">
+              <caret line="20" selection-start-line="20" selection-end-line="20" />
+              <folding>
+                <element signature="e#403#404#0" expanded="true" />
+              </folding>
             </state>
           </provider>
         </entry>
@@ -145,10 +108,10 @@
         <option value="$PROJECT_DIR$/packt-gtk/src/view2.rs" />
         <option value="$PROJECT_DIR$/packt-gtk/Cargo.toml" />
         <option value="$PROJECT_DIR$/packt-gtk/src/main.rs" />
-        <option value="$PROJECT_DIR$/packt-gtk/src/view.rs" />
         <option value="$PROJECT_DIR$/packt-core/src/domain/mod.rs" />
-        <option value="$PROJECT_DIR$/packt-core/src/domain/problem.rs" />
         <option value="$PROJECT_DIR$/packt-core/src/domain/solution.rs" />
+        <option value="$PROJECT_DIR$/packt-core/src/domain/problem.rs" />
+        <option value="$PROJECT_DIR$/packt-gtk/src/view.rs" />
       </list>
     </option>
   </component>
@@ -427,7 +390,7 @@
       <workItem from="1526476997080" duration="850000" />
       <workItem from="1526509081653" duration="52000" />
       <workItem from="1526584893385" duration="32000" />
-      <workItem from="1526590552823" duration="1658000" />
+      <workItem from="1526590552823" duration="5659000" />
     </task>
     <task id="LOCAL-00001" summary="Initial commit">
       <created>1524731386116</created>
@@ -674,11 +637,25 @@
       <option name="project" value="LOCAL" />
       <updated>1526492505125</updated>
     </task>
-    <option name="localTasksCounter" value="36" />
+    <task id="LOCAL-00036" summary="Refactor rectangle area">
+      <created>1526592379182</created>
+      <option name="number" value="00036" />
+      <option name="presentableId" value="LOCAL-00036" />
+      <option name="project" value="LOCAL" />
+      <updated>1526592379182</updated>
+    </task>
+    <task id="LOCAL-00037" summary="Add runner pane.&#10;Add import button.">
+      <created>1526596284984</created>
+      <option name="number" value="00037" />
+      <option name="presentableId" value="LOCAL-00037" />
+      <option name="project" value="LOCAL" />
+      <updated>1526596284984</updated>
+    </task>
+    <option name="localTasksCounter" value="38" />
     <servers />
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="135707000" />
+    <option name="totallyTimeSpent" value="139708000" />
   </component>
   <component name="TodoView">
     <todo-panel id="selected-file">
@@ -691,14 +668,14 @@
   </component>
   <component name="ToolWindowManager">
     <frame x="0" y="-4" width="1920" height="1084" extended-state="6" />
-    <editor active="true" />
     <layout>
       <window_info content_ui="combo" id="Project" order="0" sideWeight="0.49261603" weight="0.12873931" />
       <window_info anchor="bottom" id="TODO" order="5" weight="0.32911393" />
       <window_info anchor="right" id="Cargo" order="3" weight="0.32959402" />
       <window_info anchor="bottom" id="Event Log" order="6" side_tool="true" weight="0.32911393" />
+      <window_info anchor="bottom" id="Find" order="1" weight="0.32911393" />
       <window_info anchor="bottom" id="Version Control" order="7" weight="0.32911393" />
-      <window_info active="true" anchor="right" id="Run" order="4" visible="true" weight="0.50641024" />
+      <window_info anchor="right" id="Run" order="4" weight="0.55662394" />
       <window_info id="Structure" order="1" sideWeight="0.50738394" side_tool="true" weight="0.13461539" />
       <window_info anchor="bottom" id="Terminal" order="8" weight="0.32805908" />
       <window_info id="Favorites" order="2" side_tool="true" />
@@ -710,7 +687,6 @@
       <window_info anchor="bottom" id="Messages" order="6" weight="0.32911393" />
       <window_info anchor="bottom" id="Message" order="0" />
       <window_info anchor="bottom" id="Cvs" order="3" weight="0.25" />
-      <window_info anchor="bottom" id="Find" order="1" weight="0.32911393" />
     </layout>
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -750,8 +726,6 @@
       <path value="$PROJECT_DIR$/packt-core" />
       <path value="$PROJECT_DIR$" />
     </ignored-roots>
-    <MESSAGE value="Add simple problem generation" />
-    <MESSAGE value="Add string conversion for `Problem`" />
     <MESSAGE value="Disable bugged inspections" />
     <MESSAGE value="Add ProblemGenerator builder" />
     <MESSAGE value="Fix issues" />
@@ -775,7 +749,9 @@
     <MESSAGE value="Make run button robust" />
     <MESSAGE value="Naive async running" />
     <MESSAGE value="format" />
-    <option name="LAST_COMMIT_MESSAGE" value="format" />
+    <MESSAGE value="Refactor rectangle area" />
+    <MESSAGE value="Add runner pane.&#10;Add import button." />
+    <option name="LAST_COMMIT_MESSAGE" value="Add runner pane.&#10;Add import button." />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
@@ -1099,20 +1075,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/packt-gtk/src/main.rs">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="17">
-          <caret line="1" column="14" selection-start-line="1" selection-start-column="14" selection-end-line="1" selection-end-column="14" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/packt-gtk/src/view.rs">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="17">
-          <caret line="342" column="39" selection-start-line="342" selection-start-column="39" selection-end-line="342" selection-end-column="39" />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/packt-core/src/domain/mod.rs">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="621">
@@ -1124,20 +1086,47 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/packt-core/src/domain/problem.rs">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="298">
-          <caret line="216" column="32" selection-start-line="216" selection-start-column="32" selection-end-line="216" selection-end-column="32" />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/packt-core/src/domain/solution.rs">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="349">
-          <caret line="43" column="25" selection-start-line="43" selection-start-column="25" selection-end-line="43" selection-end-column="25" />
+        <state relative-caret-position="-2657">
+          <caret line="36" column="47" lean-forward="true" selection-start-line="36" selection-start-column="47" selection-end-line="36" selection-end-column="47" />
           <folding>
             <element signature="e#2095#2096#0" expanded="true" />
             <element signature="e#2126#2127#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/packt-gtk/src/main.rs">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="340">
+          <caret line="20" selection-start-line="20" selection-end-line="20" />
+          <folding>
+            <element signature="e#403#404#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/packt-core/src/domain/problem.rs">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="136">
+          <caret line="8" column="22" selection-start-line="8" selection-start-column="22" selection-end-line="8" selection-end-column="22" />
+          <folding>
+            <element signature="e#2775#2776#0" expanded="true" />
+            <element signature="e#2793#2794#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/packt-gtk/src/view.rs">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="6773">
+          <caret line="437" column="21" selection-start-line="437" selection-start-column="21" selection-end-line="437" selection-end-column="21" />
+          <folding>
+            <element signature="e#1490#1491#0" expanded="true" />
+            <element signature="e#1533#1534#0" expanded="true" />
+            <element signature="e#2098#2099#0" expanded="true" />
+            <element signature="e#2140#2141#0" expanded="true" />
           </folding>
         </state>
       </provider>
