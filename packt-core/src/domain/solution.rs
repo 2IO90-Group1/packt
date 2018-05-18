@@ -145,7 +145,6 @@ impl FromStr for Solution {
             .lines()
             .map(|s| {
                 let tokens: Vec<&str> = s.split_whitespace().collect();
-
                 let result = match (allow_rotation, tokens.as_slice()) {
                     (false, [x, y]) => {
                         let p = Point::new(x.parse()?, y.parse()?);
