@@ -4,8 +4,9 @@ use rand::{self, seq, Rng};
 use std::cmp::min;
 use std::fmt;
 use std::fmt::Formatter;
+use std::fs::File;
 use std::fs::OpenOptions;
-use std::io::{self, Write};
+use std::io::{self, Read, Write};
 use std::path::Path;
 use std::str::FromStr;
 
@@ -96,8 +97,10 @@ impl Problem {
         file.write_all(self.to_string().as_bytes())
     }
 
-    pub fn from_path<P: AsRef<Path>>(path: P) -> io::Result<Problem> {
-        unimplemented!();
+    pub fn from_path<P: AsRef<Path>>(path: P) -> Result<Problem, Error> {
+        let mut content = String::new();
+        File::open(path)?.read_to_string(&mut content)?;
+        content.parse()
     }
 }
 
