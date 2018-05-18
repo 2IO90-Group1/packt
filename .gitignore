@@ -5,3 +5,5 @@ Cargo.lock
 packt.zip
 
 \.idea/
+
+*.jar

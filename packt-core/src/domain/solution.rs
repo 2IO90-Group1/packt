@@ -4,6 +4,7 @@ use failure::Error;
 use std::fmt::{self, Formatter};
 use std::iter;
 use std::str::FromStr;
+use std::time::{Duration, Instant};
 
 #[derive(Clone, Debug, PartialEq)]
 pub struct Solution {
@@ -30,7 +31,7 @@ impl Solution {
             .all(|(p1, p2)| !p1.overlaps(p2))
     }
 
-    pub fn evaluate(&mut self) -> Evaluation {
+    pub fn evaluate(&mut self, start: Instant) -> Evaluation {
         match self.evaluation {
             Some(eval) => eval,
             None => {
@@ -44,6 +45,7 @@ impl Solution {
                     .sum();
                 let empty_area = bounding_box.area() - min_area;
                 let utilization = min_area as f32 / bounding_box.area() as f32;
+                let duration = Instant::now().duration_since(start);
 
                 Evaluation {
                     is_valid,
@@ -52,6 +54,7 @@ impl Solution {
                     min_area,
                     empty_area,
                     utilization,
+                    duration,
                 }
             }
         }
@@ -83,6 +86,7 @@ pub struct Evaluation {
     min_area: u64,
     empty_area: u64,
     utilization: f32,
+    duration: Duration,
 }
 
 impl fmt::Display for Evaluation {
@@ -94,6 +98,7 @@ impl fmt::Display for Evaluation {
             bounding_box,
             empty_area,
             utilization,
+            duration,
         } = self;
         let bb_area = bounding_box.area();
 
@@ -101,14 +106,16 @@ impl fmt::Display for Evaluation {
             f,
             "is valid: {}\ncan be optimal: {}\nlower bound on area: \
              {}\nbounding box: {}, area: {}\nunused area in bounding box: \
-             {}\nutilization: {:.2}",
+             {}\nutilization: {:.2}\ntook {}.{:.3}s",
             is_valid,
             can_optimal,
             min_area,
             bounding_box,
             bb_area,
             empty_area,
-            utilization
+            utilization,
+            duration.as_secs(),
+            duration.subsec_millis(),
         )
     }
 }
