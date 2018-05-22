@@ -7,6 +7,7 @@ extern crate relm;
 #[macro_use]
 extern crate relm_derive;
 extern crate crossbeam_channel;
+#[macro_use]
 extern crate failure;
 extern crate packt_core;
 extern crate tokio;

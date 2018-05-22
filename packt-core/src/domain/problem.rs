@@ -78,22 +78,22 @@ impl Problem {
     }
 
     pub fn digest(&self) -> String {
-        let mut s = self.config_str();
+        let mut config = self.config_str();
 
         if let Some(source) = self.source {
-            s.push_str(&format!("\nbounding box: {}", source.to_string()));
+            config.push_str(&format!("\nbounding box: {}", source.to_string()));
         }
 
         self.rectangles
             .iter()
             .take(30)
-            .for_each(|r| s.push_str(&format!("\n{}", r.to_string())));
+            .for_each(|r| config.push_str(&format!("\n{}", r.to_string())));
 
         if self.rectangles.len() > 30 {
-            s.push_str("\n...");
+            config.push_str("\n...");
         }
 
-        s
+        config
     }
 
     pub fn save<P: AsRef<Path>>(&self, path: P) -> io::Result<()> {
@@ -110,7 +110,6 @@ impl Problem {
 }
 
 impl fmt::Display for Problem {
-    //noinspection RsTypeCheck
     fn fmt(&self, f: &mut Formatter) -> fmt::Result {
         let mut s = self.config_str();
 
@@ -236,7 +235,6 @@ pub enum Variant {
 }
 
 impl fmt::Display for Variant {
-    //noinspection RsTypeCheck
     fn fmt(&self, f: &mut Formatter) -> fmt::Result {
         match *self {
             Variant::Free => write!(f, "free"),

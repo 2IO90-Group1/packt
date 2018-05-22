@@ -7,3 +7,7 @@ packt.zip
 \.idea/
 
 *.jar
+
+*.vim
+
+\.undodir/
