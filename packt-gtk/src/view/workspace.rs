@@ -25,8 +25,15 @@ pub struct Entry {
 
 impl Entry {
     fn new(problem: Problem) -> Self {
+        let name = format!(
+            "n={n} h={v} r={r}",
+            v = problem.variant,
+            r = if problem.allow_rotation { "yes" } else { "no" },
+            n = problem.rectangles.len()
+        );
+
         Entry {
-            name: "asdf".to_string(), // TODO: better name generation
+            name,
             problem,
             solutions: Vec::new(),
         }
@@ -43,10 +50,10 @@ impl fmt::Display for Entry {
             };
 
             s.push_str(&eval_string);
-            s.push('\n');
+            s.push_str("\n\n");
         }
 
-        s.push_str(&self.problem.to_string());
+        s.push_str(&self.problem.digest());
         write!(f, "{}", s)
     }
 }
@@ -105,7 +112,6 @@ impl Update for WorkspaceWidget {
     fn model(relm: &Relm<Self>, _param: ()) -> Self::Model {
         Model {
             problems: VecDeque::new(),
-            selected: VecDeque::new(),
             work_queue: launch_runner(relm),
             running: 0,
         }

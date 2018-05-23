@@ -86,12 +86,7 @@ impl Problem {
 
         self.rectangles
             .iter()
-            .take(30)
             .for_each(|r| config.push_str(&format!("\n{}", r.to_string())));
-
-        if self.rectangles.len() > 30 {
-            config.push_str("\n...");
-        }
 
         config
     }
