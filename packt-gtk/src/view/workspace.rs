@@ -18,13 +18,14 @@ type EvalResult = Result<Evaluation>;
 
 #[derive(Debug)]
 pub struct Entry {
+    id: u16,
     name: String,
     problem: Problem,
     solutions: Vec<EvalResult>,
 }
 
 impl Entry {
-    fn new(problem: Problem) -> Self {
+    fn new(id: u16, problem: Problem) -> Self {
         let name = format!(
             "n={n} h={v} r={r}",
             v = problem.variant,
@@ -33,10 +34,17 @@ impl Entry {
         );
 
         Entry {
+            id,
             name,
             problem,
             solutions: Vec::new(),
         }
+    }
+}
+
+impl PartialEq for Entry {
+    fn eq(&self, other: &Entry) -> bool {
+        self.id.eq(&other.id)
     }
 }
 
@@ -72,6 +80,7 @@ struct Widgets {
 }
 
 pub struct Model {
+    id_gen: u16,
     problems: VecDeque<Entry>,
     selected: VecDeque<Entry>,
     work_queue: Sender<Job>,
@@ -111,7 +120,9 @@ impl Update for WorkspaceWidget {
 
     fn model(relm: &Relm<Self>, _param: ()) -> Self::Model {
         Model {
+            id_gen: 0,
             problems: VecDeque::new(),
+            selected: VecDeque::new(),
             work_queue: launch_runner(relm),
             running: 0,
         }
@@ -136,7 +147,9 @@ impl Update for WorkspaceWidget {
                 .ok_or_else(|| format_err!("failed to save problem")),
             Completed(entry) => self.problem_completed(entry),
             Add(problem) => {
-                let entry = Entry::new(problem);
+                let id = self.model.id_gen;
+                self.model.id_gen += 1;
+                let entry = Entry::new(id, problem);
                 self.widgets
                     .problems_lb
                     .prepend(&Label::new(entry.name.as_str()));
@@ -246,14 +259,14 @@ impl WorkspaceWidget {
     fn save_problem(&mut self) -> Option<()> {
         let entry = self
             .widgets
-            .problems_lb
+            .selected_lb
             .get_selected_row()
             .map(|row| {
                 let index = row.get_index() as usize;
                 self.model.problems.get(index).unwrap().clone()
             })
             .or_else(|| {
-                self.widgets.selected_lb.get_selected_row().map(|row| {
+                self.widgets.problems_lb.get_selected_row().map(|row| {
                     let index = row.get_index() as usize;
                     self.model.selected.get(index).unwrap().clone()
                 })
@@ -292,20 +305,10 @@ impl WorkspaceWidget {
         Ok(())
     }
 
-    fn problem_completed(&mut self, entry: Entry) -> Result<()> {
+    fn problem_completed(&mut self, mut entry: Entry) -> Result<()> {
         println!("success");
-        let index = self.model.selected.len();
-        let text = entry.name.clone();
-        self.model.selected.push_back(entry);
-        self.widgets
-            .selected_lb
-            .get_row_at_index(index as i32)
-            .ok_or_else(|| format_err!("failed to get row in selected_lb"))?
-            .get_child()
-            .ok_or_else(|| format_err!("failed to get child of row"))?
-            .downcast::<Label>()
-            .map_err(|e| format_err!("failed to downcast to label: {:?}", e))?
-            .set_text(&text);
+        let target = self.model.problems.iter_mut().find(|e| **e == entry).ok_or_else(|| format_err!("Unable to find entry {} in model", entry.id))?;
+        mem::swap(target, &mut entry);
         Ok(())
     }
 
@@ -318,7 +321,6 @@ impl WorkspaceWidget {
                 &mut self.model.selected
             };
             let i = row.get_index() as usize;
-            println!("{:#?}", list);
             let entry =
                 list.get(i).ok_or_else(|| format_err!("model invalid"))?;
             self.widgets
