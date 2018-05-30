@@ -4,6 +4,7 @@ use failure::Error;
 use std::fmt::{self, Formatter};
 use std::iter;
 use std::str::FromStr;
+use std::time::{Duration, Instant};
 
 #[derive(Clone, Debug, PartialEq)]
 pub struct Solution {
@@ -24,20 +25,27 @@ impl Solution {
         self.placements
             .iter()
             .enumerate()
-            .flat_map(|(i, p)| iter::repeat(p).zip(self.placements.iter().skip(i + 1)))
+            .flat_map(|(i, p)| {
+                iter::repeat(p).zip(self.placements.iter().skip(i + 1))
+            })
             .all(|(p1, p2)| !p1.overlaps(p2))
     }
 
-    pub fn evaluate(&mut self) -> Evaluation {
+    pub fn evaluate(&mut self, start: Instant) -> Evaluation {
         match self.evaluation {
             Some(eval) => eval,
             None => {
                 let is_valid = self.is_valid();
                 let can_optimal = self.source.is_some();
                 let mut bounding_box = self.bounding_box();
-                let min_area = self.placements.iter_mut().map(|p| p.rectangle.area()).sum();
+                let min_area = self
+                    .placements
+                    .iter_mut()
+                    .map(|p| p.rectangle.area())
+                    .sum();
                 let empty_area = bounding_box.area() - min_area;
                 let utilization = min_area as f32 / bounding_box.area() as f32;
+                let duration = Instant::now().duration_since(start);
 
                 Evaluation {
                     is_valid,
@@ -46,6 +54,7 @@ impl Solution {
                     min_area,
                     empty_area,
                     utilization,
+                    duration,
                 }
             }
         }
@@ -77,6 +86,7 @@ pub struct Evaluation {
     min_area: u64,
     empty_area: u64,
     utilization: f32,
+    duration: Duration,
 }
 
 impl fmt::Display for Evaluation {
@@ -88,6 +98,7 @@ impl fmt::Display for Evaluation {
             bounding_box,
             empty_area,
             utilization,
+            duration,
         } = self;
         let bb_area = bounding_box.area();
 
@@ -95,8 +106,16 @@ impl fmt::Display for Evaluation {
             f,
             "is valid: {}\ncan be optimal: {}\nlower bound on area: \
              {}\nbounding box: {}, area: {}\nunused area in bounding box: \
-             {}\nutilization: {:.2}",
-            is_valid, can_optimal, min_area, bounding_box, bb_area, empty_area, utilization
+             {}\nutilization: {:.2}\ntook {}.{:.3}s",
+            is_valid,
+            can_optimal,
+            min_area,
+            bounding_box,
+            bb_area,
+            empty_area,
+            utilization,
+            duration.as_secs(),
+            duration.subsec_millis(),
         )
     }
 }
@@ -126,7 +145,6 @@ impl FromStr for Solution {
             .lines()
             .map(|s| {
                 let tokens: Vec<&str> = s.split_whitespace().collect();
-
                 let result = match (allow_rotation, tokens.as_slice()) {
                     (false, [x, y]) => {
                         let p = Point::new(x.parse()?, y.parse()?);
@@ -142,7 +160,9 @@ impl FromStr for Solution {
                 Ok(result)
             })
             .zip(rectangles.iter())
-            .map(|(result, &r)| result.map(|(rot, coord)| Placement::new(r, rot, coord)))
+            .map(|(result, &r)| {
+                result.map(|(rot, coord)| Placement::new(r, rot, coord))
+            })
             .collect::<Result<_, _>>()?;
 
         if placements.len() != n {

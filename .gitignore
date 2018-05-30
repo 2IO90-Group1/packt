@@ -5,3 +5,9 @@ Cargo.lock
 packt.zip
 
 \.idea/
+
+*.jar
+
+*.vim
+
+\.undodir/

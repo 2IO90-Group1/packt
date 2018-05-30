@@ -9,7 +9,6 @@ relm-derive = "0.14.4"
 gtk = {version="0.4.1", features = ["v3_10"]}
 packt-core = { path = "../packt-core" }
 tokio-process = "0.1.6"
-futures = "0.2.1"
 tokio = "0.1.6"
 tokio-io = "0.1.6"
 tokio-core = "0.1.17"
