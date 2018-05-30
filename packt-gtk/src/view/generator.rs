@@ -66,7 +66,9 @@ impl Update for GeneratorWidget {
         match event {
             Toggle(c) => self.widgets.settings.toggle(c),
             Generate => self.generate_problem(),
-            Move => self.relm.stream().emit(Msg::Moved(self.model.problem.take().expect("missing problem value"))),
+            Move => self.relm.stream().emit(Msg::Moved(
+                self.model.problem.take().expect("missing problem value"),
+            )),
             Moved(_) => {
                 self.widgets
                     .textview
@@ -101,12 +103,7 @@ impl Widget for GeneratorWidget {
         let move_btn: gtk::Button = builder
             .get_object("add_button")
             .expect("failed to get add_button");
-        connect!(
-            relm,
-            move_btn,
-            connect_clicked(_),
-            Msg::Move
-        );
+        connect!(relm, move_btn, connect_clicked(_), Msg::Move);
 
         let textview: gtk::TextView = builder
             .get_object("problem_textview")
@@ -133,10 +130,8 @@ impl GeneratorWidget {
         let settings = &self.widgets.settings;
         let mut generator = Generator::new();
         if !settings.container_switch.get_active() {
-            let width =
-                settings.container_width_spinbtn.get_value_as_int() as u32;
-            let height =
-                settings.container_height_spinbtn.get_value_as_int() as u32;
+            let width = settings.container_width_spinbtn.get_value_as_int() as u32;
+            let height = settings.container_height_spinbtn.get_value_as_int() as u32;
             generator.container(Rectangle::new(width, height));
         }
 
@@ -172,19 +167,12 @@ impl GeneratorWidget {
 }
 
 impl SettingsPanel {
-    fn from_builder(
-        relm: &Relm<GeneratorWidget>,
-        builder: &gtk::Builder,
-    ) -> Self {
+    fn from_builder(relm: &Relm<GeneratorWidget>, builder: &gtk::Builder) -> Self {
         use self::Settings::*;
-        let container_switch: gtk::CheckButton =
-            builder.get_object("container_btn").unwrap();
-        let container_filters_box =
-            builder.get_object("container_filter_box").unwrap();
-        let container_width_spinbtn =
-            builder.get_object("container_width_spinbtn").unwrap();
-        let container_height_spinbtn =
-            builder.get_object("container_height_spinbtn").unwrap();
+        let container_switch: gtk::CheckButton = builder.get_object("container_btn").unwrap();
+        let container_filters_box = builder.get_object("container_filter_box").unwrap();
+        let container_width_spinbtn = builder.get_object("container_width_spinbtn").unwrap();
+        let container_height_spinbtn = builder.get_object("container_height_spinbtn").unwrap();
         connect!(
             relm,
             container_switch,
@@ -192,18 +180,14 @@ impl SettingsPanel {
             Msg::Toggle(Container)
         );
 
-        let amount_switch: gtk::CheckButton =
-            builder.get_object("amount_btn").unwrap();
+        let amount_switch: gtk::CheckButton = builder.get_object("amount_btn").unwrap();
         let amount_spinbtn = builder.get_object("amount_spinbtn").unwrap();
         connect!(relm, amount_switch, connect_toggled(_), Msg::Toggle(Amount));
 
-        let variant_switch: gtk::CheckButton =
-            builder.get_object("variant_btn").unwrap();
+        let variant_switch: gtk::CheckButton = builder.get_object("variant_btn").unwrap();
         let variant_btn_box = builder.get_object("variant_btn_box").unwrap();
-        let variant_fixed_radio =
-            builder.get_object("variant_fixed_rbtn").unwrap();
-        let _free_radio: gtk::RadioButton =
-            builder.get_object("variant_free_rbtn").unwrap();
+        let variant_fixed_radio = builder.get_object("variant_fixed_rbtn").unwrap();
+        let _free_radio: gtk::RadioButton = builder.get_object("variant_free_rbtn").unwrap();
         connect!(
             relm,
             variant_switch,
@@ -211,10 +195,8 @@ impl SettingsPanel {
             Msg::Toggle(Variant)
         );
 
-        let rotation_switch: gtk::CheckButton =
-            builder.get_object("rotation_btn").unwrap();
-        let rotation_checkbtn =
-            builder.get_object("rotation_checkbtn").unwrap();
+        let rotation_switch: gtk::CheckButton = builder.get_object("rotation_btn").unwrap();
+        let rotation_checkbtn = builder.get_object("rotation_checkbtn").unwrap();
         connect!(
             relm,
             rotation_switch,

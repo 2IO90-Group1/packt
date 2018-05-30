@@ -5,9 +5,7 @@ use self::generator::GeneratorWidget;
 use self::workspace::WorkspaceWidget;
 
 use failure::Error;
-use gtk::{
-    self, prelude::*, ButtonsType, DialogFlags, FileChooserAction, MessageType,
-};
+use gtk::{self, prelude::*, ButtonsType, DialogFlags, FileChooserAction, MessageType};
 use packt_core::domain::Problem;
 use relm::{Component, ContainerWidget, Relm, Update, Widget};
 use std::{self, path::PathBuf};
@@ -22,11 +20,10 @@ pub enum Msg {
 }
 
 struct Widgets {
-    generator: Component<GeneratorWidget>,
+    _generator: Component<GeneratorWidget>,
     workspace: Component<WorkspaceWidget>,
     window: gtk::Window,
 }
-
 
 pub struct Win {
     widgets: Widgets,
@@ -57,7 +54,7 @@ impl Widget for Win {
         self.widgets.window.clone()
     }
 
-    fn view(relm: &Relm<Self>, model: Self::Model) -> Self {
+    fn view(relm: &Relm<Self>, _model: Self::Model) -> Self {
         use self::generator::Msg::*;
         use self::workspace::Msg::*;
 
@@ -76,16 +73,16 @@ impl Widget for Win {
             .get_object("main_paned")
             .expect("failed to get main_paned");
 
-        let generator = paned.add_widget::<GeneratorWidget>(());
+        let _generator = paned.add_widget::<GeneratorWidget>(());
         let workspace = paned.add_widget::<WorkspaceWidget>(());
-        connect!(generator@Moved(ref problem), workspace, Add(problem.clone()));
+        connect!(_generator@Moved(ref problem), workspace, Add(problem.clone()));
         connect!(workspace@Import, relm, Msg::Import);
         connect!(workspace@Saved(ref problem), relm, Msg::Save(problem.clone()));
 
         window.show_all();
         Win {
             widgets: Widgets {
-                generator,
+                _generator,
                 workspace,
                 window,
             },
@@ -148,7 +145,6 @@ impl Win {
         result
     }
 
-
     fn save_problem(&mut self, problem: &Problem) {
         if let Some(path) = self.filechooser_dialog(FileChooserAction::Save) {
             problem.save(path).unwrap();
@@ -165,8 +161,7 @@ impl Win {
                 self.widgets.workspace.emit(workspace::Msg::Add(problem));
             }
             Err(e) => {
-                let dialog = self
-                    .error_dialog(&format!("Failed to import problem: {}", e));
+                let dialog = self.error_dialog(&format!("Failed to import problem: {}", e));
                 dialog.run();
                 dialog.close();
             }

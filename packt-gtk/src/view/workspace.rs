@@ -69,10 +69,8 @@ impl fmt::Display for Entry {
 struct Widgets {
     vbox: gtk::Box,
     problems_lb: gtk::ListBox,
-    selected_lb: gtk::ListBox,
     textview: gtk::TextView,
-    select_btn: gtk::ToolButton,
-    unselect_btn: gtk::ToolButton,
+    remove_btn: gtk::ToolButton,
     save_btn: gtk::ToolButton,
     import_btn: gtk::ToolButton,
     run_btn: gtk::Button,
@@ -82,7 +80,6 @@ struct Widgets {
 pub struct Model {
     id_gen: u16,
     problems: VecDeque<Entry>,
-    selected: VecDeque<Entry>,
     work_queue: Sender<Job>,
     running: u32,
 }
@@ -91,20 +88,13 @@ pub struct Model {
 pub enum Msg<E: fmt::Display> {
     Import,
     Add(Problem),
-    Select(List),
-    Enqueue,
-    Dequeue,
+    Remove,
+    Select,
     Save,
     Saved(Problem),
     Run,
     Completed(Entry),
     Err(E),
-}
-
-#[derive(PartialEq)]
-pub enum List {
-    Problems,
-    Selected,
 }
 
 pub struct WorkspaceWidget {
@@ -122,7 +112,6 @@ impl Update for WorkspaceWidget {
         Model {
             id_gen: 0,
             problems: VecDeque::new(),
-            selected: VecDeque::new(),
             work_queue: launch_runner(relm),
             running: 0,
         }
@@ -131,30 +120,37 @@ impl Update for WorkspaceWidget {
     fn update(&mut self, event: Self::Msg) {
         use self::Msg::*;
 
-        let result = match event {
+        let mut result = match event {
             // taken care of by root widget
             Import | Saved(_) => Ok(()),
-            Select(list) => self.clicked(list),
-            Enqueue => self
-                .move_selected(false)
-                .ok_or_else(|| format_err!("failed to move problems")),
-            Dequeue => self
-                .move_selected(true)
-                .ok_or_else(|| format_err!("failed to move problem")),
-            Run => self.run_problem(),
+            Run => self.run_problems(),
+            Completed(entry) => self.problem_completed(entry),
+            Select => {
+                self.widgets.save_btn.set_sensitive(true);
+                self.widgets.remove_btn.set_sensitive(true);
+                Ok(())
+            }
             Save => self
                 .save_problem()
                 .ok_or_else(|| format_err!("failed to save problem")),
-            Completed(entry) => self.problem_completed(entry),
             Add(problem) => {
                 let id = self.model.id_gen;
                 self.model.id_gen += 1;
                 let entry = Entry::new(id, problem);
                 self.widgets
                     .problems_lb
-                    .prepend(&Label::new(entry.name.as_str()));
+                    .insert(&Label::new(entry.name.as_str()), -1);
                 self.widgets.problems_lb.show_all();
-                self.model.problems.push_front(entry);
+                self.model.problems.push_back(entry);
+                self.widgets.run_btn.set_sensitive(true);
+                Ok(())
+            }
+            Remove => {
+                if let Some(row) = self.widgets.problems_lb.get_selected_row() {
+                    let i = row.get_index();
+                    self.widgets.problems_lb.remove(&row);
+                    self.model.problems.remove(i as usize);
+                }
                 Ok(())
             }
             Err(e) => {
@@ -165,6 +161,12 @@ impl Update for WorkspaceWidget {
 
         if let result::Result::Err(e) = result {
             self.relm.stream().emit(Err(e))
+        }
+
+        let _ = self.refresh_buffer();
+        if self.widgets.problems_lb.get_selected_row() == None {
+            self.widgets.remove_btn.set_sensitive(false);
+            self.widgets.save_btn.set_sensitive(false);
         }
     }
 }
@@ -185,33 +187,14 @@ impl Widget for WorkspaceWidget {
             .get_object("workspace_listbox")
             .expect("failed to get workspace_listbox");
 
-        let selected_lb: gtk::ListBox = builder
-            .get_object("selection_listbox")
-            .expect("failed to get selection_listbox");
-
-        let select_btn: gtk::ToolButton = builder
-            .get_object("select_problem_btn")
-            .expect("failed to get select_problem_btn");
-        connect!(relm, select_btn, connect_clicked(_), Msg::Enqueue);
-
-        let unselect_btn: gtk::ToolButton = builder
-            .get_object("unselect_problem_btn")
-            .expect("failed to get unselect_problem_btn");
-        connect!(relm, unselect_btn, connect_clicked(_), Msg::Dequeue);
-
-        let problems_lb_clone = problems_lb.clone();
-        let select_btn_clone = select_btn.clone();
-        connect!(relm, problems_lb, connect_row_selected(_, row), {
-            select_btn_clone.set_sensitive(row.is_some());
-            Msg::Select(List::Problems)
+        connect!(relm, problems_lb, connect_row_selected(_, _), {
+            Msg::Select
         });
 
-        let selected_lb_clone = selected_lb.clone();
-        let unselect_btn_clone = unselect_btn.clone();
-        connect!(relm, selected_lb, connect_row_selected(_, row), {
-            unselect_btn_clone.set_sensitive(row.is_some());
-            Msg::Select(List::Selected)
-        });
+        let remove_btn: gtk::ToolButton = builder
+            .get_object("remove_problem_btn")
+            .expect("failed to get remove_problem_btn");
+        connect!(relm, remove_btn, connect_clicked(_), Msg::Remove);
 
         let textview = builder
             .get_object("runner_textview")
@@ -242,10 +225,8 @@ impl Widget for WorkspaceWidget {
             widgets: Widgets {
                 vbox,
                 problems_lb,
-                selected_lb,
                 textview,
-                select_btn,
-                unselect_btn,
+                remove_btn,
                 save_btn,
                 import_btn,
                 run_btn,
@@ -259,7 +240,7 @@ impl WorkspaceWidget {
     fn save_problem(&mut self) -> Option<()> {
         let entry = self
             .widgets
-            .selected_lb
+            .problems_lb
             .get_selected_row()
             .map(|row| {
                 let index = row.get_index() as usize;
@@ -268,7 +249,7 @@ impl WorkspaceWidget {
             .or_else(|| {
                 self.widgets.problems_lb.get_selected_row().map(|row| {
                     let index = row.get_index() as usize;
-                    self.model.selected.get(index).unwrap().clone()
+                    self.model.problems.get(index).unwrap().clone()
                 })
             })?;
 
@@ -276,7 +257,7 @@ impl WorkspaceWidget {
         Some(())
     }
 
-    fn run_problem(&mut self) -> Result<()> {
+    fn run_problems(&mut self) -> Result<()> {
         if self.model.running != 0 {
             bail!("failed to start new jobs -- there are still jobs running");
         }
@@ -288,7 +269,8 @@ impl WorkspaceWidget {
             }
         };
 
-        for p in self.model.selected.drain(..) {
+        self.model.running += self.model.problems.len() as u32;
+        for p in self.model.problems.drain(..) {
             let mut command = Command::new("java");
             command
                 .arg("-jar")
@@ -301,59 +283,41 @@ impl WorkspaceWidget {
             }
         }
 
-        self.model.running += self.model.selected.len() as u32;
         Ok(())
     }
 
-    fn problem_completed(&mut self, mut entry: Entry) -> Result<()> {
+    fn problem_completed(&mut self, entry: Entry) -> Result<()> {
+        self.model.problems.push_front(entry);
+        self.model.running -= 1;
+        self.refresh_buffer()?;
+
         println!("success");
-        let target = self.model.problems.iter_mut().find(|e| **e == entry).ok_or_else(|| format_err!("Unable to find entry {} in model", entry.id))?;
-        mem::swap(target, &mut entry);
+        if self.model.running == 0 {
+            println!("All jobs finished");
+        }
+
         Ok(())
     }
 
-    fn clicked(&mut self, lb: List) -> Result<()> {
-        let lb = if lb == List::Problems { self.widgets.problems_lb.clone() } else { self.widgets.selected_lb.clone() };
-        if let Some(row) = lb.get_selected_row() {
-            let list = if lb == self.widgets.problems_lb {
-                &mut self.model.problems
-            } else {
-                &mut self.model.selected
-            };
+    fn refresh_buffer(&mut self) -> Result<()> {
+        let text = if let Some(row) = self.widgets.problems_lb.get_selected_row() {
             let i = row.get_index() as usize;
-            let entry =
-                list.get(i).ok_or_else(|| format_err!("model invalid"))?;
-            self.widgets
-                .textview
-                .get_buffer()
-                .ok_or_else(|| format_err!("failed to get buffer"))?
-                .set_text(entry.to_string().as_ref());
-        }
+            self.model
+                .problems
+                .get(i)
+                .ok_or_else(|| format_err!("model invalid"))?
+                .to_string()
+        } else {
+            String::new()
+        };
+
+        self.widgets
+            .textview
+            .get_buffer()
+            .ok_or_else(|| format_err!("failed to get buffer"))?
+            .set_text(text.as_ref());
 
         Ok(())
-    }
-
-    fn move_selected(&mut self, reversed: bool) -> Option<()> {
-        let mut from_lb = self.widgets.problems_lb.clone();
-        let from_vec = &mut self.model.problems;
-
-        let mut to_lb = self.widgets.selected_lb.clone();
-        let to_vec = &mut self.model.selected;
-
-        if reversed {
-            mem::swap(&mut from_lb, &mut to_lb);
-            mem::swap(from_vec, to_vec);
-        }
-
-        let row = from_lb.get_selected_row()?;
-        let i = row.get_index() as usize;
-        to_vec.push_front(from_vec.remove(i)?);
-        from_lb.remove(&row);
-        to_lb.add(&row);
-        self.widgets
-            .run_btn
-            .set_sensitive(!self.model.selected.is_empty());
-        Some(())
     }
 }
 
