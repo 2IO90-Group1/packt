@@ -23,12 +23,7 @@ pub struct Problem {
 
 impl Problem {
     // TODO: Add rotated rectangles
-    fn generate_from(
-        r: Rectangle,
-        n: usize,
-        v: Variant,
-        allow_rotation: bool,
-    ) -> Problem {
+    fn generate_from(r: Rectangle, n: usize, v: Variant, allow_rotation: bool) -> Problem {
         let a = r.area() as usize;
         if n > a {
             panic!("{:?} cannot be split into {} rectangles", r, n)

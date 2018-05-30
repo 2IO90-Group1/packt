@@ -25,9 +25,7 @@ impl Solution {
         self.placements
             .iter()
             .enumerate()
-            .flat_map(|(i, p)| {
-                iter::repeat(p).zip(self.placements.iter().skip(i + 1))
-            })
+            .flat_map(|(i, p)| iter::repeat(p).zip(self.placements.iter().skip(i + 1)))
             .all(|(p1, p2)| !p1.overlaps(p2))
     }
 
@@ -38,11 +36,7 @@ impl Solution {
                 let is_valid = self.is_valid();
                 let can_optimal = self.source.is_some();
                 let mut bounding_box = self.bounding_box();
-                let min_area = self
-                    .placements
-                    .iter_mut()
-                    .map(|p| p.rectangle.area())
-                    .sum();
+                let min_area = self.placements.iter_mut().map(|p| p.rectangle.area()).sum();
                 let empty_area = bounding_box.area() - min_area;
                 let utilization = min_area as f32 / bounding_box.area() as f32;
                 let duration = Instant::now().duration_since(start);
@@ -160,9 +154,7 @@ impl FromStr for Solution {
                 Ok(result)
             })
             .zip(rectangles.iter())
-            .map(|(result, &r)| {
-                result.map(|(rot, coord)| Placement::new(r, rot, coord))
-            })
+            .map(|(result, &r)| result.map(|(rot, coord)| Placement::new(r, rot, coord)))
             .collect::<Result<_, _>>()?;
 
         if placements.len() != n {
