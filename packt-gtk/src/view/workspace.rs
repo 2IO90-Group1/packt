@@ -1,11 +1,11 @@
 use crossbeam_channel::{self, Sender};
 use failure::Error;
-use gtk::{self, prelude::*, Label, ListBox};
+use gtk::{self, prelude::*, Label};
 use packt_core::domain::{solution::Evaluation, Problem, Solution};
 use relm::{Relm, Update, Widget};
 use std::{
-    collections::VecDeque, fmt::{self, Formatter}, mem, process::{Command, Stdio}, result,
-    string::ToString, thread, time::{Duration, Instant},
+    collections::VecDeque, fmt::{self, Formatter}, process::{Command, Stdio},
+    result, string::ToString, thread, time::{Duration, Instant},
 };
 use tokio::prelude::*;
 use tokio_core::reactor::Core;
@@ -72,7 +72,6 @@ struct Widgets {
     textview: gtk::TextView,
     remove_btn: gtk::ToolButton,
     save_btn: gtk::ToolButton,
-    import_btn: gtk::ToolButton,
     run_btn: gtk::Button,
     solver_chooser: gtk::FileChooser,
 }
@@ -120,7 +119,7 @@ impl Update for WorkspaceWidget {
     fn update(&mut self, event: Self::Msg) {
         use self::Msg::*;
 
-        let mut result = match event {
+        let result = match event {
             // taken care of by root widget
             Import | Saved(_) => Ok(()),
             Run => self.run_problems(),
@@ -228,7 +227,6 @@ impl Widget for WorkspaceWidget {
                 textview,
                 remove_btn,
                 save_btn,
-                import_btn,
                 run_btn,
                 solver_chooser,
             },
@@ -300,16 +298,17 @@ impl WorkspaceWidget {
     }
 
     fn refresh_buffer(&mut self) -> Result<()> {
-        let text = if let Some(row) = self.widgets.problems_lb.get_selected_row() {
-            let i = row.get_index() as usize;
-            self.model
-                .problems
-                .get(i)
-                .ok_or_else(|| format_err!("model invalid"))?
-                .to_string()
-        } else {
-            String::new()
-        };
+        let text =
+            if let Some(row) = self.widgets.problems_lb.get_selected_row() {
+                let i = row.get_index() as usize;
+                self.model
+                    .problems
+                    .get(i)
+                    .ok_or_else(|| format_err!("model invalid"))?
+                    .to_string()
+            } else {
+                String::new()
+            };
 
         self.widgets
             .textview

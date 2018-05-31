@@ -4,18 +4,20 @@ mod workspace;
 use self::generator::GeneratorWidget;
 use self::workspace::WorkspaceWidget;
 
-use failure::Error;
-use gtk::{self, prelude::*, ButtonsType, DialogFlags, FileChooserAction, MessageType};
+use gtk::{
+    self, prelude::*, ButtonsType, DialogFlags, FileChooserAction, MessageType,
+};
 use packt_core::domain::Problem;
 use relm::{Component, ContainerWidget, Relm, Update, Widget};
-use std::{self, path::PathBuf};
+use std::{self, fmt, path::PathBuf};
 
 const GLADE_SRC: &str = include_str!("../packt.glade");
 
 #[derive(Msg)]
-pub enum Msg {
+pub enum Msg<E: fmt::Display> {
     Import,
     Save(Problem),
+    Err(E),
     Quit,
 }
 
@@ -27,12 +29,13 @@ struct Widgets {
 
 pub struct Win {
     widgets: Widgets,
+    // relm: Relm<Win>,
 }
 
 impl Update for Win {
     type Model = ();
     type ModelParam = ();
-    type Msg = Msg;
+    type Msg = Msg<String>;
 
     fn model(_relm: &Relm<Self>, _param: ()) -> Self::Model {
         ()
@@ -43,6 +46,11 @@ impl Update for Win {
             Msg::Save(problem) => self.save_problem(&problem),
             Msg::Import => self.import_problem(),
             Msg::Quit => gtk::main_quit(),
+            Msg::Err(e) => {
+                let dialog = self.error_dialog(e);
+                dialog.run();
+                dialog.close();
+            }
         }
     }
 }
@@ -78,9 +86,11 @@ impl Widget for Win {
         connect!(_generator@Moved(ref problem), workspace, Add(problem.clone()));
         connect!(workspace@Import, relm, Msg::Import);
         connect!(workspace@Saved(ref problem), relm, Msg::Save(problem.clone()));
+        connect!(workspace@Err(ref e), relm, Msg::Err(e.to_string()));
 
         window.show_all();
         Win {
+            // relm: relm.clone(),
             widgets: Widgets {
                 _generator,
                 workspace,
@@ -91,13 +101,13 @@ impl Widget for Win {
 }
 
 impl Win {
-    fn error_dialog(&self, msg: &str) -> gtk::MessageDialog {
+    fn error_dialog<M: AsRef<str>>(&self, msg: M) -> gtk::MessageDialog {
         gtk::MessageDialog::new(
             Some(&self.widgets.window),
             DialogFlags::DESTROY_WITH_PARENT,
             MessageType::Warning,
             ButtonsType::Close,
-            msg,
+            msg.as_ref(),
         )
     }
 
@@ -152,18 +162,13 @@ impl Win {
     }
 
     fn import_problem(&mut self) {
-        match self
-            .filechooser_dialog(FileChooserAction::Open)
-            .ok_or(format_err!("failed to get filename"))
-            .and_then(|path| Problem::from_path(path))
-        {
-            Ok(problem) => {
-                self.widgets.workspace.emit(workspace::Msg::Add(problem));
-            }
-            Err(e) => {
-                let dialog = self.error_dialog(&format!("Failed to import problem: {}", e));
-                dialog.run();
-                dialog.close();
+        if let Some(path) = self.filechooser_dialog(FileChooserAction::Open) {
+            match Problem::from_path(path) {
+                Ok(problem) => {
+                    self.widgets.workspace.emit(workspace::Msg::Add(problem));
+                }
+                Err(_e) => (), /* self.relm.stream().emit(Msg::Err(e.
+                                * to_string())), */
             }
         }
     }
