@@ -285,7 +285,7 @@ impl WorkspaceWidget {
     }
 
     fn problem_completed(&mut self, entry: Entry) -> Result<()> {
-        self.model.problems.push_front(entry);
+        self.model.problems.push_back(entry);
         self.model.running -= 1;
         self.refresh_buffer()?;
 
@@ -301,11 +301,12 @@ impl WorkspaceWidget {
         let text =
             if let Some(row) = self.widgets.problems_lb.get_selected_row() {
                 let i = row.get_index() as usize;
-                self.model
-                    .problems
-                    .get(i)
-                    .ok_or_else(|| format_err!("model invalid"))?
-                    .to_string()
+                println!("i: {}, problems: {:?}", i, self.model.problems.iter().map(|e| e.id).collect::<Vec<_>>());
+                if let Some(p) = self.model.problems.get(i) {
+                        p.to_string()
+                    } else {
+                        String::new()
+                    }
             } else {
                 String::new()
             };
