@@ -4,8 +4,13 @@ use gtk::{self, prelude::*, Label};
 use packt_core::domain::{solution::Evaluation, Problem, Solution};
 use relm::{Relm, Update, Widget};
 use std::{
-    collections::VecDeque, fmt::{self, Formatter}, process::{Command, Stdio},
-    result, string::ToString, thread, time::{Duration, Instant},
+    collections::VecDeque,
+    fmt::{self, Formatter},
+    process::{Command, Stdio},
+    result,
+    string::ToString,
+    thread,
+    time::{Duration, Instant},
 };
 use tokio::prelude::*;
 use tokio_core::reactor::Core;
@@ -78,7 +83,7 @@ struct Widgets {
 
 pub struct Model {
     id_gen: u16,
-    problems: VecDeque<Entry>,
+    problems: VecDeque<Option<Entry>>,
     work_queue: Sender<Job>,
     running: u32,
 }
@@ -93,7 +98,7 @@ pub enum Msg<E: fmt::Display> {
     Saved(Problem),
     Run,
     Completed(Entry),
-    Err(E),
+    Error(E),
 }
 
 pub struct WorkspaceWidget {
@@ -132,34 +137,42 @@ impl Update for WorkspaceWidget {
             Save => self
                 .save_problem()
                 .ok_or_else(|| format_err!("failed to save problem")),
-            Add(problem) => {
-                let id = self.model.id_gen;
-                self.model.id_gen += 1;
-                let entry = Entry::new(id, problem);
-                self.widgets
-                    .problems_lb
-                    .insert(&Label::new(entry.name.as_str()), -1);
-                self.widgets.problems_lb.show_all();
-                self.model.problems.push_back(entry);
-                self.widgets.run_btn.set_sensitive(true);
-                Ok(())
-            }
-            Remove => {
-                if let Some(row) = self.widgets.problems_lb.get_selected_row() {
-                    let i = row.get_index();
-                    self.widgets.problems_lb.remove(&row);
-                    self.model.problems.remove(i as usize);
+            Add(_) | Remove => match (event, self.model.running) {
+                (Add(problem), 0) => {
+                    let id = self.model.id_gen;
+                    self.model.id_gen += 1;
+                    let entry = Entry::new(id, problem);
+                    self.widgets
+                        .problems_lb
+                        .insert(&Label::new(entry.name.as_str()), -1);
+                    self.widgets.problems_lb.show_all();
+                    self.model.problems.push_back(entry.into());
+                    self.widgets.run_btn.set_sensitive(true);
+                    Ok(())
                 }
-                Ok(())
-            }
-            Err(e) => {
+                (Remove, 0) => {
+                    if let Some(row) = self.widgets.problems_lb.get_selected_row() {
+                        let i = row.get_index();
+                        self.widgets.problems_lb.remove(&row);
+                        self.model.problems.remove(i as usize);
+                        Ok(())
+                    } else {
+                        Err(format_err!("Selected row does not exist"))
+                    }
+                }
+                _ => Err(format_err!(
+                    "New problems cannot be added while the solver is running: {} problems running",
+                    self.model.running
+                )),
+            },
+            Error(e) => {
                 eprintln!("Something went wrong: {}", e);
                 Ok(())
             }
         };
 
-        if let result::Result::Err(e) = result {
-            self.relm.stream().emit(Err(e))
+        if let Err(e) = result {
+            self.relm.stream().emit(Error(e))
         }
 
         let _ = self.refresh_buffer();
@@ -236,23 +249,15 @@ impl Widget for WorkspaceWidget {
 
 impl WorkspaceWidget {
     fn save_problem(&mut self) -> Option<()> {
-        let entry = self
-            .widgets
+        let entry = self.widgets
             .problems_lb
             .get_selected_row()
-            .map(|row| {
+            .and_then(|row| {
                 let index = row.get_index() as usize;
-                self.model.problems.get(index).unwrap().clone()
-            })
-            .or_else(|| {
-                self.widgets.problems_lb.get_selected_row().map(|row| {
-                    let index = row.get_index() as usize;
-                    self.model.problems.get(index).unwrap().clone()
-                })
+                self.model.problems.get(index)
             })?;
 
-        self.relm.stream().emit(Msg::Saved(entry.problem.clone()));
-        Some(())
+                entry.as_ref().map(|entry| self.relm.stream().emit(Msg::Saved(entry.problem.clone())))
     }
 
     fn run_problems(&mut self) -> Result<()> {
@@ -267,8 +272,8 @@ impl WorkspaceWidget {
             }
         };
 
-        self.model.running += self.model.problems.len() as u32;
-        for p in self.model.problems.drain(..) {
+        self.model.running = self.model.problems.len() as u32;
+        for p in self.model.problems.iter_mut().rev().map(|p| p.take().unwrap()) {
             let mut command = Command::new("java");
             command
                 .arg("-jar")
@@ -285,8 +290,8 @@ impl WorkspaceWidget {
     }
 
     fn problem_completed(&mut self, entry: Entry) -> Result<()> {
-        self.model.problems.push_back(entry);
         self.model.running -= 1;
+        self.model.problems[self.model.running as usize] = Some(entry);
         self.refresh_buffer()?;
 
         println!("success");
@@ -298,18 +303,21 @@ impl WorkspaceWidget {
     }
 
     fn refresh_buffer(&mut self) -> Result<()> {
-        let text =
-            if let Some(row) = self.widgets.problems_lb.get_selected_row() {
-                let i = row.get_index() as usize;
-                println!("i: {}, problems: {:?}", i, self.model.problems.iter().map(|e| e.id).collect::<Vec<_>>());
-                if let Some(p) = self.model.problems.get(i) {
-                        p.to_string()
-                    } else {
-                        String::new()
-                    }
+        let text = if let Some(row) = self.widgets.problems_lb.get_selected_row() {
+            let i = row.get_index() as usize;
+            println!(
+                "i: {}, problems: {:?}",
+                i,
+                self.model.problems.iter().map(|e| e.as_ref().map(|e| e.id)).collect::<Vec<_>>()
+            );
+            if let Some(p) = self.model.problems.get(i).unwrap() {
+                p.to_string()
             } else {
                 String::new()
-            };
+            }
+        } else {
+            String::new()
+        };
 
         self.widgets
             .textview

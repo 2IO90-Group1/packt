@@ -44,7 +44,7 @@ impl Solution {
                     .map(|p| p.rectangle.area())
                     .sum();
                 let empty_area = bounding_box.area() - min_area;
-                let utilization = min_area as f32 / bounding_box.area() as f32;
+                let filling_rate = min_area as f32 / bounding_box.area() as f32;
                 let duration = Instant::now().duration_since(start);
 
                 Evaluation {
@@ -53,7 +53,7 @@ impl Solution {
                     bounding_box,
                     min_area,
                     empty_area,
-                    utilization,
+                    filling_rate,
                     duration,
                 }
             }
@@ -85,7 +85,7 @@ pub struct Evaluation {
     bounding_box: Rectangle,
     min_area: u64,
     empty_area: u64,
-    utilization: f32,
+    filling_rate: f32,
     duration: Duration,
 }
 
@@ -97,7 +97,7 @@ impl fmt::Display for Evaluation {
             min_area,
             bounding_box,
             empty_area,
-            utilization,
+            filling_rate,
             duration,
         } = self;
         let bb_area = bounding_box.area();
@@ -106,14 +106,14 @@ impl fmt::Display for Evaluation {
             f,
             "is valid: {}\ncan be optimal: {}\nlower bound on area: \
              {}\nbounding box: {}, area: {}\nunused area in bounding box: \
-             {}\nutilization: {:.2}\ntook {}.{:.3}s",
+             {}\nfilling_rate: {:.2}\ntook {}.{:.3}s",
             is_valid,
             can_optimal,
             min_area,
             bounding_box,
             bb_area,
             empty_area,
-            utilization,
+            filling_rate,
             duration.as_secs(),
             duration.subsec_millis(),
         )

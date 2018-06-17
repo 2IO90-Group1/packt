@@ -4,9 +4,7 @@ mod workspace;
 use self::generator::GeneratorWidget;
 use self::workspace::WorkspaceWidget;
 
-use gtk::{
-    self, prelude::*, ButtonsType, DialogFlags, FileChooserAction, MessageType,
-};
+use gtk::{self, prelude::*, ButtonsType, DialogFlags, FileChooserAction, MessageType};
 use packt_core::domain::Problem;
 use relm::{Component, ContainerWidget, Relm, Update, Widget};
 use std::{self, fmt, path::PathBuf};
@@ -86,7 +84,7 @@ impl Widget for Win {
         connect!(_generator@Moved(ref problem), workspace, Add(problem.clone()));
         connect!(workspace@Import, relm, Msg::Import);
         connect!(workspace@Saved(ref problem), relm, Msg::Save(problem.clone()));
-        connect!(workspace@Err(ref e), relm, Msg::Err(e.to_string()));
+        connect!(workspace@Error(ref e), relm, Msg::Err(e.to_string()));
 
         window.show_all();
         Win {
