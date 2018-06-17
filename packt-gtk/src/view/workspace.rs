@@ -83,7 +83,7 @@ struct Widgets {
 
 pub struct Model {
     id_gen: u16,
-    problems: VecDeque<Entry>,
+    problems: VecDeque<Option<Entry>>,
     work_queue: Sender<Job>,
     running: u32,
 }
@@ -146,7 +146,7 @@ impl Update for WorkspaceWidget {
                         .problems_lb
                         .insert(&Label::new(entry.name.as_str()), -1);
                     self.widgets.problems_lb.show_all();
-                    self.model.problems.push_back(entry);
+                    self.model.problems.push_back(entry.into());
                     self.widgets.run_btn.set_sensitive(true);
                     Ok(())
                 }
@@ -161,7 +161,8 @@ impl Update for WorkspaceWidget {
                     }
                 }
                 _ => Err(format_err!(
-                    "New problems cannot be added while the solver is running: {} problems running", self.model.running
+                    "New problems cannot be added while the solver is running: {} problems running",
+                    self.model.running
                 )),
             },
             Error(e) => {
@@ -248,23 +249,15 @@ impl Widget for WorkspaceWidget {
 
 impl WorkspaceWidget {
     fn save_problem(&mut self) -> Option<()> {
-        let entry = self
-            .widgets
+        let entry = self.widgets
             .problems_lb
             .get_selected_row()
-            .map(|row| {
+            .and_then(|row| {
                 let index = row.get_index() as usize;
-                self.model.problems.get(index).unwrap().clone()
-            })
-            .or_else(|| {
-                self.widgets.problems_lb.get_selected_row().map(|row| {
-                    let index = row.get_index() as usize;
-                    self.model.problems.get(index).unwrap().clone()
-                })
+                self.model.problems.get(index)
             })?;
 
-        self.relm.stream().emit(Msg::Saved(entry.problem.clone()));
-        Some(())
+                entry.as_ref().map(|entry| self.relm.stream().emit(Msg::Saved(entry.problem.clone())))
     }
 
     fn run_problems(&mut self) -> Result<()> {
@@ -279,8 +272,8 @@ impl WorkspaceWidget {
             }
         };
 
-        self.model.running += self.model.problems.len() as u32;
-        for p in self.model.problems.drain(..).rev() {
+        self.model.running = self.model.problems.len() as u32;
+        for p in self.model.problems.iter_mut().rev().map(|p| p.take().unwrap()) {
             let mut command = Command::new("java");
             command
                 .arg("-jar")
@@ -297,8 +290,8 @@ impl WorkspaceWidget {
     }
 
     fn problem_completed(&mut self, entry: Entry) -> Result<()> {
-        self.model.problems.push_front(entry);
         self.model.running -= 1;
+        self.model.problems[self.model.running as usize] = Some(entry);
         self.refresh_buffer()?;
 
         println!("success");
@@ -315,9 +308,9 @@ impl WorkspaceWidget {
             println!(
                 "i: {}, problems: {:?}",
                 i,
-                self.model.problems.iter().map(|e| e.id).collect::<Vec<_>>()
+                self.model.problems.iter().map(|e| e.as_ref().map(|e| e.id)).collect::<Vec<_>>()
             );
-            if let Some(p) = self.model.problems.get(i) {
+            if let Some(p) = self.model.problems.get(i).unwrap() {
                 p.to_string()
             } else {
                 String::new()
