@@ -11,3 +11,5 @@ packt.zip
 *.vim
 
 \.undodir/
+
+packt-gtk/src/packt\.glade~

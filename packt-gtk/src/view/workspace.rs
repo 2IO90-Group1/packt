@@ -4,6 +4,7 @@ use gtk::{self, prelude::*, Label};
 use packt_core::domain::{solution::Evaluation, Problem, Solution};
 use relm::{Relm, Update, Widget};
 use std::{
+    env,
     collections::VecDeque,
     fmt::{self, Formatter},
     process::{Command, Stdio},
@@ -79,6 +80,9 @@ struct Widgets {
     save_btn: gtk::ToolButton,
     run_btn: gtk::Button,
     solver_chooser: gtk::FileChooser,
+    retry_spinbtn: gtk::SpinButton,
+    threshold_spinbtn: gtk::SpinButton,
+    nwidths_spinbtn: gtk::SpinButton,
 }
 
 pub struct Model {
@@ -231,6 +235,18 @@ impl Widget for WorkspaceWidget {
             .get_object("solver_filechooser")
             .expect("failed to get solver_filechooser");
 
+        let retry_spinbtn = builder
+            .get_object("retry_spinbtn")
+            .expect("failed to get retry_spinbtn");
+
+        let threshold_spinbtn = builder
+            .get_object("threshold_spinbtn")
+            .expect("failed to get threshold_spinbtn");
+
+        let nwidths_spinbtn = builder
+            .get_object("nwidths_spinbtn")
+            .expect("failed to get nwidths_spinbtn");
+
         WorkspaceWidget {
             relm: relm.clone(),
             model,
@@ -242,6 +258,9 @@ impl Widget for WorkspaceWidget {
                 save_btn,
                 run_btn,
                 solver_chooser,
+                retry_spinbtn,
+                threshold_spinbtn,
+                nwidths_spinbtn,
             },
         }
     }
@@ -271,6 +290,14 @@ impl WorkspaceWidget {
                 bail!("Please select a solver first");
             }
         };
+
+        let retry = self.widgets.retry_spinbtn.get_value_as_int();
+        let threshold = self.widgets.threshold_spinbtn.get_value();
+        let nwidths = self.widgets.nwidths_spinbtn.get_value_as_int();
+
+        env::set_var("RETRY", retry.to_string());
+        env::set_var("THRESHOLD", threshold.to_string());
+        env::set_var("N_WIDTHS", nwidths.to_string());
 
         self.model.running = self.model.problems.len() as u32;
         for p in self.model.problems.iter_mut().rev().map(|p| p.take().unwrap()) {
