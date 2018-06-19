@@ -25,9 +25,7 @@ impl Solution {
         self.placements
             .iter()
             .enumerate()
-            .flat_map(|(i, p)| {
-                iter::repeat(p).zip(self.placements.iter().skip(i + 1))
-            })
+            .flat_map(|(i, p)| iter::repeat(p).zip(self.placements.iter().skip(i + 1)))
             .all(|(p1, p2)| !p1.overlaps(p2))
     }
 
@@ -38,11 +36,7 @@ impl Solution {
                 let is_valid = self.is_valid();
                 let can_optimal = self.source.is_some();
                 let mut bounding_box = self.bounding_box();
-                let min_area = self
-                    .placements
-                    .iter_mut()
-                    .map(|p| p.rectangle.area())
-                    .sum();
+                let min_area = self.placements.iter_mut().map(|p| p.rectangle.area()).sum();
                 let empty_area = bounding_box.area() - min_area;
                 let filling_rate = min_area as f32 / bounding_box.area() as f32;
                 let duration = Instant::now().duration_since(start);
@@ -104,9 +98,8 @@ impl fmt::Display for Evaluation {
 
         write!(
             f,
-            "is valid: {}\ncan be optimal: {}\nlower bound on area: \
-             {}\nbounding box: {}, area: {}\nunused area in bounding box: \
-             {}\nfilling_rate: {:.2}\ntook {}.{:.3}s",
+            "is valid: {}\ncan be optimal: {}\nlower bound on area: {}\nbounding box: {}, area: \
+             {}\nunused area in bounding box: {}\nfilling_rate: {:.2}\ntook {}.{:.3}s",
             is_valid,
             can_optimal,
             min_area,
@@ -128,7 +121,7 @@ impl FromStr for Solution {
 
         let problem: Problem = parts
             .next()
-            .ok_or_else(|| format_err!("Unexpected end of file"))?
+            .ok_or_else(|| format_err!("Unexpected end of file: unable to parse problem"))?
             .parse()?;
 
         let Problem {
@@ -141,7 +134,7 @@ impl FromStr for Solution {
         let n = rectangles.len();
         let placements: Vec<Placement> = parts
             .next()
-            .ok_or_else(|| format_err!("Unexpected end of file"))?
+            .ok_or_else(|| format_err!("Unexpected end of file: unable to parse placements"))?
             .lines()
             .map(|s| {
                 let tokens: Vec<&str> = s.split_whitespace().collect();
@@ -160,16 +153,11 @@ impl FromStr for Solution {
                 Ok(result)
             })
             .zip(rectangles.iter())
-            .map(|(result, &r)| {
-                result.map(|(rot, coord)| Placement::new(r, rot, coord))
-            })
+            .map(|(result, &r)| result.map(|(rot, coord)| Placement::new(r, rot, coord)))
             .collect::<Result<_, _>>()?;
 
         if placements.len() != n {
-            bail!(
-                "Solution contains a different number of placements than \
-                 rectangles"
-            );
+            bail!("Solution contains a different number of placements than rectangles");
         }
 
         Ok(Solution {
@@ -204,9 +192,8 @@ mod tests {
             ],
         };
 
-        let input = "container height: fixed 22\nrotations allowed: \
-                     no\nnumber of rectangles: 6\n12 8\n10 9\nplacement of \
-                     rectangles\n0 0\n24 3";
+        let input = "container height: fixed 22\nrotations allowed: no\nnumber of rectangles: \
+                     6\n12 8\n10 9\nplacement of rectangles\n0 0\n24 3";
 
         let result: Solution = input.parse().unwrap();
         assert_eq!(result, expected);

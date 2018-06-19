@@ -4,12 +4,13 @@ use gtk::{self, prelude::*, Label};
 use packt_core::domain::{solution::Evaluation, Problem, Solution};
 use relm::{Relm, Update, Widget};
 use std::{
-    env,
     collections::VecDeque,
+    env,
     fmt::{self, Formatter},
     process::{Command, Stdio},
     result,
     string::ToString,
+    sync::atomic::{AtomicU32, Ordering},
     thread,
     time::{Duration, Instant},
 };
@@ -24,14 +25,14 @@ type EvalResult = Result<Evaluation>;
 
 #[derive(Debug)]
 pub struct Entry {
-    id: u16,
+    id: usize,
     name: String,
     problem: Problem,
     solutions: Vec<EvalResult>,
 }
 
 impl Entry {
-    fn new(id: u16, problem: Problem) -> Self {
+    fn new(problem: Problem) -> Self {
         let name = format!(
             "n={n} h={v} r={r}",
             v = problem.variant,
@@ -40,7 +41,7 @@ impl Entry {
         );
 
         Entry {
-            id,
+            id: 0,
             name,
             problem,
             solutions: Vec::new(),
@@ -89,7 +90,7 @@ pub struct Model {
     id_gen: u16,
     problems: VecDeque<Option<Entry>>,
     work_queue: Sender<Job>,
-    running: u32,
+    running: AtomicU32,
 }
 
 #[derive(Msg)]
@@ -121,7 +122,7 @@ impl Update for WorkspaceWidget {
             id_gen: 0,
             problems: VecDeque::new(),
             work_queue: launch_runner(relm),
-            running: 0,
+            running: AtomicU32::new(0),
         }
     }
 
@@ -141,11 +142,9 @@ impl Update for WorkspaceWidget {
             Save => self
                 .save_problem()
                 .ok_or_else(|| format_err!("failed to save problem")),
-            Add(_) | Remove => match (event, self.model.running) {
+            Add(_) | Remove => match (event, self.model.running.load(Ordering::SeqCst)) {
                 (Add(problem), 0) => {
-                    let id = self.model.id_gen;
-                    self.model.id_gen += 1;
-                    let entry = Entry::new(id, problem);
+                    let entry = Entry::new(problem);
                     self.widgets
                         .problems_lb
                         .insert(&Label::new(entry.name.as_str()), -1);
@@ -164,9 +163,9 @@ impl Update for WorkspaceWidget {
                         Err(format_err!("Selected row does not exist"))
                     }
                 }
-                _ => Err(format_err!(
+                (_, x) => Err(format_err!(
                     "New problems cannot be added while the solver is running: {} problems running",
-                    self.model.running
+                    x
                 )),
             },
             Error(e) => {
@@ -268,7 +267,8 @@ impl Widget for WorkspaceWidget {
 
 impl WorkspaceWidget {
     fn save_problem(&mut self) -> Option<()> {
-        let entry = self.widgets
+        let entry = self
+            .widgets
             .problems_lb
             .get_selected_row()
             .and_then(|row| {
@@ -276,11 +276,13 @@ impl WorkspaceWidget {
                 self.model.problems.get(index)
             })?;
 
-                entry.as_ref().map(|entry| self.relm.stream().emit(Msg::Saved(entry.problem.clone())))
+        entry
+            .as_ref()
+            .map(|entry| self.relm.stream().emit(Msg::Saved(entry.problem.clone())))
     }
 
     fn run_problems(&mut self) -> Result<()> {
-        if self.model.running != 0 {
+        if self.model.running.load(Ordering::SeqCst) != 0 {
             bail!("failed to start new jobs -- there are still jobs running");
         }
 
@@ -299,8 +301,16 @@ impl WorkspaceWidget {
         env::set_var("THRESHOLD", threshold.to_string());
         env::set_var("N_WIDTHS", nwidths.to_string());
 
-        self.model.running = self.model.problems.len() as u32;
-        for p in self.model.problems.iter_mut().rev().map(|p| p.take().unwrap()) {
+        *self.model.running.get_mut() = self.model.problems.len() as u32;
+        for (i, mut p) in self
+            .model
+            .problems
+            .iter_mut()
+            .rev()
+            .map(|p| p.take().unwrap())
+            .enumerate()
+        {
+            p.id = i;
             let mut command = Command::new("java");
             command
                 .arg("-jar")
@@ -317,13 +327,14 @@ impl WorkspaceWidget {
     }
 
     fn problem_completed(&mut self, entry: Entry) -> Result<()> {
-        self.model.running -= 1;
-        self.model.problems[self.model.running as usize] = Some(entry);
+        let old = self.model.running.fetch_sub(1, Ordering::SeqCst);
+        let i = entry.id as usize;
+        self.model.problems[i] = Some(entry);
         self.refresh_buffer()?;
 
-        println!("success");
-        if self.model.running == 0 {
-            println!("All jobs finished");
+        eprintln!("success");
+        if old == 1 {
+            eprintln!("All jobs finished");
         }
 
         Ok(())
@@ -332,11 +343,6 @@ impl WorkspaceWidget {
     fn refresh_buffer(&mut self) -> Result<()> {
         let text = if let Some(row) = self.widgets.problems_lb.get_selected_row() {
             let i = row.get_index() as usize;
-            println!(
-                "i: {}, problems: {:?}",
-                i,
-                self.model.problems.iter().map(|e| e.as_ref().map(|e| e.id)).collect::<Vec<_>>()
-            );
             if let Some(p) = self.model.problems.get(i).unwrap() {
                 p.to_string()
             } else {
@@ -372,11 +378,16 @@ fn launch_runner(relm: &Relm<WorkspaceWidget>) -> Sender<Job> {
 
             let start = Instant::now();
             let child = tokio_io::io::write_all(stdin, input)
-                .map(|_| child)
+                .map(|_| {
+                    println!("waiting on child");
+                    child
+                })
                 .and_then(Child::wait_with_output)
+                .deadline(start + Duration::from_secs(300))
                 .from_err()
                 .and_then(|output| {
                     let output = String::from_utf8_lossy(&output.stdout);
+                    println!("output: {}", output);
                     output.parse::<Solution>()
                 })
                 .map(|mut solution| {
@@ -387,8 +398,7 @@ fn launch_runner(relm: &Relm<WorkspaceWidget>) -> Sender<Job> {
                     entry.solutions.push(result);
                     stream.emit(Msg::Completed(entry));
                     Ok(())
-                })
-                .deadline(start + Duration::from_secs(300));
+                });
 
             let _ = core.run(child);
         })
