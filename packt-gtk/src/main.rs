@@ -1,5 +1,6 @@
 #![windows_subsystem = "windows"]
 #![feature(nll)]
+#![feature(integer_atomics)]
 
 extern crate gtk;
 #[macro_use]
