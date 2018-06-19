@@ -306,7 +306,6 @@ impl WorkspaceWidget {
             .model
             .problems
             .iter_mut()
-            .rev()
             .map(|p| p.take().unwrap())
             .enumerate()
         {
@@ -328,7 +327,7 @@ impl WorkspaceWidget {
 
     fn problem_completed(&mut self, entry: Entry) -> Result<()> {
         let old = self.model.running.fetch_sub(1, Ordering::SeqCst);
-        let i = entry.id as usize;
+        let i = entry.id;
         self.model.problems[i] = Some(entry);
         self.refresh_buffer()?;
 
