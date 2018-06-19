@@ -23,12 +23,7 @@ pub struct Problem {
 
 impl Problem {
     // TODO: Add rotated rectangles
-    fn generate_from(
-        r: Rectangle,
-        n: usize,
-        v: Variant,
-        allow_rotation: bool,
-    ) -> Problem {
+    fn generate_from(r: Rectangle, n: usize, v: Variant, allow_rotation: bool) -> Problem {
         let a = r.area() as usize;
         if n > a {
             panic!("{:?} cannot be split into {} rectangles", r, n)
@@ -69,8 +64,7 @@ impl Problem {
 
     fn config_str(&self) -> String {
         format!(
-            "container height: {v}\nrotations allowed: {r}\nnumber of \
-             rectangles: {n}",
+            "container height: {v}\nrotations allowed: {r}\nnumber of rectangles: {n}",
             v = self.variant,
             r = if self.allow_rotation { "yes" } else { "no" },
             n = self.rectangles.len()
@@ -123,7 +117,7 @@ impl FromStr for Problem {
         let mut lines = s.lines();
         let l1: Vec<&str> = lines
             .next()
-            .ok_or_else(|| format_err!("Unexpected end of file"))?
+            .ok_or_else(|| format_err!("Unexpected end of file: unable to parse problem variant"))?
             .split_whitespace()
             .collect();
 
@@ -133,9 +127,9 @@ impl FromStr for Problem {
             _ => bail!("Invalid format: {}", l1.join(" ")),
         };
 
-        let l2 = lines
-            .next()
-            .ok_or_else(|| format_err!("Unexpected end of file"))?;
+        let l2 = lines.next().ok_or_else(|| {
+            format_err!("Unexpected end of file: unable to parse problem rotation setting")
+        })?;
 
         let allow_rotation = match l2 {
             "rotations allowed: yes" => true,
@@ -242,8 +236,8 @@ impl fmt::Display for Variant {
 mod tests {
     #![allow(non_upper_case_globals)]
     use super::*;
-    const input: &str = "container height: fixed 22\nrotations allowed: \
-                         no\nnumber of rectangles: 2\n12 8\n10 9";
+    const input: &str =
+        "container height: fixed 22\nrotations allowed: no\nnumber of rectangles: 2\n12 8\n10 9";
 
     #[test]
     fn parsing() {
