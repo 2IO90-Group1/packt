@@ -18,6 +18,7 @@ pub enum Msg {
     Moved(Problem),
 }
 
+#[derive(Clone, Copy)]
 pub enum Settings {
     Container,
     Amount,

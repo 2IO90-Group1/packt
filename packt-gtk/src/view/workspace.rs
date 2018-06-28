@@ -317,6 +317,7 @@ impl WorkspaceWidget {
                 .stdin(Stdio::piped())
                 .stdout(Stdio::piped());
 
+
             if let Err(_) = self.model.work_queue.send((p, command)) {
                 bail!("failed to enqueue job");
             }
@@ -342,7 +343,7 @@ impl WorkspaceWidget {
     fn refresh_buffer(&mut self) -> Result<()> {
         let text = if let Some(row) = self.widgets.problems_lb.get_selected_row() {
             let i = row.get_index() as usize;
-            if let Some(p) = self.model.problems.get(i).unwrap() {
+            if let Some(p) = &self.model.problems[i] {
                 p.to_string()
             } else {
                 String::new()
@@ -386,7 +387,7 @@ fn launch_runner(relm: &Relm<WorkspaceWidget>) -> Sender<Job> {
                 .from_err()
                 .and_then(|output| {
                     let output = String::from_utf8_lossy(&output.stdout);
-                    println!("output: {}", output);
+                    // println!("output: {}", output);
                     output.parse::<Solution>()
                 })
                 .map(|mut solution| {

@@ -175,9 +175,7 @@ impl Placement {
         };
 
         let x_max = bottom_left.x + width - 1;
-
         let y_max = bottom_left.y + height - 1;
-
         let top_right = Point::new(x_max, y_max);
 
         Placement {

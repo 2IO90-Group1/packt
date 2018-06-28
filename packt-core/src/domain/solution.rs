@@ -22,11 +22,18 @@ impl Solution {
     ///
     /// Takes quadratic (in `self.placements.len()`) time.
     pub fn is_valid(&self) -> bool {
-        self.placements
+        if let Some((p1, p2)) = self
+            .placements
             .iter()
             .enumerate()
             .flat_map(|(i, p)| iter::repeat(p).zip(self.placements.iter().skip(i + 1)))
-            .all(|(p1, p2)| !p1.overlaps(p2))
+            .find(|(p1, p2)| p1.overlaps(p2))
+        {
+            println!("Overlap found: {:#?} and {:#?}", p1, p2);
+            false
+        } else {
+            true
+        }
     }
 
     pub fn evaluate(&mut self, start: Instant) -> Evaluation {
