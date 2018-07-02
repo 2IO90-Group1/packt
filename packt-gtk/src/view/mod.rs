@@ -5,7 +5,7 @@ use self::generator::GeneratorWidget;
 use self::workspace::WorkspaceWidget;
 
 use gtk::{self, prelude::*, ButtonsType, DialogFlags, FileChooserAction, MessageType};
-use packt_core::domain::Problem;
+use packt_core::problem::Problem;
 use relm::{Component, ContainerWidget, Relm, Update, Widget};
 use std::{self, fmt, path::PathBuf};
 

@@ -1,10 +1,10 @@
-use domain::problem::Variant;
-use domain::{Placement, Point, Problem, Rectangle, Rotation::*};
 use failure::Error;
+use geometry::{Placement, Point, Rectangle, Rotation::*};
+use problem::{Problem, Variant};
 use std::fmt::{self, Formatter};
 use std::iter;
 use std::str::FromStr;
-use std::time::{Duration, Instant};
+use std::time::Duration;
 
 #[derive(Clone, Debug, PartialEq)]
 pub struct Solution {
@@ -12,7 +12,6 @@ pub struct Solution {
     allow_rotation: bool,
     source: Option<Rectangle>,
     placements: Vec<Placement>,
-    evaluation: Option<Evaluation>,
 }
 
 impl Solution {
@@ -26,7 +25,7 @@ impl Solution {
             .placements
             .iter()
             .enumerate()
-            .flat_map(|(i, p)| iter::repeat(p).zip(self.placements.iter().skip(i + 1)))
+            .flat_map(|(i, p)| iter::repeat(p).zip(self.placements.iter().skip(i + 2)))
             .find(|(p1, p2)| p1.overlaps(p2))
         {
             println!("Overlap found: {:#?} and {:#?}", p1, p2);
@@ -36,30 +35,25 @@ impl Solution {
         }
     }
 
-    pub fn evaluate(&mut self, start: Instant) -> Evaluation {
-        match self.evaluation {
-            Some(eval) => eval,
-            None => {
-                let is_valid = self.is_valid();
-                let can_optimal = self.source.is_some();
-                let mut bounding_box = self.bounding_box();
-                let min_area = self.placements.iter_mut().map(|p| p.rectangle.area()).sum();
-                let empty_area = bounding_box.area() - min_area;
-                let filling_rate = min_area as f32 / bounding_box.area() as f32;
-                let duration = Instant::now().duration_since(start);
+    pub fn evaluate(&mut self, duration: Duration) -> Evaluation {
+        let is_valid = self.is_valid();
+        let can_optimal = self.source.is_some();
+        let bounding_box = self.bounding_box();
+        let min_area = self.placements.iter_mut().map(|p| p.rectangle.area()).sum();
+        let empty_area = bounding_box.area() as i64 - min_area as i64;
+        let filling_rate = min_area as f32 / bounding_box.area() as f32;
 
-                Evaluation {
-                    is_valid,
-                    can_optimal,
-                    bounding_box,
-                    min_area,
-                    empty_area,
-                    filling_rate,
-                    duration,
-                }
-            }
+        Evaluation {
+            is_valid,
+            can_optimal,
+            bounding_box,
+            min_area,
+            empty_area,
+            filling_rate,
+            duration,
         }
     }
+
 
     pub fn bounding_box(&self) -> Rectangle {
         use std::cmp::max;
@@ -85,7 +79,7 @@ pub struct Evaluation {
     can_optimal: bool,
     bounding_box: Rectangle,
     min_area: u64,
-    empty_area: u64,
+    empty_area: i64,
     filling_rate: f32,
     duration: Duration,
 }
@@ -172,7 +166,6 @@ impl FromStr for Solution {
             allow_rotation,
             source,
             placements,
-            evaluation: None,
         })
     }
 }
@@ -193,6 +186,7 @@ mod tests {
             variant: Variant::Fixed(22),
             allow_rotation: false,
             source: None,
+            evaluation: None,
             placements: vec![
                 Placement::new(r1, Normal, Point::new(0, 0)),
                 Placement::new(r2, Normal, Point::new(24, 3)),
@@ -225,6 +219,7 @@ mod tests {
                 variant: Variant::Fixed(22),
                 allow_rotation: false,
                 source: None,
+                evaluation: None,
                 placements,
             }
         };
