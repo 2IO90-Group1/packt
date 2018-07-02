@@ -4,5 +4,10 @@ name = "packt-core"
 version = "0.1.0"
 
 [dependencies]
-failure = "*"
+tokio-process = "0.1.6"
+tokio = "0.1.6"
+tokio-io = "0.1.6"
+tokio-core = "0.1.17"
+failure = "0.1.1"
+crossbeam-channel = "0.1.2"
 rand = "0.4.2"

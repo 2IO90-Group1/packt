@@ -1,7 +1,7 @@
 use gtk::{self, prelude::*};
-use packt_core::domain::{
+use packt_core::{
+    geometry::Rectangle,
     problem::{Generator, Problem, Variant},
-    Rectangle,
 };
 use relm::{Relm, Update, Widget};
 

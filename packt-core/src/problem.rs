@@ -1,5 +1,5 @@
-use domain::Rectangle;
 use failure::Error;
+use geometry::Rectangle;
 use rand::{self, seq, Rng};
 use std::cmp::min;
 use std::fmt;

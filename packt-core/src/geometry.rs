@@ -1,9 +1,3 @@
-pub mod problem;
-pub mod solution;
-
-pub use self::problem::Problem;
-pub use self::solution::Solution;
-
 use self::Rotation::*;
 use failure::Error;
 use rand::distributions::{IndependentSample, Normal};
@@ -14,20 +8,20 @@ use std::str::FromStr;
 
 #[derive(Clone, Copy, Debug, PartialEq)]
 pub struct Point {
-    x: u32,
-    y: u32,
+    pub x: u32,
+    pub y: u32,
 }
 
 impl Point {
-    fn new(x: u32, y: u32) -> Point {
+    pub fn new(x: u32, y: u32) -> Point {
         Point { x, y }
     }
 }
 
 #[derive(Clone, Copy, Debug, PartialEq)]
 pub struct Rectangle {
-    width: u32,
-    height: u32,
+    pub width: u32,
+    pub height: u32,
     area: u64,
 }
 
@@ -45,7 +39,7 @@ impl Rectangle {
         }
     }
 
-    fn gen_with_area(area: u64) -> Rectangle {
+    pub fn gen_with_area(area: u64) -> Rectangle {
         let divisors = (1..=(area as f64).sqrt() as u64)
             .into_iter()
             .filter(|i| area % i == 0)
@@ -73,7 +67,7 @@ impl Rectangle {
         }
     }
 
-    fn simple_rsplit(self) -> (Rectangle, Rectangle) {
+    pub fn simple_rsplit(self) -> (Rectangle, Rectangle) {
         let mut rng = rand::thread_rng();
 
         let cut = match (self.width, self.height) {
@@ -101,7 +95,7 @@ impl Rectangle {
         self.split(cut)
     }
 
-    fn area(&self) -> u64 {
+    pub fn area(&self) -> u64 {
         self.area
     }
 
@@ -168,7 +162,7 @@ pub struct Placement {
 }
 
 impl Placement {
-    fn new(r: Rectangle, rotation: Rotation, bottom_left: Point) -> Placement {
+    pub fn new(r: Rectangle, rotation: Rotation, bottom_left: Point) -> Placement {
         let (width, height) = match rotation {
             Normal => (r.width, r.height),
             Rotated => (r.height, r.width),
@@ -186,10 +180,22 @@ impl Placement {
         }
     }
 
-    fn overlaps(&self, rhs: &Placement) -> bool {
+    pub fn overlaps(&self, rhs: &Placement) -> bool {
         rhs.bottom_left.y <= self.top_right.y
             && rhs.bottom_left.x <= self.top_right.x
             && self.bottom_left.y <= rhs.top_right.y
             && self.bottom_left.x <= rhs.top_right.x
+    }
+}
+
+#[cfg(test)]
+mod test {
+    use super::*;
+
+    #[test]
+    fn overlap_detection() {
+        let p1 = Placement::new(Rectangle::new(5, 5), Rotation::Normal, Point::new(0, 0));
+        let p2 = Placement::new(Rectangle::new(5, 5), Rotation::Normal, Point::new(3, 3));
+        assert!(p1.overlaps(&p2))
     }
 }

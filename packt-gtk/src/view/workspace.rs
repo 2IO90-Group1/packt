@@ -1,25 +1,19 @@
 use crossbeam_channel::{self, Sender};
 use failure::Error;
 use gtk::{self, prelude::*, Label};
-use packt_core::domain::{solution::Evaluation, Problem, Solution};
+use packt_core::{
+    problem::Problem, runner, solution::{Evaluation},
+};
+
 use relm::{Relm, Update, Widget};
 use std::{
-    collections::VecDeque,
-    env,
-    fmt::{self, Formatter},
-    process::{Command, Stdio},
-    result,
-    string::ToString,
-    sync::atomic::{AtomicU32, Ordering},
-    thread,
-    time::{Duration, Instant},
+    collections::VecDeque, env, fmt::{self, Formatter}, path::PathBuf,
+    result, string::ToString, sync::atomic::{AtomicU32, Ordering}, thread,
 };
 use tokio::prelude::*;
 use tokio_core::reactor::Core;
-use tokio_io;
-use tokio_process::{Child, CommandExt};
 
-type Job = (Entry, Command);
+type Job = (usize, PathBuf, String);
 type Result<T> = result::Result<T, Error>;
 type EvalResult = Result<Evaluation>;
 
@@ -87,8 +81,7 @@ struct Widgets {
 }
 
 pub struct Model {
-    id_gen: u16,
-    problems: VecDeque<Option<Entry>>,
+    problems: VecDeque<Entry>,
     work_queue: Sender<Job>,
     running: AtomicU32,
 }
@@ -102,7 +95,7 @@ pub enum Msg<E: fmt::Display> {
     Save,
     Saved(Problem),
     Run,
-    Completed(Entry),
+    Completed(usize, EvalResult),
     Error(E),
 }
 
@@ -119,7 +112,6 @@ impl Update for WorkspaceWidget {
 
     fn model(relm: &Relm<Self>, _param: ()) -> Self::Model {
         Model {
-            id_gen: 0,
             problems: VecDeque::new(),
             work_queue: launch_runner(relm),
             running: AtomicU32::new(0),
@@ -133,7 +125,7 @@ impl Update for WorkspaceWidget {
             // taken care of by root widget
             Import | Saved(_) => Ok(()),
             Run => self.run_problems(),
-            Completed(entry) => self.problem_completed(entry),
+            Completed(id, result) => self.problem_completed(id, result),
             Select => {
                 self.widgets.save_btn.set_sensitive(true);
                 self.widgets.remove_btn.set_sensitive(true);
@@ -275,10 +267,8 @@ impl WorkspaceWidget {
                 let index = row.get_index() as usize;
                 self.model.problems.get(index)
             })?;
-
-        entry
-            .as_ref()
-            .map(|entry| self.relm.stream().emit(Msg::Saved(entry.problem.clone())))
+        self.relm.stream().emit(Msg::Saved(entry.problem.clone()));
+        Some(())
     }
 
     fn run_problems(&mut self) -> Result<()> {
@@ -288,37 +278,26 @@ impl WorkspaceWidget {
 
         let solver = match self.widgets.solver_chooser.get_filename() {
             Some(solver) => solver,
-            None => {
-                bail!("Please select a solver first");
-            }
+            None => bail!("Please select a solver first"),
         };
 
         let retry = self.widgets.retry_spinbtn.get_value_as_int();
         let threshold = self.widgets.threshold_spinbtn.get_value();
-        let nwidths = self.widgets.nwidths_spinbtn.get_value_as_int();
+        let nheights = self.widgets.nwidths_spinbtn.get_value_as_int();
 
         env::set_var("RETRY", retry.to_string());
         env::set_var("THRESHOLD", threshold.to_string());
-        env::set_var("N_WIDTHS", nwidths.to_string());
+        env::set_var("N_HEIGHTS", nheights.to_string());
 
         *self.model.running.get_mut() = self.model.problems.len() as u32;
-        for (i, mut p) in self
+        for (i, problem) in self
             .model
             .problems
-            .iter_mut()
-            .map(|p| p.take().unwrap())
+            .iter()
+            .map(|e| e.problem.to_string())
             .enumerate()
         {
-            p.id = i;
-            let mut command = Command::new("java");
-            command
-                .arg("-jar")
-                .arg(&solver)
-                .stdin(Stdio::piped())
-                .stdout(Stdio::piped());
-
-
-            if let Err(_) = self.model.work_queue.send((p, command)) {
+            if let Err(_) = self.model.work_queue.send((i, solver.clone(), problem)) {
                 bail!("failed to enqueue job");
             }
         }
@@ -326,10 +305,9 @@ impl WorkspaceWidget {
         Ok(())
     }
 
-    fn problem_completed(&mut self, entry: Entry) -> Result<()> {
+    fn problem_completed(&mut self, id: usize, result: EvalResult) -> Result<()> {
         let old = self.model.running.fetch_sub(1, Ordering::SeqCst);
-        let i = entry.id;
-        self.model.problems[i] = Some(entry);
+        self.model.problems[id].solutions.push(result);
         self.refresh_buffer()?;
 
         eprintln!("success");
@@ -343,13 +321,9 @@ impl WorkspaceWidget {
     fn refresh_buffer(&mut self) -> Result<()> {
         let text = if let Some(row) = self.widgets.problems_lb.get_selected_row() {
             let i = row.get_index() as usize;
-            if let Some(p) = &self.model.problems[i] {
-                p.to_string()
-            } else {
-                String::new()
-            }
+            self.model.problems[i].to_string()
         } else {
-            String::new()
+            "not found".to_string()
         };
 
         self.widgets
@@ -367,38 +341,14 @@ fn launch_runner(relm: &Relm<WorkspaceWidget>) -> Sender<Job> {
     let (tx, rx) = crossbeam_channel::unbounded();
     thread::spawn(move || {
         let mut core = Core::new().unwrap();
-        rx.iter().for_each(|(mut entry, mut command): Job| {
-            let mut child = command
-                .spawn_async(&core.handle())
-                .expect("Failed to spawn child process");
-
-            let stdin = child.stdin().take().expect("Failed to open stdin");
-            let input = entry.problem.to_string();
-            let source = entry.problem.source;
-
-            let start = Instant::now();
-            let child = tokio_io::io::write_all(stdin, input)
-                .map(|_| {
-                    println!("waiting on child");
-                    child
-                })
-                .and_then(Child::wait_with_output)
-                .deadline(start + Duration::from_secs(300))
-                .from_err()
-                .and_then(|output| {
-                    let output = String::from_utf8_lossy(&output.stdout);
-                    // println!("output: {}", output);
-                    output.parse::<Solution>()
-                })
-                .map(|mut solution| {
-                    solution.source(source);
-                    solution.evaluate(start)
-                })
-                .then(|result| -> result::Result<(), ()> {
-                    entry.solutions.push(result);
-                    stream.emit(Msg::Completed(entry));
+        rx.iter().for_each(|(id, solver, problem)| {
+            let handle = core.handle();
+            let child = runner::solve_async(&solver, problem, handle).then(
+                |result| -> result::Result<(), ()> {
+                    stream.emit(Msg::Completed(id, result));
                     Ok(())
-                });
+                },
+            );
 
             let _ = core.run(child);
         })
