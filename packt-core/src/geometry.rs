@@ -22,7 +22,6 @@ impl Point {
 pub struct Rectangle {
     pub width: u32,
     pub height: u32,
-    area: u64,
 }
 
 impl Rectangle {
@@ -60,11 +59,7 @@ impl Rectangle {
         let width = width as u32;
         let height = height as u32;
 
-        Rectangle {
-            width,
-            height,
-            area,
-        }
+        Rectangle { width, height }
     }
 
     pub fn simple_rsplit(self) -> (Rectangle, Rectangle) {
@@ -96,15 +91,11 @@ impl Rectangle {
     }
 
     pub fn area(&self) -> u64 {
-        self.area
+        self.width as u64 * self.height as u64
     }
 
     pub fn new(width: u32, height: u32) -> Rectangle {
-        Rectangle {
-            width,
-            height,
-            area: height as u64 * width as u64,
-        }
+        Rectangle { width, height }
     }
 }
 

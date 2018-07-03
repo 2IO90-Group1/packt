@@ -13,6 +13,66 @@ use std::str::FromStr;
 const N_DEFAULTS: [usize; 5] = [3, 5, 10, 25, 5000];
 const AVG_RECTANGLE_AREA: u64 = 50;
 
+pub fn generate(n: usize, variant: Option<Variant>, allow_rotation: Option<bool>) -> Problem {
+    use rand::distributions::{IndependentSample, Range};
+
+    const UPPER: u32 = 200;
+
+    let n = n.max(3);
+    let mut rng = rand::thread_rng();
+    let allow_rotation = allow_rotation.unwrap_or_else(|| rng.gen());
+
+    let (xr, yr) = match variant {
+        Some(Variant::Fixed(k)) => {
+            let xr = Range::new(1, UPPER);
+            let yr = Range::new(1, k + 1);
+            (xr, yr)
+        }
+        _ => {
+            let range = Range::new(1, UPPER);
+            (range.clone(), range)
+        }
+    };
+
+    let rectangles: Vec<Rectangle> = (0..n)
+        .map(|_| {
+            let x = xr.ind_sample(&mut rng);
+            let y = yr.ind_sample(&mut rng);
+            Rectangle::new(x, y)
+        })
+        .collect();
+
+    let variant = variant.unwrap_or_else(|| {
+        if rng.gen() {
+            Variant::Free
+        } else {
+            let largest_side: u32 = rectangles
+                .iter()
+                .map(|r| r.width)
+                .chain(rectangles.iter().map(|r| r.height))
+                .max()
+                .unwrap();
+
+            let sum = rectangles
+                .iter()
+                .map(|r| r.width)
+                .sum::<u32>()
+                .max(rectangles.iter().map(|r| r.height).sum());
+
+            let max = largest_side + ((sum - largest_side) / 2);
+            let upper = rng.gen_range(largest_side, max);
+            Variant::Fixed(upper)
+        }
+    });
+
+    Problem {
+        variant,
+        allow_rotation,
+        rectangles,
+        source: None,
+    }
+}
+
 #[derive(Clone, Debug, PartialEq)]
 pub struct Problem {
     pub variant: Variant,
@@ -22,7 +82,6 @@ pub struct Problem {
 }
 
 impl Problem {
-    // TODO: Add rotated rectangles
     fn generate_from(r: Rectangle, n: usize, v: Variant, allow_rotation: bool) -> Problem {
         let a = r.area() as usize;
         if n > a {
@@ -232,6 +291,21 @@ impl fmt::Display for Variant {
     }
 }
 
+impl FromStr for Variant {
+    type Err = Error;
+
+    fn from_str(s: &str) -> Result<Self, Self::Err> {
+        let parts: Vec<&str> = s.split_whitespace().collect();
+        let variant = match &parts[..] {
+            &["free"] => Variant::Free,
+            &["fixed", n] => Variant::Fixed(n.parse()?),
+            _ => bail!("Failed to parse variant"),
+        };
+
+        Ok(variant)
+    }
+}
+
 #[cfg(test)]
 mod tests {
     #![allow(non_upper_case_globals)]
@@ -265,5 +339,4 @@ mod tests {
 
         assert_eq!(a, 1000 * 1000);
     }
-
 }

@@ -1,17 +1,20 @@
 use failure::Error;
 use solution::{Evaluation, Solution};
 use std::{
-    path::PathBuf, process::{Command, Stdio}, time::{Duration, Instant},
+    path::PathBuf,
+    process::{Command, Stdio},
+    time::{Duration, Instant},
 };
 use tokio::prelude::*;
-use tokio_core::reactor::{Handle};
+use tokio_core::reactor::Handle;
 use tokio_io;
-use tokio_process::{CommandExt};
+use tokio_process::CommandExt;
 
 pub fn solve_async(
     solver: &PathBuf,
     problem: String,
     handle: Handle,
+    delta: Duration,
 ) -> impl Future<Item = Evaluation, Error = Error> {
     let mut command = Command::new("java");
     command
@@ -35,7 +38,7 @@ pub fn solve_async(
                 let duration = Instant::now().duration_since(start);
                 (output, duration)
             })
-            .deadline(start + Duration::from_secs(300))
+            .deadline(start + delta)
     }).from_err()
         .and_then(|(output, duration)| {
             let output = String::from_utf8_lossy(&output.stdout);

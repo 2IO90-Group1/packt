@@ -1,14 +1,18 @@
 use crossbeam_channel::{self, Sender};
 use failure::Error;
 use gtk::{self, prelude::*, Label};
-use packt_core::{
-    problem::Problem, runner, solution::{Evaluation},
-};
+use packt_core::{problem::Problem, runner, solution::Evaluation};
 
 use relm::{Relm, Update, Widget};
 use std::{
-    collections::VecDeque, env, fmt::{self, Formatter}, path::PathBuf,
-    result, string::ToString, sync::atomic::{AtomicU32, Ordering}, thread,
+    collections::VecDeque,
+    env,
+    fmt::{self, Formatter},
+    path::PathBuf,
+    result,
+    string::ToString,
+    sync::atomic::{AtomicU32, Ordering},
+    thread,
 };
 use tokio::prelude::*;
 use tokio_core::reactor::Core;

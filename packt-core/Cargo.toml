@@ -11,3 +11,14 @@ tokio-core = "0.1.17"
 failure = "0.1.1"
 crossbeam-channel = "0.1.2"
 rand = "0.4.2"
+quicli = "0.3.0"
+log = "0.4.3"
+itertools = "0.7.8"
+
+[[bin]]
+name = "packt-generate"
+path = "src/bin/generator.rs"
+
+[[bin]]
+name = "packt-solve"
+path = "src/bin/solver.rs"
