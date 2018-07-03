@@ -14,6 +14,7 @@ pub fn solve_async(
     solver: &PathBuf,
     problem: String,
     handle: Handle,
+    delta: Duration,
 ) -> impl Future<Item = Evaluation, Error = Error> {
     let mut command = Command::new("java");
     command
@@ -37,7 +38,7 @@ pub fn solve_async(
                 let duration = Instant::now().duration_since(start);
                 (output, duration)
             })
-            .deadline(start + Duration::from_secs(300))
+            .deadline(start + delta)
     }).from_err()
         .and_then(|(output, duration)| {
             let output = String::from_utf8_lossy(&output.stdout);
