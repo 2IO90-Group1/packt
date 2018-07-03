@@ -26,7 +26,7 @@ struct Cli {
     variant: Option<problem::Variant>,
 
     /// Output file, stdout if not present
-    #[structopt(help = "Output file, stdout if not present", parse(from_os_str))]
+    #[structopt(parse(from_os_str))]
     output: Option<PathBuf>,
 
     #[structopt(flatten)]

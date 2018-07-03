@@ -75,13 +75,13 @@ impl Solution {
 
 #[derive(Clone, Copy, Debug, PartialEq)]
 pub struct Evaluation {
-    is_valid: bool,
-    can_optimal: bool,
-    bounding_box: Rectangle,
-    min_area: u64,
-    empty_area: i64,
-    filling_rate: f32,
-    duration: Duration,
+    pub is_valid: bool,
+    pub can_optimal: bool,
+    pub bounding_box: Rectangle,
+    pub min_area: u64,
+    pub empty_area: i64,
+    pub filling_rate: f32,
+    pub duration: Duration,
 }
 
 impl fmt::Display for Evaluation {

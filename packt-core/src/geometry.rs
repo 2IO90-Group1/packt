@@ -18,7 +18,7 @@ impl Point {
     }
 }
 
-#[derive(Clone, Copy, Debug, PartialEq)]
+#[derive(Clone, Copy, Debug, PartialEq, Serialize)]
 pub struct Rectangle {
     pub width: u32,
     pub height: u32,

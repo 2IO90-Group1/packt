@@ -341,13 +341,16 @@ impl WorkspaceWidget {
 }
 
 fn launch_runner(relm: &Relm<WorkspaceWidget>) -> Sender<Job> {
+    use std::time::Duration;
+
     let stream = relm.stream().clone();
     let (tx, rx) = crossbeam_channel::unbounded();
     thread::spawn(move || {
         let mut core = Core::new().unwrap();
+        let deadline = Duration::from_secs(300);
         rx.iter().for_each(|(id, solver, problem)| {
             let handle = core.handle();
-            let child = runner::solve_async(&solver, problem, handle).then(
+            let child = runner::solve_async(&solver, problem, handle, deadline).then(
                 |result| -> result::Result<(), ()> {
                     stream.emit(Msg::Completed(id, result));
                     Ok(())

@@ -276,7 +276,7 @@ impl Generator {
     }
 }
 
-#[derive(Clone, Copy, Debug, PartialEq)]
+#[derive(Clone, Copy, Debug, PartialEq, Serialize)]
 pub enum Variant {
     Free,
     Fixed(u32),
