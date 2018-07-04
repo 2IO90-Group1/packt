@@ -13,3 +13,5 @@ packt.zip
 \.undodir/
 
 packt-gtk/src/packt\.glade~
+
+*.csv
