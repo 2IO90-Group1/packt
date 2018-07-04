@@ -17,11 +17,7 @@ extern crate serde_derive;
 use packt_core::{problem::Problem, runner, solution::Evaluation};
 use quicli::prelude::*;
 use std::{
-    env,
-    fs::{File, OpenOptions},
-    io::{self, BufReader},
-    path::PathBuf,
-    time::Duration,
+    env, fs::{File, OpenOptions}, io::{self, BufReader}, path::PathBuf, time::Duration,
 };
 use tokio::prelude::*;
 use tokio_core::reactor::Core;
@@ -155,21 +151,21 @@ main!(|args: Cli, log_level: verbosity| {
     let deadline = Duration::from_secs(300);
     let mut core = Core::new().unwrap();
 
-    let tries = [5u32, 10];
-    let vals = [5u32, 10, 25, 50, 100];
+    let vals = [100u32, 125, 150, 200, 300];
+    let retry = 5;
+    env::set_var("RETRY", retry.to_string());
 
-    for (retry, candidates) in iproduct!(&tries, &vals) {
+    for candidates in &vals {
         eprintln!(
             "problem: {}, RETRY = {}, N_HEIGHTS = {}",
             filename, retry, candidates
         );
-        env::set_var("RETRY", retry.to_string());
         env::set_var("N_HEIGHTS", candidates.to_string());
 
         let handle = core.handle();
         let child = runner::solve_async(&args.solver, buffer.clone(), handle, deadline);
         let evaluation = core.run(child);
-        let record = Record::new(&problem, evaluation, filename, *retry, *candidates);
+        let record = Record::new(&problem, evaluation, filename, retry, *candidates);
         writer.serialize(record)?;
     }
 
