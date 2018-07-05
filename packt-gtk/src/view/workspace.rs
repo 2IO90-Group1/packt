@@ -17,7 +17,7 @@ use std::{
 use tokio::prelude::*;
 use tokio_core::reactor::Core;
 
-type Job = (usize, PathBuf, String);
+type Job = (usize, PathBuf, Problem);
 type Result<T> = result::Result<T, Error>;
 type EvalResult = Result<Evaluation>;
 
@@ -298,7 +298,7 @@ impl WorkspaceWidget {
             .model
             .problems
             .iter()
-            .map(|e| e.problem.to_string())
+            .map(|e| e.problem.clone())
             .enumerate()
         {
             if let Err(_) = self.model.work_queue.send((i, solver.clone(), problem)) {
