@@ -136,8 +136,6 @@ impl<'a> Record<'a> {
 
         Record {
             filename,
-            retry,
-            n_candidates,
             n,
             variant: variant.to_string(),
             rotation_allowed: allow_rotation,

@@ -1,0 +1,13 @@
+container height: fixed 5
+rotations allowed: yes
+number of rectangles: 10
+9 5
+1 1
+1 4
+33 5
+11 5
+12 5
+7 5
+7 5
+7 5
+13 5
