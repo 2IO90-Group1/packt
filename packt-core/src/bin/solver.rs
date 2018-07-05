@@ -17,11 +17,7 @@ extern crate serde_derive;
 use packt_core::{problem::Problem, runner, solution::Evaluation};
 use quicli::prelude::*;
 use std::{
-    env,
-    fs::{File, OpenOptions},
-    io::{self, BufReader},
-    path::PathBuf,
-    time::Duration,
+    env, fs::{File, OpenOptions}, io::{self, BufReader}, path::PathBuf, time::Duration,
 };
 use tokio::prelude::*;
 use tokio_core::reactor::Core;
@@ -44,11 +40,48 @@ struct Cli {
     verbosity: Verbosity,
 }
 
+
+main!(|args: Cli, log_level: verbosity| {
+    let filename = args
+        .input
+        .as_ref()
+        .and_then(|pb| pb.file_name().and_then(|f| f.to_str()))
+        .unwrap_or_default();
+
+    let mut input: Box<dyn io::Read> = match args.input {
+        Some(ref path) => {
+            let file = File::open(path)?;
+            Box::new(BufReader::new(file))
+        }
+        None => Box::new(io::stdin()),
+    };
+
+    let output: Box<dyn io::Write> = match args.output {
+        Some(path) => Box::new(OpenOptions::new().append(true).create(true).open(path)?),
+        None => Box::new(io::stdout()),
+    };
+
+    let mut writer = csv::Writer::from_writer(output);
+
+    let mut buffer = String::new();
+    input.read_to_string(&mut buffer)?;
+    let problem = buffer.parse::<Problem>()?;
+
+    let deadline = Duration::from_secs(300);
+    let mut core = Core::new().unwrap();
+
+    let handle = core.handle();
+    let child = runner::solve_async(&args.solver, problem.clone(), handle, deadline);
+    let evaluation = core.run(child);
+    let record = Record::new(&problem, evaluation, filename);
+
+    writer.serialize(record)?;
+    writer.flush()?;
+});
+
 #[derive(Debug, Serialize)]
 struct Record<'a> {
     filename: &'a str,
-    retry: u32,
-    n_candidates: u32,
     n: usize,
     variant: String,
     rotation_allowed: bool,
@@ -66,8 +99,6 @@ impl<'a> Record<'a> {
         problem: &'b Problem,
         evaluation: Result<Evaluation>,
         filename: &'a str,
-        retry: u32,
-        n_candidates: u32,
     ) -> Self {
         let &Problem {
             variant,
@@ -120,53 +151,3 @@ impl<'a> Record<'a> {
         }
     }
 }
-
-main!(|args: Cli, log_level: verbosity| {
-    let filename = args
-        .input
-        .as_ref()
-        .and_then(|pb| pb.file_name().and_then(|f| f.to_str()))
-        .unwrap_or_default();
-
-    let mut input: Box<dyn io::Read> = match args.input {
-        Some(ref path) => {
-            let file = File::open(path)?;
-            Box::new(BufReader::new(file))
-        }
-        None => Box::new(io::stdin()),
-    };
-
-    let output: Box<dyn io::Write> = match args.output {
-        Some(path) => Box::new(OpenOptions::new().append(true).create(true).open(path)?),
-        None => Box::new(io::stdout()),
-    };
-
-    let mut writer = csv::Writer::from_writer(output);
-
-    let mut buffer = String::new();
-    input.read_to_string(&mut buffer)?;
-    let problem = buffer.parse::<Problem>()?;
-
-    let deadline = Duration::from_secs(300);
-    let mut core = Core::new().unwrap();
-
-    let vals = [25]; // 100u32, 125, 150, 200, 300];
-    let retry = 5;
-    env::set_var("RETRY", retry.to_string());
-
-    for candidates in &vals {
-        eprintln!(
-            "problem: {}, RETRY = {}, N_HEIGHTS = {}",
-            filename, retry, candidates
-        );
-        env::set_var("N_HEIGHTS", candidates.to_string());
-
-        let handle = core.handle();
-        let child = runner::solve_async(&args.solver, problem.clone(), handle, deadline);
-        let evaluation = core.run(child);
-        let record = Record::new(&problem, evaluation, filename, retry, *candidates);
-        writer.serialize(record)?;
-    }
-
-    writer.flush()?;
-});
