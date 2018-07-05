@@ -3,14 +3,17 @@ use geometry::{Placement, Point, Rectangle, Rotation::*};
 use problem::{Problem, Variant};
 use std::fmt::{self, Formatter};
 use std::iter;
+use std::result;
 use std::str::FromStr;
 use std::time::Duration;
+
+type Result<T, E = Error> = result::Result<T, E>;
 
 #[derive(Clone, Debug, PartialEq)]
 pub struct Solution {
     variant: Variant,
     allow_rotation: bool,
-    source: Option<Rectangle>,
+    source: Option<Problem>,
     placements: Vec<Placement>,
 }
 
@@ -25,37 +28,37 @@ impl Solution {
             .placements
             .iter()
             .enumerate()
-            .flat_map(|(i, p)| iter::repeat(p).zip(self.placements.iter().skip(i + 2)))
+            .flat_map(|(i, p)| iter::repeat(p).zip(self.placements.iter().skip(i + 1)))
             .find(|(p1, p2)| p1.overlaps(p2))
         {
-            println!("Overlap found: {:#?} and {:#?}", p1, p2);
+            eprintln!("Overlap found: {:#?} and {:#?}", p1, p2);
             false
         } else {
             true
         }
     }
 
-    pub fn evaluate(&mut self, duration: Duration) -> Evaluation {
-        let is_valid = self.is_valid();
-        let can_optimal = self.source.is_some();
-        let bounding_box = self.bounding_box();
-        let min_area = self.placements.iter_mut().map(|p| p.rectangle.area()).sum();
-        let empty_area = bounding_box.area() as i64 - min_area as i64;
-        let filling_rate = min_area as f32 / bounding_box.area() as f32;
+    pub fn evaluate(&mut self, duration: Duration) -> Result<Evaluation> {
+        if !self.is_valid() {
+            bail!("Overlap in solution")
+        }
 
-        Evaluation {
-            is_valid,
-            can_optimal,
-            bounding_box,
+        let container = self.container()?;
+        let min_area = self.placements.iter_mut().map(|p| p.rectangle.area()).sum();
+        let empty_area = container.area() as i64 - min_area as i64;
+        let filling_rate = min_area as f32 / container.area() as f32;
+
+        Ok(Evaluation {
+            container,
             min_area,
             empty_area,
             filling_rate,
             duration,
-        }
+        })
     }
 
 
-    pub fn bounding_box(&self) -> Rectangle {
+    pub fn container(&self) -> Result<Rectangle> {
         use std::cmp::max;
 
         let (x, y) = self.placements.iter().fold((0, 0), |(x, y), p| {
@@ -65,19 +68,28 @@ impl Solution {
             (x, y)
         });
 
-        Rectangle::new(x + 1, y + 1)
+        let p = self.source.as_ref().unwrap();
+        let container = match p.variant {
+            Variant::Fixed(k) if y > k => bail!(
+                "Solution placements exceed problem bounds: top: {}, bound: {}",
+                y,
+                k
+            ),
+            Variant::Fixed(k) => Rectangle::new(x, k),
+            _ => Rectangle::new(x, y),
+        };
+
+        Ok(container)
     }
 
-    pub fn source(&mut self, r: Option<Rectangle>) {
-        self.source = r;
+    pub fn source(&mut self, p: Problem) {
+        self.source = Some(p);
     }
 }
 
 #[derive(Clone, Copy, Debug, PartialEq)]
 pub struct Evaluation {
-    pub is_valid: bool,
-    pub can_optimal: bool,
-    pub bounding_box: Rectangle,
+    pub container: Rectangle,
     pub min_area: u64,
     pub empty_area: i64,
     pub filling_rate: f32,
@@ -87,24 +99,20 @@ pub struct Evaluation {
 impl fmt::Display for Evaluation {
     fn fmt(&self, f: &mut Formatter) -> fmt::Result {
         let Evaluation {
-            is_valid,
-            can_optimal,
             min_area,
-            bounding_box,
+            container,
             empty_area,
             filling_rate,
             duration,
         } = self;
-        let bb_area = bounding_box.area();
+        let bb_area = container.area();
 
         write!(
             f,
-            "is valid: {}\ncan be optimal: {}\nlower bound on area: {}\nbounding box: {}, area: \
-             {}\nunused area in bounding box: {}\nfilling_rate: {:.2}\ntook {}.{:.3}s",
-            is_valid,
-            can_optimal,
+            "lower bound on area: {}\nbounding box: {}, area: {}\nunused area in bounding box: \
+             {}\nfilling_rate: {:.2}\ntook {}.{:.3}s",
             min_area,
-            bounding_box,
+            container,
             bb_area,
             empty_area,
             filling_rate,
@@ -164,7 +172,7 @@ impl FromStr for Solution {
         Ok(Solution {
             variant,
             allow_rotation,
-            source,
+            source: None,
             placements,
         })
     }

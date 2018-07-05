@@ -17,7 +17,11 @@ extern crate serde_derive;
 use packt_core::{problem::Problem, runner, solution::Evaluation};
 use quicli::prelude::*;
 use std::{
-    env, fs::{File, OpenOptions}, io::{self, BufReader}, path::PathBuf, time::Duration,
+    env,
+    fs::{File, OpenOptions},
+    io::{self, BufReader},
+    path::PathBuf,
+    time::Duration,
 };
 use tokio::prelude::*;
 use tokio_core::reactor::Core;
@@ -50,7 +54,6 @@ struct Record<'a> {
     rotation_allowed: bool,
     perfect_packing: bool,
     error: Option<String>,
-    is_valid: Option<bool>,
     container: Option<String>,
     min_area: Option<u64>,
     empty_area: Option<i64>,
@@ -70,38 +73,35 @@ impl<'a> Record<'a> {
             variant,
             allow_rotation,
             ref rectangles,
-            source,
+            ..
         } = problem;
         let n = rectangles.len();
 
-        let (is_valid, container, min_area, empty_area, filling_rate, duration, error) =
-            match evaluation {
-                Ok(eval) => {
-                    let Evaluation {
-                        is_valid,
-                        min_area,
-                        empty_area,
-                        filling_rate,
-                        duration,
-                        bounding_box,
-                        ..
-                    } = eval;
-                    (
-                        Some(is_valid),
-                        Some(bounding_box.to_string()),
-                        Some(min_area),
-                        Some(empty_area),
-                        Some(filling_rate),
-                        Some(format!(
-                            "{}.{:.3}",
-                            duration.as_secs(),
-                            duration.subsec_millis(),
-                        )),
-                        None,
-                    )
-                }
-                Err(e) => (None, None, None, None, None, None, Some(e.to_string())),
-            };
+        let (container, min_area, empty_area, filling_rate, duration, error) = match evaluation {
+            Ok(eval) => {
+                let Evaluation {
+                    min_area,
+                    empty_area,
+                    filling_rate,
+                    duration,
+                    container,
+                    ..
+                } = eval;
+                (
+                    Some(container.to_string()),
+                    Some(min_area),
+                    Some(empty_area),
+                    Some(filling_rate),
+                    Some(format!(
+                        "{}.{:.3}",
+                        duration.as_secs(),
+                        duration.subsec_millis(),
+                    )),
+                    None,
+                )
+            }
+            Err(e) => (None, None, None, None, None, Some(e.to_string())),
+        };
 
         Record {
             filename,
@@ -110,8 +110,7 @@ impl<'a> Record<'a> {
             n,
             variant: variant.to_string(),
             rotation_allowed: allow_rotation,
-            perfect_packing: source.is_some(),
-            is_valid,
+            perfect_packing: filename.contains("packt"),
             container,
             min_area,
             empty_area,
@@ -151,7 +150,7 @@ main!(|args: Cli, log_level: verbosity| {
     let deadline = Duration::from_secs(300);
     let mut core = Core::new().unwrap();
 
-    let vals = [100u32, 125, 150, 200, 300];
+    let vals = [25]; // 100u32, 125, 150, 200, 300];
     let retry = 5;
     env::set_var("RETRY", retry.to_string());
 
@@ -163,7 +162,7 @@ main!(|args: Cli, log_level: verbosity| {
         env::set_var("N_HEIGHTS", candidates.to_string());
 
         let handle = core.handle();
-        let child = runner::solve_async(&args.solver, buffer.clone(), handle, deadline);
+        let child = runner::solve_async(&args.solver, problem.clone(), handle, deadline);
         let evaluation = core.run(child);
         let record = Record::new(&problem, evaluation, filename, retry, *candidates);
         writer.serialize(record)?;

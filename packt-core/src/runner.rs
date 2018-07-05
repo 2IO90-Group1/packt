@@ -1,4 +1,5 @@
 use failure::Error;
+use problem::Problem;
 use solution::{Evaluation, Solution};
 use std::{
     path::PathBuf,
@@ -12,7 +13,7 @@ use tokio_process::CommandExt;
 
 pub fn solve_async(
     solver: &PathBuf,
-    problem: String,
+    problem: Problem,
     handle: Handle,
     delta: Duration,
 ) -> impl Future<Item = Evaluation, Error = Error> {
@@ -23,6 +24,7 @@ pub fn solve_async(
         .stdin(Stdio::piped())
         .stdout(Stdio::piped());
 
+    let input = problem.to_string();
     future::lazy(move || {
         let mut child = command
             .spawn_async(&handle)
@@ -31,7 +33,7 @@ pub fn solve_async(
         let stdin = child.stdin().take().expect("Failed to open stdin");
         let start = Instant::now();
 
-        tokio_io::io::write_all(stdin, problem)
+        tokio_io::io::write_all(stdin, input)
             .map(move |_| (child, start))
             .and_then(|(child, start)| child.wait_with_output().map(move |c| (c, start)))
             .map(|(output, start)| {
@@ -42,9 +44,10 @@ pub fn solve_async(
     }).from_err()
         .and_then(|(output, duration)| {
             let output = String::from_utf8_lossy(&output.stdout);
-            output
-                .parse::<Solution>()
-                .map(|solution| (solution, duration))
+            output.parse::<Solution>().map(|mut solution| {
+                solution.source(problem);
+                (solution, duration)
+            })
         })
-        .map(move |(mut solution, duration)| solution.evaluate(duration))
+        .and_then(move |(mut solution, duration)| solution.evaluate(duration))
 }
