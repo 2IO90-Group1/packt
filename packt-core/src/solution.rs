@@ -46,7 +46,11 @@ impl Solution {
         let container = self.container()?;
         let min_area = self.placements.iter_mut().map(|p| p.rectangle.area()).sum();
         let empty_area = container.area() as i64 - min_area as i64;
-        let filling_rate = min_area as f32 / container.area() as f32;
+        let filling_rate = (min_area as f64 / container.area() as f64) as f32;
+
+        if filling_rate > 1.0 {
+            bail!("Undetected overlap in solution")
+        }
 
         Ok(Evaluation {
             container,
@@ -67,6 +71,8 @@ impl Solution {
             let y = max(y, tr.y);
             (x, y)
         });
+
+        let (x, y) = (x + 1, y + 1);
 
         let p = self.source.as_ref().unwrap();
         let container = match p.variant {
