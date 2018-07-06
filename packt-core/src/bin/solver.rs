@@ -3,23 +3,23 @@ extern crate log;
 extern crate packt_core;
 #[macro_use]
 extern crate quicli;
+extern crate csv;
+extern crate serde;
 extern crate tokio;
 extern crate tokio_core;
 extern crate tokio_io;
 extern crate tokio_process;
-#[macro_use]
-extern crate itertools;
-extern crate csv;
-extern crate serde;
 #[macro_use]
 extern crate serde_derive;
 
 use packt_core::{problem::Problem, runner, solution::Evaluation};
 use quicli::prelude::*;
 use std::{
-    env, fs::{self, File, OpenOptions}, io::{self, BufReader}, path::PathBuf, time::Duration,
+    fs::{self, OpenOptions},
+    io,
+    path::PathBuf,
+    time::Duration,
 };
-use tokio::prelude::*;
 use tokio_core::reactor::Core;
 
 #[derive(Debug, StructOpt)]
