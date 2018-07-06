@@ -68,6 +68,8 @@ impl Solution {
             (x, y)
         });
 
+        let (x, y) = (x + 1, y + 1);
+
         let p = self.source.as_ref().unwrap();
         let container = match p.variant {
             Variant::Fixed(k) if y > k => bail!(
