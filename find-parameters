@@ -1,0 +1,7 @@
+#! /usr/bin/fish
+
+cd ~/dev/dbl-algorithms/packt/packt-core
+for f in ../testcases/*.txt
+    echo $f
+    cargo r --release --bin packt-solve -- /home/frank/dev/dbl-algorithms/solver/out/artifacts/solver_jar/solver.jar $f ../results.csv
+end

@@ -1,7 +1,9 @@
 #! /usr/bin/fish
 
 cd ~/dev/dbl-algorithms/packt/packt-core
-for f in ../testcases/*.txt
+cargo build --bin packt-solve --release
+cd ../
+for f in testcases/optimal/*.txt
     echo $f
-    cargo r --release --bin packt-solve -- ../packt-gtk/solver.jar $f ../optimal.csv
+    ./target/release/packt-solve /home/frank/dev/dbl-algorithms/solver/out/artifacts/solver_jar/solver.jar $f optimal.csv
 end
