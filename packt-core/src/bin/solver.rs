@@ -17,7 +17,7 @@ extern crate serde_derive;
 use packt_core::{problem::Problem, runner, solution::Evaluation};
 use quicli::prelude::*;
 use std::{
-    env, fs::{File, OpenOptions}, io::{self, BufReader}, path::PathBuf, time::Duration,
+    env, fs::{self, File, OpenOptions}, io::{self, BufReader}, path::PathBuf, time::Duration,
 };
 use tokio::prelude::*;
 use tokio_core::reactor::Core;
@@ -28,9 +28,9 @@ struct Cli {
     #[structopt(parse(from_os_str))]
     solver: PathBuf,
 
-    /// Input file, stdin if not present
+    /// Location of the directory with the input files
     #[structopt(parse(from_os_str))]
-    input: Option<PathBuf>,
+    input: PathBuf,
 
     /// Output file, stdout if not present
     #[structopt(parse(from_os_str))]
@@ -42,40 +42,33 @@ struct Cli {
 
 
 main!(|args: Cli, log_level: verbosity| {
-    let filename = args
-        .input
-        .as_ref()
-        .and_then(|pb| pb.file_name().and_then(|f| f.to_str()))
-        .unwrap_or_default();
-
-    let mut input: Box<dyn io::Read> = match args.input {
-        Some(ref path) => {
-            let file = File::open(path)?;
-            Box::new(BufReader::new(file))
-        }
-        None => Box::new(io::stdin()),
-    };
-
     let output: Box<dyn io::Write> = match args.output {
         Some(path) => Box::new(OpenOptions::new().append(true).create(true).open(path)?),
         None => Box::new(io::stdout()),
     };
 
     let mut writer = csv::Writer::from_writer(output);
-
-    let mut buffer = String::new();
-    input.read_to_string(&mut buffer)?;
-    let problem = buffer.parse::<Problem>()?;
-
     let deadline = Duration::from_secs(300);
     let mut core = Core::new().unwrap();
 
-    let handle = core.handle();
-    let child = runner::solve_async(&args.solver, problem.clone(), handle, deadline);
-    let evaluation = core.run(child);
-    let record = Record::new(&problem, evaluation, filename);
 
-    writer.serialize(record)?;
+    for entry in args.input.read_dir()? {
+        let entry = entry?;
+        let filename = entry.file_name();
+        let filestr = filename.to_string_lossy().to_owned();
+        eprintln!("\nRunning {}", filestr);
+
+        let mut input = fs::read_to_string(entry.path())?;
+        let problem = input.parse::<Problem>()?;
+
+        let handle = core.handle();
+        let child = runner::solve_async(&args.solver, problem.clone(), handle, deadline);
+        let evaluation = core.run(child);
+        let record = Record::new(&problem, evaluation, &filestr);
+
+        writer.serialize(record)?;
+    }
+
     writer.flush()?;
 });
 
@@ -95,11 +88,7 @@ struct Record<'a> {
 }
 
 impl<'a> Record<'a> {
-    fn new<'b>(
-        problem: &'b Problem,
-        evaluation: Result<Evaluation>,
-        filename: &'a str,
-    ) -> Self {
+    fn new<'b>(problem: &'b Problem, evaluation: Result<Evaluation>, filename: &'a str) -> Self {
         let &Problem {
             variant,
             allow_rotation,

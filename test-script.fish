@@ -7,3 +7,4 @@ for f in testcases/optimal/*.txt
     echo $f
     ./target/release/packt-solve /home/frank/dev/dbl-algorithms/solver/out/artifacts/solver_jar/solver.jar $f optimal.csv
 end
+./target/release/packt-solve packt-gtk/solver.jar testcases/optimal optimal.csv
