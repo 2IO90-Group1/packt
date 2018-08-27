@@ -36,6 +36,11 @@ struct Cli {
     #[structopt(parse(from_os_str))]
     output: Option<PathBuf>,
 
+    /// Timeout to run the solver with, in seconds.
+    /// Defaults to 300 seconds if not present
+    #[structopt(long = "timeout", short = "t")]
+    timeout: Option<u64>,
+
     #[structopt(flatten)]
     verbosity: Verbosity,
 }
@@ -48,9 +53,9 @@ main!(|args: Cli, log_level: verbosity| {
     };
 
     let mut writer = csv::Writer::from_writer(output);
-    let deadline = Duration::from_secs(300);
+    let timeout = args.timeout.unwrap_or(300);
+    let deadline = Duration::from_secs(timeout);
     let mut core = Core::new().unwrap();
-
 
     for entry in args.input.read_dir()? {
         let entry = entry?;

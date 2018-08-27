@@ -15,3 +15,5 @@ packt.zip
 packt-gtk/src/packt\.glade~
 
 *.csv
+
+results\.txt

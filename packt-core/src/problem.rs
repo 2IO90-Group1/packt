@@ -173,7 +173,7 @@ impl FromStr for Problem {
     type Err = Error;
 
     fn from_str(s: &str) -> Result<Self, <Self as FromStr>::Err> {
-        let mut lines = s.lines();
+        let mut lines = s.trim().lines();
         let l1: Vec<&str> = lines
             .next()
             .ok_or_else(|| format_err!("Unexpected end of file: unable to parse problem variant"))?
